@@ -1,18 +1,40 @@
-import { Button, Heading, Input, Label, Textarea, toast } from "@medusajs/ui";
+import { Button, Heading, Input, Textarea, toast } from "@medusajs/ui";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { z } from "zod";
 
 import type { VendorSeller } from "@custom-types/seller";
 
+import { Form } from "@components/common/form";
+import { RouteDrawer, useRouteModal } from "@components/modals";
+import { KeyboundForm } from "@components/utilities/keybound-form";
+
 import { useUpdateSeller } from "@hooks/api/sellers";
 
-export const SellerEditForm = ({ seller }: { seller: VendorSeller }) => {
-  const { mutate: updateSeller } = useUpdateSeller();
+type SellerEditFormProps = {
+  seller: VendorSeller;
+};
 
-  const navigate = useNavigate();
+const SellerEditSchema = z.object({
+  name: z.string().optional(),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().optional(),
+  description: z.string().optional(),
+  address_line: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  country_code: z.string().optional(),
+  postal_code: z.string().optional(),
+  tax_id: z.string().optional(),
+});
 
-  const form = useForm({
+export const SellerEditForm = ({ seller }: SellerEditFormProps) => {
+  const { t } = useTranslation();
+  const { handleSuccess } = useRouteModal();
+
+  const form = useForm<z.infer<typeof SellerEditSchema>>({
     defaultValues: {
       name: seller?.name || undefined,
       email: seller?.email || "",
@@ -25,105 +47,267 @@ export const SellerEditForm = ({ seller }: { seller: VendorSeller }) => {
       postal_code: seller?.postal_code || undefined,
       tax_id: seller?.tax_id || undefined,
     },
+    resolver: zodResolver(SellerEditSchema),
   });
 
-  const onSubmit = async (data: Partial<VendorSeller>) => {
-    if (!data.email?.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-      toast.error("Invalid email address");
+  const { mutateAsync, isPending } = useUpdateSeller();
 
-      return;
-    }
-    await updateSeller({ id: seller.id, data });
-    navigate(`/sellers/${seller.id}`);
-  };
+  const handleSubmit = form.handleSubmit(async (data) => {
+    await mutateAsync(
+      { id: seller.id, data },
+      {
+        onSuccess: () => {
+          toast.success(t("sellers.edit.successToast", { name: data.name ?? data.email }));
+
+          handleSuccess(`/sellers/${seller.id}`);
+        },
+        onError: (error) => {
+          toast.error(error.message);
+        },
+      },
+    );
+  });
 
   return (
-    <form
-      onSubmit={form.handleSubmit(onSubmit)}
-      className="flex flex-col gap-4"
-    >
-      <div className="flex flex-col gap-4">
-        <div>
-          <Label>
-            Name
-            <Input
-              {...form.register("name")}
-              placeholder="Name"
-              className="my-2"
+    <RouteDrawer.Form form={form}>
+      <KeyboundForm
+        onSubmit={handleSubmit}
+        className="flex flex-1 flex-col overflow-hidden"
+      >
+        <RouteDrawer.Body>
+          <div className="flex flex-col gap-y-4">
+            <Form.Field
+              control={form.control}
+              name="name"
+              render={({ field }) => {
+                return (
+                  <Form.Item>
+                    <Form.Label>{t("sellers.fields.name")}</Form.Label>
+
+                    <Form.Control>
+                      <Input
+                        placeholder={t("sellers.fields.name")}
+                        {...field}
+                      />
+                    </Form.Control>
+
+                    <Form.ErrorMessage />
+                  </Form.Item>
+                );
+              }}
             />
-          </Label>
-          <Label>
-            Email
-            <Input
-              {...form.register("email")}
-              placeholder="Email"
-              className="my-2"
+
+            <Form.Field
+              control={form.control}
+              name="email"
+              render={({ field }) => {
+                return (
+                  <Form.Item>
+                    <Form.Label>{t("sellers.fields.email")}</Form.Label>
+
+                    <Form.Control>
+                      <Input
+                        placeholder={t("sellers.fields.email")}
+                        {...field}
+                      />
+                    </Form.Control>
+
+                    <Form.ErrorMessage />
+                  </Form.Item>
+                );
+              }}
             />
-          </Label>
-          <Label>
-            Phone
-            <Input
-              {...form.register("phone")}
-              placeholder="Phone"
-              className="my-2"
+
+            <Form.Field
+              control={form.control}
+              name="phone"
+              render={({ field }) => {
+                return (
+                  <Form.Item>
+                    <Form.Label optional>
+                      {t("sellers.fields.phone")}
+                    </Form.Label>
+
+                    <Form.Control>
+                      <Input
+                        placeholder={t("sellers.fields.phone")}
+                        {...field}
+                      />
+                    </Form.Control>
+
+                    <Form.ErrorMessage />
+                  </Form.Item>
+                );
+              }}
             />
-          </Label>
-          <Label>
-            Description
-            <Textarea
-              {...form.register("description")}
-              placeholder="Description"
-              className="my-2"
+
+            <Form.Field
+              control={form.control}
+              name="description"
+              render={({ field }) => {
+                return (
+                  <Form.Item>
+                    <Form.Label optional>
+                      {t("sellers.fields.description")}
+                    </Form.Label>
+
+                    <Form.Control>
+                      <Textarea
+                        placeholder={t("sellers.fields.description")}
+                        {...field}
+                      />
+                    </Form.Control>
+
+                    <Form.ErrorMessage />
+                  </Form.Item>
+                );
+              }}
             />
-          </Label>
-        </div>
-        <div>
-          <Heading>Address</Heading>
-          <Label>
-            Address
-            <Input
-              {...form.register("address_line")}
-              placeholder="Address"
-              className="my-2"
-            />
-          </Label>
-          <Label>
-            Postal Code
-            <Input
-              {...form.register("postal_code")}
-              placeholder="Postal Code"
-              className="my-2"
-            />
-          </Label>
-          <Label>
-            City
-            <Input
-              {...form.register("city")}
-              placeholder="City"
-              className="my-2"
-            />
-          </Label>
-          <Label>
-            Country
-            <Input
-              {...form.register("country_code")}
-              placeholder="Country"
-              className="my-2"
-            />
-          </Label>
-          <Label>
-            TaxID
-            <Input
-              {...form.register("tax_id")}
-              placeholder="TaxID"
-              className="my-2"
-            />
-          </Label>
-        </div>
-        <div className="flex justify-end">
-          <Button type="submit">Save</Button>
-        </div>
-      </div>
-    </form>
+
+            <div className="mt-4">
+              <Heading level="h3" className="mb-4">
+                {t("sellers.fields.address")}
+              </Heading>
+
+              <div className="flex flex-col gap-y-4">
+                <Form.Field
+                  control={form.control}
+                  name="address_line"
+                  render={({ field }) => {
+                    return (
+                      <Form.Item>
+                        <Form.Label optional>
+                          {t("sellers.fields.address_line")}
+                        </Form.Label>
+
+                        <Form.Control>
+                          <Input
+                            placeholder={t("sellers.fields.address_line")}
+                            {...field}
+                          />
+                        </Form.Control>
+
+                        <Form.ErrorMessage />
+                      </Form.Item>
+                    );
+                  }}
+                />
+
+                <Form.Field
+                  control={form.control}
+                  name="postal_code"
+                  render={({ field }) => {
+                    return (
+                      <Form.Item>
+                        <Form.Label optional>
+                          {t("sellers.fields.postal_code")}
+                        </Form.Label>
+
+                        <Form.Control>
+                          <Input
+                            placeholder={t("sellers.fields.postal_code")}
+                            {...field}
+                          />
+                        </Form.Control>
+
+                        <Form.ErrorMessage />
+                      </Form.Item>
+                    );
+                  }}
+                />
+
+                <Form.Field
+                  control={form.control}
+                  name="city"
+                  render={({ field }) => {
+                    return (
+                      <Form.Item>
+                        <Form.Label optional>
+                          {t("sellers.fields.city")}
+                        </Form.Label>
+
+                        <Form.Control>
+                          <Input
+                            placeholder={t("sellers.fields.city")}
+                            {...field}
+                          />
+                        </Form.Control>
+
+                        <Form.ErrorMessage />
+                      </Form.Item>
+                    );
+                  }}
+                />
+
+                <Form.Field
+                  control={form.control}
+                  name="country_code"
+                  render={({ field }) => {
+                    return (
+                      <Form.Item>
+                        <Form.Label optional>
+                          {t("sellers.fields.country_code")}
+                        </Form.Label>
+
+                        <Form.Control>
+                          <Input
+                            placeholder={t("sellers.fields.country_code")}
+                            {...field}
+                          />
+                        </Form.Control>
+
+                        <Form.ErrorMessage />
+                      </Form.Item>
+                    );
+                  }}
+                />
+
+                <Form.Field
+                  control={form.control}
+                  name="tax_id"
+                  render={({ field }) => {
+                    return (
+                      <Form.Item>
+                        <Form.Label optional>
+                          {t("sellers.fields.tax_id")}
+                        </Form.Label>
+
+                        <Form.Control>
+                          <Input
+                            placeholder={t("sellers.fields.tax_id")}
+                            {...field}
+                          />
+                        </Form.Control>
+
+                        <Form.ErrorMessage />
+                      </Form.Item>
+                    );
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </RouteDrawer.Body>
+
+        <RouteDrawer.Footer>
+          <div className="flex items-center justify-end gap-x-2">
+            <RouteDrawer.Close asChild>
+              <Button variant="secondary" size="small">
+                {t("actions.cancel")}
+              </Button>
+            </RouteDrawer.Close>
+
+            <Button
+              isLoading={isPending}
+              type="submit"
+              variant="primary"
+              size="small"
+            >
+              {t("actions.save")}
+            </Button>
+          </div>
+        </RouteDrawer.Footer>
+      </KeyboundForm>
+    </RouteDrawer.Form>
   );
 };
