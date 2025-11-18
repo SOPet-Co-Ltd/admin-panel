@@ -60,7 +60,7 @@ export function CommissionLineDetail({ line, open, close }: Props) {
             <legend className="mt-4">Calculated commission value</legend>
             <Container>
               <div className="flex items-center justify-between">
-                <Text>{`${line.value} ${line.currency_code.toUpperCase()}`}</Text>
+                <Text>{`${line.value === null ? '-' : line.value} ${line.currency_code.toUpperCase()}`}</Text>
               </div>
             </Container>
           </fieldset>
@@ -68,20 +68,20 @@ export function CommissionLineDetail({ line, open, close }: Props) {
             <legend className="mt-4">Rate details</legend>
             <Container>
               <div className="flex flex-col gap-2">
-                <Text>{`Rule name: ${line.rule.name}`}</Text>
-                <Text>{`Reference: ${line.rule.reference}`}</Text>
-                <Text>{`Type: ${line.rule.rate.type}`}</Text>
-                {line.rule.rate.type === "percentage" && (
+                <Text>{`Rule name: ${line.rule?.name ?? '-'}`}</Text>
+                <Text>{`Reference: ${line.rule?.reference ?? '-'}`}</Text>
+                <Text>{`Type: ${line.rule?.rate?.type ?? '-'}`}</Text>
+                {line.rule?.rate.type === "percentage" && (
                   <>
-                    <Text>{`Rate value: ${line.rule.rate.percentage_rate}%`}</Text>
-                    <Text>{`Include tax: ${line.rule.rate.include_tax ? "Yes" : "No"}`}</Text>
+                    <Text>{`Rate value: ${line.rule?.rate?.percentage_rate ?? '-'} ${line.rule?.rate?.percentage_rate ? '%' : ''}`}</Text>
+                    <Text>{`Include tax: ${line.rule?.rate?.include_tax ? "Yes" : "No"}`}</Text>
                   </>
                 )}
-                {line.rule.deleted_at !== null && (
+                {line.rule?.deleted_at && (
                   <Text
                     size="large"
                     weight="plus"
-                  >{`Rule was deleted at ${formatDate(line.rule.deleted_at)}!`}</Text>
+                  >{`Rule was deleted at ${formatDate(line.rule?.deleted_at)}`}</Text>
                 )}
               </div>
             </Container>
