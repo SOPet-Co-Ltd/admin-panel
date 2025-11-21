@@ -26,16 +26,18 @@ type AdjustInventoryFormProps = {
 const AttributeGridRow = ({
   title,
   value,
+  testId,
 }: {
   title: string;
   value: string | number;
+  testId?: string;
 }) => {
   return (
-    <div className="grid grid-cols-2 divide-x">
-      <Text className="px-2 py-1.5" size="small" leading="compact">
+    <div className="grid grid-cols-2 divide-x" data-testid={testId ? `${testId}-row` : undefined}>
+      <Text className="px-2 py-1.5" size="small" leading="compact" data-testid={testId ? `${testId}-label` : undefined}>
         {title}
       </Text>
-      <Text className="px-2 py-1.5" size="small" leading="compact">
+      <Text className="px-2 py-1.5" size="small" leading="compact" data-testid={testId ? `${testId}-value` : undefined}>
         {value}
       </Text>
     </div>
@@ -120,29 +122,38 @@ export const AdjustInventoryForm = ({
   });
 
   return (
-    <RouteDrawer.Form form={form}>
+    <RouteDrawer.Form form={form} data-testid="inventory-adjust-inventory-form">
       <KeyboundForm
         onSubmit={handleSubmit}
         className="flex flex-1 flex-col overflow-hidden"
+        data-testid="inventory-adjust-inventory-keybound-form"
       >
-        <RouteDrawer.Body className="flex flex-1 flex-col gap-y-8 overflow-auto">
-          <div className="grid grid-rows-4 divide-y rounded-lg border text-ui-fg-subtle shadow-elevation-card-rest">
+        <RouteDrawer.Body className="flex flex-1 flex-col gap-y-8 overflow-auto" data-testid="inventory-adjust-inventory-form-body">
+          <div className="grid grid-rows-4 divide-y rounded-lg border text-ui-fg-subtle shadow-elevation-card-rest" data-testid="inventory-adjust-inventory-form-info-grid">
             <AttributeGridRow
               title={t("fields.title")}
               value={item.title ?? "-"}
+              testId="inventory-adjust-inventory-form-item-title"
             />
-            <AttributeGridRow title={t("fields.sku")} value={item.sku!} />
+            <AttributeGridRow 
+              title={t("fields.sku")} 
+              value={item.sku!} 
+              testId="inventory-adjust-inventory-form-item-sku"
+            />
             <AttributeGridRow
               title={t("locations.domain")}
               value={location.name}
+              testId="inventory-adjust-inventory-form-location"
             />
             <AttributeGridRow
               title={t("inventory.reserved")}
               value={level.reserved_quantity}
+              testId="inventory-adjust-inventory-form-reserved"
             />
             <AttributeGridRow
               title={t("inventory.available")}
               value={availableQuantity}
+              testId="inventory-adjust-inventory-form-available"
             />
           </div>
           <Form.Field
@@ -150,31 +161,34 @@ export const AdjustInventoryForm = ({
             name="stocked_quantity"
             render={({ field: { onChange, value, ...field } }) => {
               return (
-                <Form.Item>
-                  <Form.Label>{t("fields.inStock")}</Form.Label>
-                  <Form.Control>
-                    <Input
-                      type="number"
-                      value={value}
-                      onChange={onChange}
-                      onKeyDown={(e) => sanitizeNumberInput(e, [",", "."])}
-                      {...field}
-                    />
+                <Form.Item data-testid="inventory-adjust-inventory-form-stocked-quantity-item">
+                  <Form.Label data-testid="inventory-adjust-inventory-form-stocked-quantity-label">{t("fields.inStock")}</Form.Label>
+                  <Form.Control data-testid="inventory-adjust-inventory-form-stocked-quantity-control">
+                    <div data-testid="inventory-adjust-inventory-form-stocked-quantity-input-wrapper">
+                      <Input
+                        type="number"
+                        value={value}
+                        onChange={onChange}
+                        onKeyDown={(e) => sanitizeNumberInput(e, [",", "."])}
+                        {...field}
+                        data-testid="inventory-adjust-inventory-form-stocked-quantity-input"
+                      />
+                    </div>
                   </Form.Control>
-                  <Form.ErrorMessage />
+                  <Form.ErrorMessage data-testid="inventory-adjust-inventory-form-stocked-quantity-error" />
                 </Form.Item>
               );
             }}
           />
         </RouteDrawer.Body>
-        <RouteDrawer.Footer>
-          <div className="flex items-center justify-end gap-x-2">
-            <RouteDrawer.Close asChild>
-              <Button variant="secondary" size="small">
+        <RouteDrawer.Footer data-testid="inventory-adjust-inventory-form-footer">
+          <div className="flex items-center justify-end gap-x-2" data-testid="inventory-adjust-inventory-form-footer-actions">
+            <RouteDrawer.Close asChild data-testid="inventory-adjust-inventory-form-cancel-button-wrapper">
+              <Button variant="secondary" size="small" data-testid="inventory-adjust-inventory-form-cancel-button">
                 {t("actions.cancel")}
               </Button>
             </RouteDrawer.Close>
-            <Button type="submit" size="small" isLoading={isLoading}>
+            <Button type="submit" size="small" isLoading={isLoading} data-testid="inventory-adjust-inventory-form-save-button">
               {t("actions.save")}
             </Button>
           </div>
