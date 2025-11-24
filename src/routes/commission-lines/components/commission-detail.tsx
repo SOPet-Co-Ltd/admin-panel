@@ -30,11 +30,12 @@ export function CommissionLineDetail({ line, open, close }: Props) {
             <legend className="mb-2">Seller name</legend>
             <Container>
               <div className="flex items-center justify-between">
-                <Text>{line.order.seller.name}</Text>
+                <Text>{line.order?.seller?.name ?? "-"}</Text>
                 <Button
                   variant="secondary"
                   size="small"
-                  onClick={() => navigate(`/sellers/${line.order.seller.id}`)}
+                  onClick={() => navigate(`/sellers/${line.order?.seller?.id ?? ''}`)}
+                  disabled={!line.order?.seller?.id}
                 >
                   View Seller
                 </Button>
@@ -45,11 +46,12 @@ export function CommissionLineDetail({ line, open, close }: Props) {
             <legend className="mt-4">Order number</legend>
             <Container>
               <div className="flex items-center justify-between">
-                <Text>{`#${line.order.display_id}`}</Text>
+                <Text>{line.order?.display_id ? `#${line.order?.display_id}` : "-"}</Text>
                 <Button
                   variant="secondary"
                   size="small"
-                  onClick={() => navigate(`/orders/${line.order.id}`)}
+                  onClick={() => navigate(`/orders/${line.order?.id}`)}
+                  disabled={!line.order?.id}
                 >
                   View Order
                 </Button>
