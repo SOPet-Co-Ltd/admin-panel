@@ -15,7 +15,7 @@ export const RegionMetadata = () => {
   }
 
   return (
-    <RouteDrawer>
+    <RouteDrawer data-testid="region-metadata-drawer">
       <MetadataForm
         isPending={isPending}
         isMutating={isMutating}
