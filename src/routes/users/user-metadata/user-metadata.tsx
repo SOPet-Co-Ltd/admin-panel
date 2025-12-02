@@ -1,21 +1,21 @@
-import { useParams } from "react-router-dom"
+import { useParams } from "react-router-dom";
 
-import { MetadataForm } from "../../../components/forms/metadata-form"
-import { RouteDrawer } from "../../../components/modals"
-import { useUpdateUser, useUser } from "../../../hooks/api"
+import { MetadataForm } from "../../../components/forms/metadata-form";
+import { RouteDrawer } from "../../../components/modals";
+import { useUpdateUser, useUser } from "../../../hooks/api";
 
 export const UserMetadata = () => {
-  const { id } = useParams()
+  const { id } = useParams();
 
-  const { user, isPending, isError, error } = useUser(id!)
-  const { mutateAsync, isPending: isMutating } = useUpdateUser(id!)
+  const { user, isPending, isError, error } = useUser(id!);
+  const { mutateAsync, isPending: isMutating } = useUpdateUser(id!);
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
-    <RouteDrawer>
+    <RouteDrawer data-testid="user-metadata-drawer">
       <MetadataForm
         isPending={isPending}
         isMutating={isMutating}
@@ -23,5 +23,5 @@ export const UserMetadata = () => {
         metadata={user?.metadata}
       />
     </RouteDrawer>
-  )
-}
+  );
+};
