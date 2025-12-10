@@ -3,7 +3,7 @@ import { useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import * as zod from "zod"
 
-import { HttpTypes } from "@medusajs/types"
+import type { HttpTypes } from "@medusajs/types"
 import { Button, toast } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
@@ -164,7 +164,7 @@ export function EditShippingOptionsPricingForm({
         currency_code,
         amount: castNumber(rule.amount),
         rules: buildShippingOptionPriceRules(rule),
-      }))
+      })) ?? []
     )
 
     /**
@@ -194,7 +194,7 @@ export function EditShippingOptionsPricingForm({
         region_id,
         amount: castNumber(rule.amount),
         rules: buildShippingOptionPriceRules(rule),
-      }))
+      })) ?? []
     )
 
     const allPrices = [
@@ -230,14 +230,14 @@ export function EditShippingOptionsPricingForm({
   }
 
   return (
-    <RouteFocusModal.Form form={form}>
+    <RouteFocusModal.Form form={form} data-testid="location-shipping-option-pricing-form">
       <KeyboundForm
         className="flex h-full flex-col overflow-hidden"
         onSubmit={handleSubmit}
       >
-        <RouteFocusModal.Header />
+        <RouteFocusModal.Header data-testid="location-shipping-option-pricing-form-header" />
 
-        <RouteFocusModal.Body>
+        <RouteFocusModal.Body data-testid="location-shipping-option-pricing-form-body">
           <StackedFocusModal
             id={CONDITIONAL_PRICES_STACKED_MODAL_ID}
             onOpenChangeCallback={(open) => {
@@ -245,12 +245,13 @@ export function EditShippingOptionsPricingForm({
                 setSelectedPrice(null)
               }
             }}
+            data-testid="location-shipping-option-pricing-form-stacked-modal"
           >
             <ShippingOptionPriceProvider
               onOpenConditionalPricesModal={onOpenConditionalPricesModal}
               onCloseConditionalPricesModal={onCloseConditionalPricesModal}
             >
-              <div className="flex size-full flex-col divide-y overflow-hidden">
+              <div className="flex size-full flex-col divide-y overflow-hidden" data-testid="location-shipping-option-pricing-form-container">
                 <DataGrid
                   isLoading={isLoading}
                   data={data}
@@ -260,6 +261,7 @@ export function EditShippingOptionsPricingForm({
                   disableInteractions={getIsOpen(
                     CONDITIONAL_PRICES_STACKED_MODAL_ID
                   )}
+                  data-testid="location-shipping-option-pricing-form-data-grid"
                 />
               </div>
               {selectedPrice && (
@@ -268,10 +270,10 @@ export function EditShippingOptionsPricingForm({
             </ShippingOptionPriceProvider>
           </StackedFocusModal>
         </RouteFocusModal.Body>
-        <RouteFocusModal.Footer>
+        <RouteFocusModal.Footer data-testid="location-shipping-option-pricing-form-footer">
           <div className="flex items-center justify-end gap-x-2">
             <RouteFocusModal.Close asChild>
-              <Button variant="secondary" size="small">
+              <Button variant="secondary" size="small" data-testid="location-shipping-option-pricing-form-cancel-button">
                 {t("actions.cancel")}
               </Button>
             </RouteFocusModal.Close>
@@ -281,6 +283,7 @@ export function EditShippingOptionsPricingForm({
               isLoading={isPending}
               onClick={handleSubmit}
               type="button"
+              data-testid="location-shipping-option-pricing-form-save-button"
             >
               {t("actions.save")}
             </Button>
@@ -327,6 +330,7 @@ const getDefaultValues = (prices: HttpTypes.AdminShippingOptionPrice[]) => {
     forbidden: string[] = []
   ) => {
     const attributes = price.price_rules?.map((r) => r.attribute) || []
+
     return (
       required.every((attr) => attributes.includes(attr)) &&
       !forbidden.some((attr) => attributes.includes(attr))
@@ -342,6 +346,7 @@ const getDefaultValues = (prices: HttpTypes.AdminShippingOptionPrice[]) => {
   prices.forEach((price) => {
     if (!price.price_rules?.length) {
       currency_prices[price.currency_code!] = price.amount
+
       return
     }
 
@@ -351,6 +356,7 @@ const getDefaultValues = (prices: HttpTypes.AdminShippingOptionPrice[]) => {
         conditional_currency_prices[code] = []
       }
       conditional_currency_prices[code].push(mapToConditionalPrice(price))
+
       return
     }
 
@@ -359,7 +365,10 @@ const getDefaultValues = (prices: HttpTypes.AdminShippingOptionPrice[]) => {
         (r) => r.attribute === REGION_ID_ATTRIBUTE
       )?.value
 
-      region_prices[regionId] = price.amount
+      if (regionId !== undefined) {
+        region_prices[String(regionId)] = price.amount
+      }
+      
       return
     }
 
@@ -368,10 +377,13 @@ const getDefaultValues = (prices: HttpTypes.AdminShippingOptionPrice[]) => {
         (r) => r.attribute === REGION_ID_ATTRIBUTE
       )?.value
 
-      if (!conditional_region_prices[regionId]) {
-        conditional_region_prices[regionId] = []
+      if (regionId !== undefined) {
+        const key = String(regionId)
+        if (!conditional_region_prices[key]) {
+          conditional_region_prices[key] = []
+        }
+        conditional_region_prices[key].push(mapToConditionalPrice(price))
       }
-      conditional_region_prices[regionId].push(mapToConditionalPrice(price))
     }
   })
 

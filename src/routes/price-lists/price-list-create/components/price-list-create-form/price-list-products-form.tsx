@@ -29,6 +29,7 @@ const PREFIX = "p"
 function getInitialSelection(products: { id: string }[]) {
   return products.reduce((acc, curr) => {
     acc[curr.id] = true
+    
     return acc
   }, {} as RowSelectionState)
 }
@@ -109,6 +110,7 @@ export const PriceListProductsForm = ({ form }: PriceListProductsFormProps) => {
       updater,
     },
     pageSize: PAGE_SIZE,
+    prefix: PREFIX,
   })
 
   if (isError) {
