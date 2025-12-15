@@ -13,7 +13,6 @@ import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
 import { useUpdateShippingOptions } from "../../../../../hooks/api/shipping-options"
 import { useComboboxData } from "../../../../../hooks/use-combobox-data"
 import { sdk } from "../../../../../lib/client"
-import { pick } from "../../../../../lib/common"
 import { isOptionEnabledInStore } from "../../../../../lib/shipping-options"
 import {
   FulfillmentSetType,
@@ -85,9 +84,12 @@ export const EditShippingOptionForm = ({
   )
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    const rules = shippingOption.rules.map((r) => ({
-      ...pick(r, ["id", "attribute", "operator", "value"]),
-    })) as HttpTypes.AdminUpdateShippingOptionRule[]
+    const rules: (HttpTypes.AdminUpdateShippingOptionRule | HttpTypes.AdminCreateShippingOptionRule)[] = shippingOption.rules.map((r) => ({
+      id: r.id,
+      attribute: r.attribute,
+      operator: r.operator,
+      value: r.value ?? "",
+    }))
 
     const storeRule = rules.find((r) => r.attribute === "enabled_in_store")
 
@@ -127,12 +129,12 @@ export const EditShippingOptionForm = ({
   })
 
   return (
-    <RouteDrawer.Form form={form}>
+    <RouteDrawer.Form form={form} data-testid="location-shipping-option-edit-form">
       <KeyboundForm
         onSubmit={handleSubmit}
         className="flex flex-1 flex-col overflow-hidden"
       >
-        <RouteDrawer.Body className="overflow-y-auto">
+        <RouteDrawer.Body className="overflow-y-auto" data-testid="location-shipping-option-edit-form-body">
           <div className="flex flex-col gap-y-8">
             <div className="flex flex-col gap-y-8">
               {!isPickup && (
@@ -141,17 +143,18 @@ export const EditShippingOptionForm = ({
                   name="price_type"
                   render={({ field }) => {
                     return (
-                      <Form.Item>
-                        <Form.Label>
+                      <Form.Item data-testid="location-shipping-option-edit-form-price-type-item">
+                        <Form.Label data-testid="location-shipping-option-edit-form-price-type-label">
                           {t(
                             "stockLocations.shippingOptions.fields.priceType.label"
                           )}
                         </Form.Label>
-                        <Form.Control>
+                        <Form.Control data-testid="location-shipping-option-edit-form-price-type-control">
                           <RadioGroup
                             dir={direction}
                             {...field}
                             onValueChange={field.onChange}
+                            data-testid="location-shipping-option-edit-form-price-type-radio-group"
                           >
                             <RadioGroup.ChoiceBox
                               className="flex-1"
@@ -162,6 +165,7 @@ export const EditShippingOptionForm = ({
                               description={t(
                                 "stockLocations.shippingOptions.fields.priceType.options.fixed.hint"
                               )}
+                              data-testid="location-shipping-option-edit-form-price-type-flat-rate"
                             />
                             <RadioGroup.ChoiceBox
                               className="flex-1"
@@ -172,10 +176,11 @@ export const EditShippingOptionForm = ({
                               description={t(
                                 "stockLocations.shippingOptions.fields.priceType.options.calculated.hint"
                               )}
+                              data-testid="location-shipping-option-edit-form-price-type-calculated"
                             />
                           </RadioGroup>
                         </Form.Control>
-                        <Form.ErrorMessage />
+                        <Form.ErrorMessage data-testid="location-shipping-option-edit-form-price-type-error" />
                       </Form.Item>
                     )
                   }}
@@ -188,12 +193,12 @@ export const EditShippingOptionForm = ({
                   name="name"
                   render={({ field }) => {
                     return (
-                      <Form.Item>
-                        <Form.Label>{t("fields.name")}</Form.Label>
-                        <Form.Control>
-                          <Input {...field} />
+                      <Form.Item data-testid="location-shipping-option-edit-form-name-item">
+                        <Form.Label data-testid="location-shipping-option-edit-form-name-label">{t("fields.name")}</Form.Label>
+                        <Form.Control data-testid="location-shipping-option-edit-form-name-control">
+                          <Input {...field} data-testid="location-shipping-option-edit-form-name-input" />
                         </Form.Control>
-                        <Form.ErrorMessage />
+                        <Form.ErrorMessage data-testid="location-shipping-option-edit-form-name-error" />
                       </Form.Item>
                     )
                   }}
@@ -204,11 +209,11 @@ export const EditShippingOptionForm = ({
                   name="shipping_profile_id"
                   render={({ field }) => {
                     return (
-                      <Form.Item>
-                        <Form.Label>
+                      <Form.Item data-testid="location-shipping-option-edit-form-shipping-profile-item">
+                        <Form.Label data-testid="location-shipping-option-edit-form-shipping-profile-label">
                           {t("stockLocations.shippingOptions.fields.profile")}
                         </Form.Label>
-                        <Form.Control>
+                        <Form.Control data-testid="location-shipping-option-edit-form-shipping-profile-control">
                           <Combobox
                             {...field}
                             options={shippingProfiles.options}
@@ -217,9 +222,10 @@ export const EditShippingOptionForm = ({
                               shippingProfiles.onSearchValueChange
                             }
                             disabled={shippingProfiles.disabled}
+                            data-testid="location-shipping-option-edit-form-shipping-profile-combobox"
                           />
                         </Form.Control>
-                        <Form.ErrorMessage />
+                        <Form.ErrorMessage data-testid="location-shipping-option-edit-form-shipping-profile-error" />
                       </Form.Item>
                     )
                   }}
@@ -230,11 +236,11 @@ export const EditShippingOptionForm = ({
                   name="shipping_option_type_id"
                   render={({ field }) => {
                     return (
-                      <Form.Item>
-                        <Form.Label>
+                      <Form.Item data-testid="location-shipping-option-edit-form-shipping-option-type-item">
+                        <Form.Label data-testid="location-shipping-option-edit-form-shipping-option-type-label">
                           {t("stockLocations.shippingOptions.fields.type")}
                         </Form.Label>
-                        <Form.Control>
+                        <Form.Control data-testid="location-shipping-option-edit-form-shipping-option-type-control">
                           <Combobox
                             {...field}
                             options={shippingOptionTypes.options}
@@ -243,9 +249,10 @@ export const EditShippingOptionForm = ({
                               shippingOptionTypes.onSearchValueChange
                             }
                             disabled={shippingOptionTypes.disabled}
+                            data-testid="location-shipping-option-edit-form-shipping-option-type-combobox"
                           />
                         </Form.Control>
-                        <Form.ErrorMessage />
+                        <Form.ErrorMessage data-testid="location-shipping-option-edit-form-shipping-option-type-error" />
                       </Form.Item>
                     )
                   }}
@@ -255,13 +262,13 @@ export const EditShippingOptionForm = ({
                   control={form.control}
                   name="provider_id"
                   disabled={true}
-                  render={({ field }) => {
+                  render={() => {
                     return (
-                      <Form.Item>
-                        <Form.Label>
+                      <Form.Item data-testid="location-shipping-option-edit-form-provider-item">
+                        <Form.Label data-testid="location-shipping-option-edit-form-provider-label">
                           {t("stockLocations.shippingOptions.fields.provider")}
                         </Form.Label>
-                        <Form.Control>
+                        <Form.Control data-testid="location-shipping-option-edit-form-provider-control">
                           <Combobox
                             value={shippingOption.provider_id}
                             disabled={true}
@@ -273,9 +280,10 @@ export const EditShippingOptionForm = ({
                                 value: shippingOption.provider_id,
                               },
                             ]}
+                            data-testid="location-shipping-option-edit-form-provider-combobox"
                           />
                         </Form.Control>
-                        <Form.ErrorMessage />
+                        <Form.ErrorMessage data-testid="location-shipping-option-edit-form-provider-error" />
                       </Form.Item>
                     )
                   }}
@@ -292,18 +300,19 @@ export const EditShippingOptionForm = ({
                 description={t(
                   "stockLocations.shippingOptions.fields.enableInStore.hint"
                 )}
+                data-testid="location-shipping-option-edit-form-enabled-in-store"
               />
             </div>
           </div>
         </RouteDrawer.Body>
-        <RouteDrawer.Footer>
+        <RouteDrawer.Footer data-testid="location-shipping-option-edit-form-footer">
           <div className="flex items-center gap-x-2">
             <RouteDrawer.Close asChild>
-              <Button size="small" variant="secondary">
+              <Button size="small" variant="secondary" data-testid="location-shipping-option-edit-form-cancel-button">
                 {t("actions.cancel")}
               </Button>
             </RouteDrawer.Close>
-            <Button size="small" type="submit" isLoading={isLoading}>
+            <Button size="small" type="submit" isLoading={isLoading} data-testid="location-shipping-option-edit-form-save-button">
               {t("actions.save")}
             </Button>
           </div>

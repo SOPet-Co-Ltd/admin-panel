@@ -1,8 +1,8 @@
 import { Divider, Heading, Input, RadioGroup, Select, Text } from "@medusajs/ui"
-import { UseFormReturn } from "react-hook-form"
+import type { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { HttpTypes } from "@medusajs/types"
+import type { HttpTypes } from "@medusajs/types"
 
 import { Form } from "../../../../../components/common/form"
 import { SwitchBox } from "../../../../../components/common/switch-box"
@@ -13,13 +13,14 @@ import { formatProvider } from "../../../../../lib/format-provider"
 import { FulfillmentSetType, ShippingOptionPriceType, } from "../../../common/constants"
 import { CreateShippingOptionSchema } from "./schema"
 import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
+import type { ExtendedAdminFulfillmentProviderOption } from "@custom-types/fulfillment-providers/common"
 
 type CreateShippingOptionDetailsFormProps = {
   form: UseFormReturn<CreateShippingOptionSchema>
   isReturn?: boolean
   zone: HttpTypes.AdminServiceZone
   locationId: string
-  fulfillmentProviderOptions: HttpTypes.AdminFulfillmentProviderOption[]
+  fulfillmentProviderOptions: ExtendedAdminFulfillmentProviderOption[]
   selectedProviderId?: string
   type: FulfillmentSetType
 }
@@ -72,10 +73,10 @@ export const CreateShippingOptionDetailsForm = ({
   })
 
   return (
-    <div className="flex flex-1 flex-col items-center overflow-y-auto">
+    <div className="flex flex-1 flex-col items-center overflow-y-auto" data-testid="location-shipping-option-create-details-form">
       <div className="flex w-full max-w-[720px] flex-col gap-y-8 px-6 py-16">
-        <div>
-          <Heading>
+        <div data-testid="location-shipping-option-create-details-form-header-section">
+          <Heading data-testid="location-shipping-option-create-details-form-heading">
             {t(
               `stockLocations.shippingOptions.create.${
                 isPickup ? "pickup" : isReturn ? "returns" : "shipping"
@@ -85,7 +86,7 @@ export const CreateShippingOptionDetailsForm = ({
               }
             )}
           </Heading>
-          <Text size="small" className="text-ui-fg-subtle">
+          <Text size="small" className="text-ui-fg-subtle" data-testid="location-shipping-option-create-details-form-hint">
             {t(
               `stockLocations.shippingOptions.create.${
                 isReturn ? "returns" : isPickup ? "pickup" : "shipping"
@@ -100,16 +101,17 @@ export const CreateShippingOptionDetailsForm = ({
             name="price_type"
             render={({ field }) => {
               return (
-                <Form.Item>
-                  <Form.Label>
+                <Form.Item data-testid="location-shipping-option-create-details-form-price-type-item">
+                  <Form.Label data-testid="location-shipping-option-create-details-form-price-type-label">
                     {t("stockLocations.shippingOptions.fields.priceType.label")}
                   </Form.Label>
-                  <Form.Control>
+                  <Form.Control data-testid="location-shipping-option-create-details-form-price-type-control">
                     <RadioGroup
                       dir={direction}
                       className="grid grid-cols-1 gap-4 md:grid-cols-2"
                       {...field}
                       onValueChange={field.onChange}
+                      data-testid="location-shipping-option-create-details-form-price-type-radio-group"
                     >
                       <RadioGroup.ChoiceBox
                         className="flex-1"
@@ -120,6 +122,7 @@ export const CreateShippingOptionDetailsForm = ({
                         description={t(
                           "stockLocations.shippingOptions.fields.priceType.options.fixed.hint"
                         )}
+                        data-testid="location-shipping-option-create-details-form-price-type-flat-rate"
                       />
                       <RadioGroup.ChoiceBox
                         className="flex-1"
@@ -130,10 +133,11 @@ export const CreateShippingOptionDetailsForm = ({
                         description={t(
                           "stockLocations.shippingOptions.fields.priceType.options.calculated.hint"
                         )}
+                        data-testid="location-shipping-option-create-details-form-price-type-calculated"
                       />
                     </RadioGroup>
                   </Form.Control>
-                  <Form.ErrorMessage />
+                  <Form.ErrorMessage data-testid="location-shipping-option-create-details-form-price-type-error" />
                 </Form.Item>
               )
             }}
@@ -146,12 +150,12 @@ export const CreateShippingOptionDetailsForm = ({
             name="name"
             render={({ field }) => {
               return (
-                <Form.Item>
-                  <Form.Label>{t("fields.name")}</Form.Label>
-                  <Form.Control>
-                    <Input {...field} />
+                <Form.Item data-testid="location-shipping-option-create-details-form-name-item">
+                  <Form.Label data-testid="location-shipping-option-create-details-form-name-label">{t("fields.name")}</Form.Label>
+                  <Form.Control data-testid="location-shipping-option-create-details-form-name-control">
+                    <Input {...field} data-testid="location-shipping-option-create-details-form-name-input" />
                   </Form.Control>
-                  <Form.ErrorMessage />
+                  <Form.ErrorMessage data-testid="location-shipping-option-create-details-form-name-error" />
                 </Form.Item>
               )
             }}
@@ -161,20 +165,21 @@ export const CreateShippingOptionDetailsForm = ({
             name="shipping_profile_id"
             render={({ field }) => {
               return (
-                <Form.Item>
-                  <Form.Label>
+                <Form.Item data-testid="location-shipping-option-create-details-form-shipping-profile-item">
+                  <Form.Label data-testid="location-shipping-option-create-details-form-shipping-profile-label">
                     {t("stockLocations.shippingOptions.fields.profile")}
                   </Form.Label>
-                  <Form.Control>
+                  <Form.Control data-testid="location-shipping-option-create-details-form-shipping-profile-control">
                     <Combobox
                       {...field}
                       options={shippingProfiles.options}
                       searchValue={shippingProfiles.searchValue}
                       onSearchValueChange={shippingProfiles.onSearchValueChange}
                       disabled={shippingProfiles.disabled}
+                      data-testid="location-shipping-option-create-details-form-shipping-profile-combobox"
                     />
                   </Form.Control>
-                  <Form.ErrorMessage />
+                  <Form.ErrorMessage data-testid="location-shipping-option-create-details-form-shipping-profile-error" />
                 </Form.Item>
               )
             }}
@@ -184,11 +189,11 @@ export const CreateShippingOptionDetailsForm = ({
             name="shipping_option_type_id"
             render={({ field }) => {
               return (
-                <Form.Item>
-                  <Form.Label>
+                <Form.Item data-testid="location-shipping-option-create-details-form-shipping-option-type-item">
+                  <Form.Label data-testid="location-shipping-option-create-details-form-shipping-option-type-label">
                     {t("stockLocations.shippingOptions.fields.type")}
                   </Form.Label>
-                  <Form.Control>
+                  <Form.Control data-testid="location-shipping-option-create-details-form-shipping-option-type-control">
                     <Combobox
                       {...field}
                       options={shippingOptionTypes.options}
@@ -197,9 +202,10 @@ export const CreateShippingOptionDetailsForm = ({
                         shippingOptionTypes.onSearchValueChange
                       }
                       disabled={shippingOptionTypes.disabled}
+                      data-testid="location-shipping-option-create-details-form-shipping-option-type-combobox"
                     />
                   </Form.Control>
-                  <Form.ErrorMessage />
+                  <Form.ErrorMessage data-testid="location-shipping-option-create-details-form-shipping-option-type-error" />
                 </Form.Item>
               )
             }}
@@ -212,15 +218,16 @@ export const CreateShippingOptionDetailsForm = ({
             name="provider_id"
             render={({ field }) => {
               return (
-                <Form.Item>
+                <Form.Item data-testid="location-shipping-option-create-details-form-provider-item">
                   <Form.Label
                     tooltip={t(
                       "stockLocations.fulfillmentProviders.shippingOptionsTooltip"
                     )}
+                    data-testid="location-shipping-option-create-details-form-provider-label"
                   >
                     {t("stockLocations.shippingOptions.fields.provider")}
                   </Form.Label>
-                  <Form.Control>
+                  <Form.Control data-testid="location-shipping-option-create-details-form-provider-control">
                     <Combobox
                       {...field}
                       onChange={(e) => {
@@ -233,9 +240,10 @@ export const CreateShippingOptionDetailsForm = ({
                         fulfillmentProviders.onSearchValueChange
                       }
                       disabled={fulfillmentProviders.disabled}
+                      data-testid="location-shipping-option-create-details-form-provider-combobox"
                     />
                   </Form.Control>
-                  <Form.ErrorMessage />
+                  <Form.ErrorMessage data-testid="location-shipping-option-create-details-form-provider-error" />
                 </Form.Item>
               )
             }}
@@ -246,36 +254,37 @@ export const CreateShippingOptionDetailsForm = ({
             name="fulfillment_option_id"
             render={({ field }) => {
               return (
-                <Form.Item>
-                  <Form.Label>
+                <Form.Item data-testid="location-shipping-option-create-details-form-fulfillment-option-item">
+                  <Form.Label data-testid="location-shipping-option-create-details-form-fulfillment-option-label">
                     {t(
                       "stockLocations.shippingOptions.fields.fulfillmentOption"
                     )}
                   </Form.Label>
-                  <Form.Control>
+                  <Form.Control data-testid="location-shipping-option-create-details-form-fulfillment-option-control">
                     <Select
                       dir={direction}
                       {...field}
                       onValueChange={field.onChange}
                       disabled={!selectedProviderId}
                       key={selectedProviderId}
+                      data-testid="location-shipping-option-create-details-form-fulfillment-option-select"
                     >
-                      <Select.Trigger ref={field.ref}>
+                      <Select.Trigger ref={field.ref} data-testid="location-shipping-option-create-details-form-fulfillment-option-trigger">
                         <Select.Value />
                       </Select.Trigger>
 
-                      <Select.Content>
+                      <Select.Content data-testid="location-shipping-option-create-details-form-fulfillment-option-content">
                         {fulfillmentProviderOptions
                           ?.filter((fo) => !!fo.is_return === isReturn)
                           .map((option) => (
-                            <Select.Item value={option.id} key={option.id}>
+                            <Select.Item value={option.id} key={option.id} data-testid={`location-shipping-option-create-details-form-fulfillment-option-option-${option.id}`}>
                               {option.name || option.id}
                             </Select.Item>
                           ))}
                       </Select.Content>
                     </Select>
                   </Form.Control>
-                  <Form.ErrorMessage />
+                  <Form.ErrorMessage data-testid="location-shipping-option-create-details-form-fulfillment-option-error" />
                 </Form.Item>
               )
             }}
@@ -290,6 +299,7 @@ export const CreateShippingOptionDetailsForm = ({
           description={t(
             "stockLocations.shippingOptions.fields.enableInStore.hint"
           )}
+          data-testid="location-shipping-option-create-details-form-enabled-in-store"
         />
       </div>
     </div>

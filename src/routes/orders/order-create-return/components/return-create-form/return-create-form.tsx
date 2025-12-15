@@ -356,7 +356,7 @@ export const ReturnCreateForm = ({
         return ret
       }
 
-      ;(
+      (
         await Promise.all(
           items.map(async (_i) => {
             const item = itemsMap.get(_i.item_id)
@@ -687,7 +687,7 @@ export const ReturnCreateForm = ({
                           .symbol_native
                       }
                       code={order.currency_code}
-                      onValueChange={(value, name, values) =>
+                      onValueChange={(_value, _name, values) =>
                         setCustomShippingAmount({
                           value: values?.value ?? "",
                           float: values?.float ?? null,

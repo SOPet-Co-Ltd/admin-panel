@@ -1,9 +1,9 @@
 import { PlusMini, Trash } from "@medusajs/icons"
-import { HttpTypes } from "@medusajs/types"
+import type { HttpTypes } from "@medusajs/types"
 import { Checkbox, Container, Heading, toast, usePrompt } from "@medusajs/ui"
 import {
-  ColumnDef,
-  RowSelectionState,
+  type ColumnDef,
+  type RowSelectionState,
   createColumnHelper,
 } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
@@ -12,9 +12,11 @@ import { ActionMenu } from "../../../../../components/common/action-menu"
 import { _DataTable } from "../../../../../components/table/data-table"
 import { useUpdateRegion } from "../../../../../hooks/api/regions"
 import { useDataTable } from "../../../../../hooks/use-data-table"
+import type { StaticCountry } from "../../../../../lib/data/countries"
 import { useCountries } from "../../../common/hooks/use-countries"
 import { useCountryTableColumns } from "../../../common/hooks/use-country-table-columns"
 import { useCountryTableQuery } from "../../../common/hooks/use-country-table-query"
+import { convertToStaticCountries } from "./helpers"
 
 type RegionCountrySectionProps = {
   region: HttpTypes.AdminRegion
@@ -34,7 +36,7 @@ export const RegionCountrySection = ({ region }: RegionCountrySectionProps) => {
     prefix: PREFIX,
   })
   const { countries, count } = useCountries({
-    countries: region.countries || [],
+    countries: convertToStaticCountries(region.countries),
     ...searchParams,
   })
 
@@ -98,9 +100,9 @@ export const RegionCountrySection = ({ region }: RegionCountrySectionProps) => {
   }
 
   return (
-    <Container className="divide-y p-0">
-      <div className="flex items-center justify-between px-6 py-4">
-        <Heading level="h2">{t("fields.countries")}</Heading>
+    <Container className="divide-y p-0" data-testid="region-country-section-container">
+      <div className="flex items-center justify-between px-6 py-4" data-testid="region-country-section-header">
+        <Heading level="h2" data-testid="region-country-section-heading">{t("fields.countries")}</Heading>
         <ActionMenu
           groups={[
             {
@@ -113,6 +115,7 @@ export const RegionCountrySection = ({ region }: RegionCountrySectionProps) => {
               ],
             },
           ]}
+          data-testid="region-country-section-action-menu"
         />
       </div>
       <_DataTable
@@ -135,6 +138,7 @@ export const RegionCountrySection = ({ region }: RegionCountrySectionProps) => {
             shortcut: "r",
           },
         ]}
+        data-testid="region-country-section-table"
       />
     </Container>
   )
@@ -144,7 +148,7 @@ const CountryActions = ({
   country,
   region,
 }: {
-  country: HttpTypes.AdminRegionCountry
+  country: StaticCountry
   region: HttpTypes.AdminRegion
 }) => {
   const { t } = useTranslation()
@@ -154,6 +158,7 @@ const CountryActions = ({
   const payload = region.countries
     ?.filter((c) => c.iso_2 !== country.iso_2)
     .map((c) => c.iso_2)
+    .filter((iso): iso is string => iso !== undefined)
 
   const handleRemove = async () => {
     const res = await prompt({
@@ -199,11 +204,12 @@ const CountryActions = ({
           ],
         },
       ]}
+      data-testid={`region-country-section-action-menu-${country.iso_2}`}
     />
   )
 }
 
-const columnHelper = createColumnHelper<HttpTypes.AdminRegionCountry>()
+const columnHelper = createColumnHelper<StaticCountry>()
 
 const useColumns = () => {
   const base = useCountryTableColumns()
@@ -223,6 +229,7 @@ const useColumns = () => {
               onCheckedChange={(value) =>
                 table.toggleAllPageRowsSelected(!!value)
               }
+              data-testid="region-country-section-select-all-checkbox"
             />
           )
         },
@@ -234,6 +241,7 @@ const useColumns = () => {
               onClick={(e) => {
                 e.stopPropagation()
               }}
+              data-testid={`region-country-section-select-checkbox-${row.original.iso_2}`}
             />
           )
         },
@@ -251,5 +259,5 @@ const useColumns = () => {
       }),
     ],
     [base]
-  ) as ColumnDef<HttpTypes.AdminRegionCountry>[]
+  ) as ColumnDef<StaticCountry>[]
 }
