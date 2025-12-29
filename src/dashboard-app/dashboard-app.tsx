@@ -1,22 +1,22 @@
 import {
-  CustomFieldContainerZone,
-  CustomFieldFormTab,
-  CustomFieldFormZone,
-  CustomFieldModel,
-  InjectionZone,
+  type CustomFieldContainerZone,
+  type CustomFieldFormTab,
+  type CustomFieldFormZone,
+  type CustomFieldModel,
+  type InjectionZone,
   NESTED_ROUTE_POSITIONS,
 } from "@medusajs/admin-shared"
-import * as React from "react"
+import type * as React from "react"
 import {
   createBrowserRouter,
-  RouteObject,
+  type RouteObject,
   RouterProvider,
 } from "react-router-dom"
-import { INavItem } from "../components/layout/nav-item"
-import { Providers } from "../providers"
-import { getRouteMap } from "./routes/get-route.map"
-import { createRouteMap, getRouteExtensions } from "./routes/utils"
-import {
+import type { INavItem } from "@/components/layout/nav-item"
+import { Providers } from "@/providers"
+import { getRouteMap } from "@/dashboard-app/routes/get-route.map"
+import { createRouteMap, getRouteExtensions } from "@/dashboard-app/routes/utils"
+import type {
   ConfigExtension,
   ConfigField,
   ConfigFieldMap,
@@ -130,6 +130,7 @@ export class DashboardApp {
             `[@medusajs/dashboard] Menu item for path "${item.path}" can't be added to the sidebar as it contains a parameter.`
           )
         }
+        
         return
       }
 
@@ -146,6 +147,7 @@ export class DashboardApp {
             `[@medusajs/dashboard] Nested settings menu item "${item.path}" can't be added to the sidebar. Only top-level settings items are allowed.`
           )
         }
+
         return // Skip this item entirely
       }
 
@@ -165,6 +167,7 @@ export class DashboardApp {
             `[@medusajs/dashboard] Nested menu item "${item.path}" can't be added to the sidebar as it is nested under "${parentItem.nested}".`
           )
         }
+
         return
       }
 
@@ -309,6 +312,7 @@ export class DashboardApp {
       zoneStructure = { components: [], tabs: new Map() }
       formZoneMap.set(zone, zoneStructure)
     }
+
     return zoneStructure
   }
 
@@ -345,7 +349,7 @@ export class DashboardApp {
   private populateDisplays(plugins: DashboardPlugin[]): DisplayMap {
     const displays = new Map<
       CustomFieldModel,
-      Map<CustomFieldContainerZone, React.ComponentType<{ data: any }>[]>
+      Map<CustomFieldContainerZone, React.ComponentType<{ data: unknown }>[]>
     >()
 
     plugins.forEach((plugin) => {
@@ -356,7 +360,7 @@ export class DashboardApp {
               model as CustomFieldModel,
               new Map<
                 CustomFieldContainerZone,
-                React.ComponentType<{ data: any }>[]
+                React.ComponentType<{ data: unknown }>[]
               >()
             )
           }
@@ -380,10 +384,10 @@ export class DashboardApp {
 
   private processDisplays(
     displays: DisplayExtension[]
-  ): Map<CustomFieldContainerZone, React.ComponentType<{ data: any }>[]> {
+  ): Map<CustomFieldContainerZone, React.ComponentType<{ data: unknown }>[]> {
     const modelDisplayMap = new Map<
       CustomFieldContainerZone,
-      React.ComponentType<{ data: any }>[]
+      React.ComponentType<{ data: unknown }>[]
     >()
 
     displays.forEach((display) => {

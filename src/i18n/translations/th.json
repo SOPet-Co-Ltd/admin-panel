@@ -57,6 +57,7 @@
     "unsavedChangesDescription": "คุณมีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก และจะสูญหายหากคุณออกจากฟอร์มนี้",
     "includesTaxTooltip": "ราคาคอลัมน์นี้รวมภาษีแล้ว",
     "excludesTaxTooltip": "ราคาคอลัมน์นี้ยังไม่รวมภาษี",
+    "somethingWentWrong": "เกิดข้อผิดพลาดบางอย่าง กรุณาลองอีกครั้ง",
     "noMoreData": "ไม่มีข้อมูลเพิ่มเติม"
   },
   "json": {
@@ -616,6 +617,12 @@
       },
       "tags": {
         "label": "แท็ก"
+      },
+      "petType": {
+        "label": "ประเภทสัตว์เลี้ยง"
+      },
+      "brand": {
+        "label": "แบรนด์"
       },
       "sales_channels": {
         "label": "ช่องทางการขาย",
@@ -3187,6 +3194,50 @@
     "endDate": "วันที่สิ้นสุด",
     "draft": "ฉบับร่าง",
     "values": "ค่า"
+  },
+  "customTags": {
+    "requestsTitle": "คำขอแท็กที่กำหนดเอง",
+    "requestsSubtitle": "ตรวจสอบ อนุมัติ หรือลบแท็กประเภทสัตว์เลี้ยงและแบรนด์ที่ร้องขอ",
+    "loading": "กำลังโหลดคำขอแท็ก...",
+    "noPendingRequests": "ไม่มีคำขอแท็กที่รอดำเนินการ",
+    "selectedCount": "{{count}} รายการที่เลือก",
+    "name": "แท็ก",
+    "status": "สถานะ",
+    "actions": "การดำเนินการ",
+    "approve": {
+      "action": "อนุมัติ",
+      "successToast": "อนุมัติแท็กเรียบร้อยแล้ว"
+    },
+    "reject": {
+      "action": "ปฏิเสธ",
+      "successToast": "ปฏิเสธแท็กเรียบร้อยแล้ว"
+    },
+    "delete": {
+      "bulkAction": "ลบแท็ก {{count}} รายการ",
+      "successToast": "ลบแท็กเรียบร้อยแล้ว",
+      "confirmTitle": "ยืนยันการลบแท็ก",
+      "confirmSingle": "คุณต้องการลบแท็กนี้หรือไม่?",
+      "confirmMultiple": "คุณต้องการลบแท็ก {{count}} รายการนี้หรือไม่?",
+      "affectedProducts": "สินค้าที่ได้รับผลกระทบ ({{count}})",
+      "warningMessage": "การลบแท็กจะเอาแท็กออกจากสินค้าที่เกี่ยวข้อง"
+    },
+    "create": {
+      "header": "สร้างแท็กที่กำหนดเอง",
+      "subtitle": "เพิ่มประเภทสัตว์เลี้ยงหรือแบรนด์ที่ผู้ขายร้องขอ",
+      "successToast": "สร้างแท็ก \"{{value}}\" เรียบร้อยแล้ว"
+    },
+    "fields": {
+      "type": "ประเภท",
+      "typePlaceholder": "เลือกประเภทแท็ก",
+      "value": "ค่าแท็ก",
+      "valuePlaceholder": "กรอกค่าแท็ก"
+    }
+  },
+  "petTypes": {
+    "domain": "ประเภทสัตว์เลี้ยง"
+  },
+  "brands": {
+    "domain": "แบรนด์"
   },
   "requests": {
     "domain": "คำขอ",

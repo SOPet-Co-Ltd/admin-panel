@@ -176,6 +176,9 @@
         "excludesTaxTooltip": {
           "type": "string"
         },
+        "somethingWentWrong": {
+          "type": "string"
+        },
         "noMoreData": {
           "type": "string"
         }
@@ -237,6 +240,7 @@
         "unsavedChangesDescription",
         "includesTaxTooltip",
         "excludesTaxTooltip",
+        "somethingWentWrong",
         "noMoreData"
       ],
       "additionalProperties": false
@@ -2207,6 +2211,26 @@
               "required": ["label"],
               "additionalProperties": false
             },
+            "petType": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                }
+              },
+              "required": ["label"],
+              "additionalProperties": false
+            },
+            "brand": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                }
+              },
+              "required": ["label"],
+              "additionalProperties": false
+            },
             "sales_channels": {
               "type": "object",
               "properties": {
@@ -2361,6 +2385,8 @@
             "collection",
             "categories",
             "tags",
+            "petType",
+            "brand",
             "sales_channels",
             "countryOrigin",
             "material",
@@ -11948,6 +11974,168 @@
       "required": ["domain"],
       "additionalProperties": false
     },
+    "customTags": {
+      "type": "object",
+      "properties": {
+        "requestsTitle": {
+          "type": "string"
+        },
+        "requestsSubtitle": {
+          "type": "string"
+        },
+        "loading": {
+          "type": "string"
+        },
+        "noPendingRequests": {
+          "type": "string"
+        },
+        "selectedCount": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "actions": {
+          "type": "string"
+        },
+        "approve": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            }
+          },
+          "required": ["action", "successToast"],
+          "additionalProperties": false
+        },
+        "reject": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            }
+          },
+          "required": ["action", "successToast"],
+          "additionalProperties": false
+        },
+        "delete": {
+          "type": "object",
+          "properties": {
+            "bulkAction": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            },
+            "confirmTitle": {
+              "type": "string"
+            },
+            "confirmSingle": {
+              "type": "string"
+            },
+            "confirmMultiple": {
+              "type": "string"
+            },
+            "affectedProducts": {
+              "type": "string"
+            },
+            "warningMessage": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "bulkAction",
+            "successToast",
+            "confirmTitle",
+            "confirmSingle",
+            "confirmMultiple",
+            "affectedProducts",
+            "warningMessage"
+          ],
+          "additionalProperties": false
+        },
+        "create": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "subtitle": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            }
+          },
+          "required": ["header", "subtitle", "successToast"],
+          "additionalProperties": false
+        },
+        "fields": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "typePlaceholder": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            },
+            "valuePlaceholder": {
+              "type": "string"
+            }
+          },
+          "required": ["type", "typePlaceholder", "value", "valuePlaceholder"],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "requestsTitle",
+        "requestsSubtitle",
+        "loading",
+        "noPendingRequests",
+        "selectedCount",
+        "name",
+        "status",
+        "actions",
+        "approve",
+        "reject",
+        "delete",
+        "create",
+        "fields"
+      ],
+      "additionalProperties": false
+    },
+    "petTypes": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        }
+      },
+      "required": ["domain"],
+      "additionalProperties": false
+    },
+    "brands": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        }
+      },
+      "required": ["domain"],
+      "additionalProperties": false
+    },
     "requests": {
       "type": "object",
       "properties": {
@@ -12179,6 +12367,9 @@
     "dateTime",
     "views",
     "attributes",
+    "customTags",
+    "petTypes",
+    "brands",
     "requests",
     "sellers",
     "messages",

@@ -1,14 +1,14 @@
 import { PencilSquare } from "@medusajs/icons"
-import { HttpTypes } from "@medusajs/types"
 import { Badge, Container, Heading, Tooltip } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
-import { ActionMenu } from "../../../../../components/common/action-menu"
-import { SectionRow } from "../../../../../components/common/section"
-import { useExtension } from "../../../../../providers/extension-provider"
+import { ActionMenu } from "@components/common/action-menu"
+import { SectionRow } from "@components/common/section"
+import type { AdminProduct } from "@custom-types/product/common"
+import { useExtension } from "@providers/extension-provider"
 
 type ProductOrganizationSectionProps = {
-  product: HttpTypes.AdminProduct
+  product: AdminProduct
 }
 
 export const ProductOrganizationSection = ({
@@ -16,6 +16,10 @@ export const ProductOrganizationSection = ({
 }: ProductOrganizationSectionProps) => {
   const { t } = useTranslation()
   const { getDisplays } = useExtension()
+  const petTypeTags =
+    (product.custom_tags || []).filter((ct) => ct.type === "pet_type") || []
+  const brandTags =
+    (product.custom_tags || []).filter((ct) => ct.type === "brand") || []
 
   return (
     <Container className="divide-y p-0" data-testid="product-organization-section">
@@ -36,34 +40,6 @@ export const ProductOrganizationSection = ({
           data-testid="product-organization-action-menu"
         />
       </div>
-
-      <SectionRow
-        title={t("fields.tags")}
-        value={
-          product.tags?.length
-            ? product.tags.map((tag) => (
-                <OrganizationTag
-                  key={tag.id}
-                  label={tag.value}
-                  to={`/settings/product-tags/${tag.id}`}
-                />
-              ))
-            : undefined
-        }
-        data-testid="product-tags-row"
-      />
-      <SectionRow
-        title={t("fields.type")}
-        value={
-          product.type ? (
-            <OrganizationTag
-              label={product.type.value}
-              to={`/settings/product-types/${product.type_id}`}
-            />
-          ) : undefined
-        }
-        data-testid="product-type-row"
-      />
 
       <SectionRow
         title={t("fields.collection")}
@@ -92,6 +68,30 @@ export const ProductOrganizationSection = ({
             : undefined
         }
         data-testid="product-categories-row"
+      />
+
+      <SectionRow
+        title={t("products.fields.petType.label")}
+        value={
+          petTypeTags.length
+            ? petTypeTags.map((ct) => (
+                <OrganizationTag key={ct.id} label={ct.value} to="/custom-tags" />
+              ))
+            : undefined
+        }
+        data-testid="product-pet-type-row"
+      />
+
+      <SectionRow
+        title={t("products.fields.brand.label")}
+        value={
+          brandTags.length
+            ? brandTags.map((ct) => (
+                <OrganizationTag key={ct.id} label={ct.value} to="/custom-tags" />
+              ))
+            : undefined
+        }
+        data-testid="product-brand-row"
       />
 
       {getDisplays("product", "organize").map((Component, i) => {

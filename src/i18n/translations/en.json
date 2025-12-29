@@ -57,6 +57,7 @@
     "unsavedChangesDescription": "You have unsaved changes that will be lost if you exit this form.",
     "includesTaxTooltip": "Prices in this column are tax inclusive.",
     "excludesTaxTooltip": "Prices in this column are tax exclusive.",
+    "somethingWentWrong": "Something went wrong. Please try again.",
     "noMoreData": "No more data"
   },
   "json": {
@@ -589,6 +590,12 @@
       },
       "tags": {
         "label": "Tags"
+      },
+      "petType": {
+        "label": "Pet Type"
+      },
+      "brand": {
+        "label": "Brand"
       },
       "sales_channels": {
         "label": "Sales channels",
@@ -3200,6 +3207,50 @@
       "fillNameWarning": "Please fill in at least the name field before proceeding to Type configuration.",
       "possibleValuesRequired": "At least one possible value is required for this type"
     }
+  },
+  "customTags": {
+    "requestsTitle": "Custom tag requests",
+    "requestsSubtitle": "Review, approve, or delete requested pet type and brand tags.",
+    "loading": "Loading custom tags...",
+    "noPendingRequests": "No custom tag requests to review.",
+    "selectedCount": "{{count}} selected",
+    "name": "Tag",
+    "status": "Status",
+    "actions": "Actions",
+    "approve": {
+      "action": "Approve",
+      "successToast": "Custom tag approved."
+    },
+    "reject": {
+      "action": "Reject",
+      "successToast": "Custom tag rejected."
+    },
+    "delete": {
+      "bulkAction": "Delete {{count}} tags",
+      "successToast": "Custom tag(s) deleted.",
+      "confirmTitle": "Delete custom tags",
+      "confirmSingle": "Are you sure you want to delete this custom tag?",
+      "confirmMultiple": "Are you sure you want to delete these {{count}} custom tags?",
+      "affectedProducts": "Affected products ({{count}})",
+      "warningMessage": "Deleting tags will detach them from affected products."
+    },
+    "create": {
+      "header": "Create custom tag",
+      "subtitle": "Add a new pet type or brand requested by a seller.",
+      "successToast": "Custom tag \"{{value}}\" created."
+    },
+    "fields": {
+      "type": "Type",
+      "typePlaceholder": "Select tag type",
+      "value": "Tag value",
+      "valuePlaceholder": "Enter tag value"
+    }
+  },
+  "petTypes": {
+    "domain": "Pet types"
+  },
+  "brands": {
+    "domain": "Brands"
   },
   "requests": {
     "domain": "Requests",

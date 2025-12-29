@@ -4,6 +4,11 @@ import type { AttributeDTO } from "@custom-types/attribute";
 
 export interface AdminProduct extends HttpTypes.AdminProduct {
   attribute_values?: AttributeDTO[];
+  custom_tags?: Array<{
+    id: string;
+    value: string;
+    type: "pet_type" | "brand";
+  }>;
 }
 
 export interface AdminProductResponse {
