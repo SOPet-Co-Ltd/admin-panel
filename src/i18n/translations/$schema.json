@@ -4484,6 +4484,9 @@
             "refundableAmountLabel": {
               "type": "string"
             },
+            "refundAmount": {
+              "type": "string"
+            },
             "returnRequestedInfo": {
               "type": "string"
             },
@@ -6683,9 +6686,20 @@
                 },
                 "missingCountry": {
                   "type": "string"
+                },
+                "rateIsRequired": {
+                  "type": "string"
+                },
+                "nameIsRequired": {
+                  "type": "string"
                 }
               },
-              "required": ["missingProvider", "missingCountry"],
+              "required": [
+                "missingProvider",
+                "missingCountry",
+                "rateIsRequired",
+                "nameIsRequired"
+              ],
               "additionalProperties": false
             },
             "successToast": {
@@ -7622,6 +7636,12 @@
                 "target-rules": {
                   "type": "object",
                   "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
                     "order": {
                       "type": "object",
                       "properties": {
@@ -7662,7 +7682,7 @@
                       "additionalProperties": false
                     }
                   },
-                  "required": ["order", "shipping_methods", "items"],
+                  "required": ["title", "description", "order", "shipping_methods", "items"],
                   "additionalProperties": false
                 },
                 "buy-rules": {
@@ -8063,9 +8083,22 @@
                   },
                   "required": ["title", "description"],
                   "additionalProperties": false
+                },
+                "once": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["title", "description"],
+                  "additionalProperties": false
                 }
               },
-              "required": ["each", "across"],
+              "required": ["each", "across", "once"],
               "additionalProperties": false
             },
             "code": {
@@ -9552,6 +9585,9 @@
             "editOverridesHint": {
               "type": "string"
             },
+            "editTaxRate": {
+              "type": "string"
+            },
             "deleteTaxRateWarning": {
               "type": "string"
             },
@@ -9601,6 +9637,7 @@
             "editOverridesAction",
             "editOverridesTitle",
             "editOverridesHint",
+            "editTaxRate",
             "deleteTaxRateWarning",
             "productOverridesLabel",
             "productOverridesHint",
@@ -11893,6 +11930,19 @@
       "properties": {
         "domain": {
           "type": "string"
+        },
+        "create": {
+          "type": "object",
+          "properties": {
+            "fillNameWarning": {
+              "type": "string"
+            },
+            "possibleValuesRequired": {
+              "type": "string"
+            }
+          },
+          "required": ["fillNameWarning", "possibleValuesRequired"],
+          "additionalProperties": false
         }
       },
       "required": ["domain"],
@@ -11908,6 +11958,9 @@
           "type": "string"
         },
         "product": {
+          "type": "string"
+        },
+        "customTag": {
           "type": "string"
         },
         "review-remove": {
@@ -11936,6 +11989,7 @@
         "domain",
         "seller",
         "product",
+        "customTag",
         "review-remove",
         "return",
         "product-collection",

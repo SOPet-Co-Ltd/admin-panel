@@ -1183,6 +1183,7 @@
       "sendNotificationHint": "Notify customer about return.",
       "returnTotal": "Return total",
       "inboundTotal": "Inbound total",
+      "refundAmount": "Refund amount",
       "estDifference": "Estimated difference",
       "outstandingAmount": "Outstanding amount",
       "reason": "Reason",
@@ -1772,6 +1773,8 @@
       "header": "Create Tax Region",
       "hint": "Create a new tax region to define tax rates for a specific country.",
       "errors": {
+        "rateIsRequired": "A rate is required when creating a default tax rate.",
+        "nameIsRequired": "A name is required when creating a default tax rate.",
         "missingProvider": "Provider is required when creating a tax region.",
         "missingCountry": "Country is required when creating a tax region."
       },
@@ -2036,6 +2039,8 @@
           "description": "Which customer is allowed to use the promotion code? Promotion code can be used by all customers if left untouched."
         },
         "target-rules": {
+          "title": "What should the promotion apply to?",
+          "description": "The promotion will be applied to targets that match the following conditions.",
           "order": {
             "title": "What items will the promotion be applied to?",
             "description": "The promotion will be applied to items that match the following conditions."
@@ -2569,6 +2574,7 @@
       "editOverridesAction": "Edit overrides",
       "editOverridesTitle": "Edit Tax Rate Overrides",
       "editOverridesHint": "Specify the overrides for the tax rate.",
+      "editTaxRate": "Edit tax rate",
       "deleteTaxRateWarning": "You are about to delete the tax rate {{name}}. This action cannot be undone.",
       "productOverridesLabel": "Product overrides",
       "productOverridesHint": "Specify the product overrides for the tax rate.",
@@ -3199,6 +3205,7 @@
     "domain": "Requests",
     "seller": "Seller",
     "product": "Product",
+    "customTag": "Custom Tag",
     "review-remove": "Review Remove",
     "return": "Order Return",
     "product-collection": "Product Collection",
