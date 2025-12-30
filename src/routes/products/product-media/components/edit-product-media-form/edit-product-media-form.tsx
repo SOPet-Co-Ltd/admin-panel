@@ -1,7 +1,7 @@
 import { Fragment, useCallback, useState } from "react";
 
 import { ThumbnailBadge } from "@medusajs/icons";
-import { HttpTypes } from "@medusajs/types";
+import type { HttpTypes } from "@medusajs/types";
 import {
   Button,
   Checkbox,
@@ -13,16 +13,18 @@ import {
 
 import {
   DndContext,
-  DragEndEvent,
   DragOverlay,
-  DragStartEvent,
-  DropAnimation,
   KeyboardSensor,
   PointerSensor,
-  UniqueIdentifier,
   defaultDropAnimationSideEffects,
   useSensor,
   useSensors,
+} from "@dnd-kit/core";
+import type {
+  DragEndEvent,
+  DragStartEvent,
+  DropAnimation,
+  UniqueIdentifier,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -36,21 +38,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { z } from "zod";
+import type { z } from "zod";
 
 import {
   RouteFocusModal,
   useRouteModal,
-} from "../../../../../components/modals";
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form";
-import { useUpdateProduct } from "../../../../../hooks/api/products";
-import { sdk } from "../../../../../lib/client";
-import { UploadMediaFormItem } from "../../../common/components/upload-media-form-item";
+} from "@/components/modals";
+import { KeyboundForm } from "@/components/utilities/keybound-form";
+import { useUpdateProduct } from "@/hooks/api/products";
+import { uploadFilesQuery, deleteFilesQuery } from "@/lib/client";
+import { UploadMediaFormItem } from "@/routes/products/common/components/upload-media-form-item";
 import {
   EditProductMediaSchema,
-  MediaSchema,
-} from "../../../product-create/constants";
-import { EditProductMediaSchemaType } from "../../../product-create/types";
+} from "@/routes/products/product-create/constants";
+import type { MediaSchema } from "@/routes/products/product-create/constants";
+import type { EditProductMediaSchemaType } from "@/routes/products/product-create/types";
 
 type ProductMediaViewProps = {
   product: HttpTypes.AdminProduct;
@@ -118,16 +120,16 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
     let uploaded: HttpTypes.AdminFile[] = [];
 
     if (filesToUpload.length) {
-      const { files: uploads } = await sdk.admin.upload
-        .create({ files: filesToUpload.map((m) => m.file) })
-        .catch(() => {
-          form.setError("media", {
-            type: "invalid_file",
-            message: t("products.media.failedToUpload"),
-          });
-          return { files: [] };
+      try {
+        const response = await uploadFilesQuery(filesToUpload.map((m) => m.file));
+        uploaded = response.files || [];
+      } catch {
+        form.setError("media", {
+          type: "invalid_file",
+          message: t("products.media.failedToUpload"),
         });
-      uploaded = uploads;
+        uploaded = [];
+      }
     }
 
     const withUpdatedUrls = media.map((entry, i) => {
@@ -135,6 +137,7 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
       if (toUploadIndex > -1) {
         return { ...entry, url: uploaded[toUploadIndex]?.url };
       }
+      
       return entry;
     });
     const thumbnail = withUpdatedUrls.find((m) => m.isThumbnail)?.url;
@@ -160,6 +163,7 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
     (id: string) => {
       return (val: boolean) => {
         if (!val) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { [id]: _, ...rest } = selection;
           setSelection(rest);
         } else {
@@ -170,9 +174,28 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
     [selection],
   );
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     const ids = Object.keys(selection);
     const indices = ids.map((id) => fields.findIndex((m) => m.id === id));
+    
+    // Get file IDs or URLs from selected media items
+    // The backend workflow can handle both file IDs and URLs, and will skip placeholder IDs
+    // Prefer URL since it's always available and the backend can extract the key from it
+    const itemsToDelete = fields
+      .filter((_, index) => indices.includes(index))
+      .map((field) => field.url || field.id)
+      .filter((item): item is string => !!item && typeof item === 'string');
+
+    // Delete from storage if there are items to delete
+    // The backend will handle file IDs, URLs, and skip placeholder IDs
+    if (itemsToDelete.length > 0) {
+      try {
+        await deleteFilesQuery(itemsToDelete);
+      } catch (error) {
+        // Log error but continue with form removal
+        console.error("Failed to delete files from storage:", error);
+      }
+    }
 
     remove(indices);
     setSelection({});

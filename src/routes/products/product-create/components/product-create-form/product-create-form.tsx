@@ -10,7 +10,7 @@ import {
 import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
 import { useExtendableForm } from "../../../../../dashboard-app/forms/hooks"
 import { useCreateProduct } from "../../../../../hooks/api/products"
-import { sdk } from "../../../../../lib/client"
+import { sdk, uploadFilesQuery } from "../../../../../lib/client"
 import { useExtension } from "../../../../../providers/extension-provider"
 import {
   PRODUCT_CREATE_FORM_DEFAULTS,
@@ -121,17 +121,13 @@ export const ProductCreateForm = ({
         const fileReqs = []
         if (thumbnailReq) {
           fileReqs.push(
-            sdk.admin.upload
-              .create({ files: [thumbnailReq.file] })
+            uploadFilesQuery([thumbnailReq.file])
               .then((r) => r.files.map((f) => ({ ...f, isThumbnail: true })))
           )
         }
         if (otherMediaReq?.length) {
           fileReqs.push(
-            sdk.admin.upload
-              .create({
-                files: otherMediaReq.map((m) => m.file),
-              })
+            uploadFilesQuery(otherMediaReq.map((m) => m.file))
               .then((r) => r.files.map((f) => ({ ...f, isThumbnail: false })))
           )
         }
