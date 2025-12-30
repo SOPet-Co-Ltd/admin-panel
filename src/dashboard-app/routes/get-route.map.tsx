@@ -669,6 +669,25 @@ export function getRouteMap({
                   ],
                 },
                 {
+                  path: "custom-tag",
+                  handle: {
+                    breadcrumb: () => t("requests.customTag"),
+                  },
+                  children: [
+                    {
+                      path: "",
+                      lazy: () => import("../../routes/requests/custom-tag"),
+                      children: [
+                        {
+                          path: "create",
+                          lazy: () =>
+                            import("../../routes/requests/custom-tag/custom-tag-create"),
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
                   path: "return",
                   handle: {
                     breadcrumb: () => t("requests.return"),

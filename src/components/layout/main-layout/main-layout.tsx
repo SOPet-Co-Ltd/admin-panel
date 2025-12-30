@@ -23,16 +23,17 @@ import { Collapsible as RadixCollapsible } from "radix-ui";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
-import { useLogout } from "../../../hooks/api";
-import { useStore } from "../../../hooks/api/store";
-import { useDocumentDirection } from "../../../hooks/use-document-direction";
-import { queryClient } from "../../../lib/query-client";
-import { useExtension } from "../../../providers/extension-provider";
-import { useSearch } from "../../../providers/search-provider";
-import { Skeleton } from "../../common/skeleton";
-import { INavItem, NavItem } from "../../layout/nav-item";
-import { Shell } from "../../layout/shell";
-import { UserMenu } from "../user-menu";
+import { useLogout } from "@/hooks/api";
+import { useStore } from "@/hooks/api/store";
+import { useDocumentDirection } from "@/hooks/use-document-direction";
+import { queryClient } from "@/lib/query-client";
+import { useExtension } from "@/providers/extension-provider";
+import { useSearch } from "@/providers/search-provider";
+import { Skeleton } from "@/components/common/skeleton";
+import { Shell } from "@/components/layout/shell";
+import { UserMenu } from "@/components/layout/user-menu";
+import type { INavItem } from "@/components/layout/nav-item";
+import { NavItem } from "@/components/layout/nav-item";
 
 export const MainLayout = () => {
   return (
@@ -284,13 +285,17 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
           to: "/requests/product/",
         },
         {
-          label: t("requests.product-tag"),
-          to: "/requests/product-tag",
+          label: t("requests.customTag"),
+          to: "/requests/custom-tag",
         },
-        {
-          label: t("requests.product-type"),
-          to: "/requests/product-type",
-        },
+        // {
+        //   label: t("requests.product-tag"),
+        //   to: "/requests/product-tag",
+        // },
+        // {
+        //   label: t("requests.product-type"),
+        //   to: "/requests/product-type",
+        // },
         {
           label: t("requests.review-remove"),
           to: "/requests/review-remove",
