@@ -7,7 +7,7 @@ import {
   type UseMutationOptions,
   type UseQueryOptions,
 } from "@tanstack/react-query";
-import { sdk } from "@lib/client";
+import { sdk, backendUrl, getAuthToken } from "@lib/client";
 import { queryClient } from "@lib/query-client";
 import { queryKeysFactory } from "@lib/query-key-factory";
 import { inventoryItemsQueryKeys } from "./inventory.tsx";
@@ -443,7 +443,28 @@ export const useCreateProduct = (
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.product.create(payload),
+    mutationFn: async (payload) => {
+      const token = getAuthToken();
+      if (!token) {
+        throw new Error("No authentication token");
+      }
+
+      const response = await fetch(`${backendUrl}/admin/products/custom`, {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || error.error || "Failed to create product");
+      }
+
+      return response.json();
+    },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: productsQueryKeys.lists() });
       // if `manage_inventory` is true on created variants that will create inventory items automatically
