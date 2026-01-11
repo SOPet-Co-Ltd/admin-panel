@@ -1,14 +1,14 @@
-import { FetchError } from "@medusajs/js-sdk"
+import type { FetchError } from "@medusajs/js-sdk"
 import {
-  QueryKey,
-  UseMutationOptions,
-  UseQueryOptions,
+  type QueryKey,
+  type UseMutationOptions,
+  type UseQueryOptions,
   useMutation,
   useQuery,
 } from "@tanstack/react-query"
-import { sdk } from "../../lib/client"
-import { queryClient } from "../../lib/query-client"
-import { queryKeysFactory } from "../../lib/query-key-factory"
+import { sdk } from "@/lib/client"
+import { queryClient } from "@/lib/query-client"
+import { queryKeysFactory } from "@/lib/query-key-factory"
 
 const CUSTOM_TAGS_QUERY_KEY = "custom_tags" as const
 export const customTagsQueryKeys = queryKeysFactory(CUSTOM_TAGS_QUERY_KEY)
@@ -63,6 +63,7 @@ export const useCustomTags = (
       const response = await sdk.client.fetch<CustomTagsResponse>(
         `/admin/custom-tags${params.toString() ? `?${params.toString()}` : ""}`
       )
+
       return response
     },
     ...options,
@@ -85,13 +86,15 @@ export const useCreateCustomTag = (
 ) => {
   return useMutation({
     mutationFn: async (payload: CreateCustomTagPayload) => {
+      // SDK automatically stringifies objects, so pass the object directly
       const response = await sdk.client.fetch<{ tag: CustomTag; message: string }>(
         "/admin/custom-tags",
         {
           method: "POST",
-          body: JSON.stringify(payload),
+          body: payload, // Pass object, SDK will stringify it
         }
       )
+
       return response
     },
     onSuccess: (data, variables, context) => {
@@ -120,6 +123,7 @@ export const useApproveCustomTag = (
           method: "POST",
         }
       )
+
       return response
     },
     onSuccess: (data, variables, context) => {
@@ -149,13 +153,15 @@ export const useRejectCustomTag = (
 ) => {
   return useMutation({
     mutationFn: async (payload: RejectCustomTagPayload) => {
+      // SDK automatically stringifies objects, so pass the object directly
       const response = await sdk.client.fetch<{ tag: CustomTag; message: string }>(
         `/admin/custom-tags/${tagId}/reject`,
         {
           method: "POST",
-          body: JSON.stringify(payload),
+          body: payload, // Pass object, SDK will stringify it
         }
       )
+
       return response
     },
     onSuccess: (data, variables, context) => {
@@ -191,13 +197,15 @@ export const useAffectedProducts = (
 ) => {
   return useMutation({
     mutationFn: async (payload: { ids: string[] }) => {
+      // SDK automatically stringifies objects, so pass the object directly
       const response = await sdk.client.fetch<AffectedProductsResponse>(
         "/admin/custom-tags/affected-products",
         {
           method: "POST",
-          body: JSON.stringify(payload),
+          body: payload, // Pass object, SDK will stringify it
         }
       )
+
       return response
     },
     ...options,
@@ -213,13 +221,15 @@ export const useDeleteCustomTags = (
 ) => {
   return useMutation({
     mutationFn: async (payload: { ids: string[] }) => {
+      // SDK automatically stringifies objects, so pass the object directly
       const response = await sdk.client.fetch<{ deleted: number; message?: string }>(
         "/admin/custom-tags",
         {
           method: "DELETE",
-          body: JSON.stringify(payload),
+          body: payload, // Pass object, SDK will stringify it
         }
       )
+
       return response
     },
     onSuccess: (data, variables, context) => {
@@ -238,5 +248,4 @@ export const useDeleteCustomTags = (
   })
 }
 
-export type { AffectedProduct }
 

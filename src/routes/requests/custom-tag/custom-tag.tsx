@@ -33,7 +33,7 @@ export const CustomTagRequest = () => {
 
   const currentType = useMemo(() => (activeTab === "pet_types" ? "pet_type" : "brand" as const), [activeTab])
 
-  const { data, isLoading, refetch } = useCustomTags(
+  const { tags = [], count = 0, isLoading, refetch } = useCustomTags(
     {
       type: currentType,
       limit: PAGE_SIZE,
@@ -56,15 +56,12 @@ export const CustomTagRequest = () => {
 
   // Actions are handled per-row in CustomTagActions to respect React hook rules
 
-  const tags = data?.tags ?? []
-  const count = data?.count ?? 0
-
   const handleSelectAll = () => {
-    const selectableTags = tags.filter((tag) => tag.status !== "pending")
+    const selectableTags = tags.filter((tag: CustomTag) => tag.status !== "pending")
     if (selectedIds.size === selectableTags.length) {
       setSelectedIds(new Set())
     } else {
-      setSelectedIds(new Set(selectableTags.map((tag) => tag.id)))
+      setSelectedIds(new Set(selectableTags.map((tag: CustomTag) => tag.id)))
     }
   }
 
@@ -195,7 +192,7 @@ export const CustomTagRequest = () => {
                         <Table.Row>
                           <Table.HeaderCell>
                             <Checkbox
-                              checked={selectedIds.size > 0 && selectedIds.size === tags.filter((tag) => tag.status !== "pending").length && tags.filter((tag) => tag.status !== "pending").length > 0}
+                              checked={selectedIds.size > 0 && selectedIds.size === tags.filter((tag: CustomTag) => tag.status !== "pending").length && tags.filter((tag: CustomTag) => tag.status !== "pending").length > 0}
                               onCheckedChange={handleSelectAll}
                             />
                           </Table.HeaderCell>
@@ -374,17 +371,14 @@ function CustomTagActions({
           </>
         )}
         {(isApproved || isRejected) && (
-          <>
-            {isPending && <DropdownMenu.Separator />}
-            <DropdownMenu.Item
-              className="gap-x-2 text-ui-fg-error"
-              onClick={onDelete}
-              data-testid={`custom-tag-menu-${tag.id}-delete`}
-            >
-              <Trash />
-              {t("actions.delete")}
-            </DropdownMenu.Item>
-          </>
+          <DropdownMenu.Item
+            className="gap-x-2 text-ui-fg-error"
+            onClick={onDelete}
+            data-testid={`custom-tag-menu-${tag.id}-delete`}
+          >
+            <Trash />
+            {t("actions.delete")}
+          </DropdownMenu.Item>
         )}
       </DropdownMenu.Content>
     </DropdownMenu>

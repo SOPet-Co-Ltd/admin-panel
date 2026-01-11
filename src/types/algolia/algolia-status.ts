@@ -1,4 +1,6 @@
 export type AlgoliaStatus = {
-  appId: string;
+  appId: string | null;
   productIndex: boolean;
+  configured: boolean;
+  error?: string;
 };
