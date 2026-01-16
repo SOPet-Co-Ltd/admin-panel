@@ -73,12 +73,12 @@ export const ProductListTable = () => {
           <Button size="small" variant="secondary" asChild data-testid="products-export-button">
             <Link to={`export${location.search}`} data-testid="products-export-link">{t("actions.export")}</Link>
           </Button>
-          <Button size="small" variant="secondary" asChild data-testid="products-import-button">
+          {/* <Button size="small" variant="secondary" asChild data-testid="products-import-button">
             <Link to={`import${location.search}`} data-testid="products-import-link">{t("actions.import")}</Link>
           </Button>
           <Button size="small" variant="secondary" asChild data-testid="products-create-button">
             <Link to="create" data-testid="products-create-link">{t("actions.create")}</Link>
-          </Button>
+          </Button> */}
         </div>
       </div>
       <div data-testid="products-data-table">

@@ -65,9 +65,9 @@ export const InventoryListTable = () => {
             {t("inventory.subtitle")}
           </Text>
         </div>
-        <Button size="small" variant="secondary" asChild data-testid="inventory-create-button">
+        {/* <Button size="small" variant="secondary" asChild data-testid="inventory-create-button">
           <Link to="create" data-testid="inventory-create-link">{t("actions.create")}</Link>
-        </Button>
+        </Button> */}
       </div>
       <div data-testid="inventory-data-table">
         <_DataTable
@@ -83,8 +83,8 @@ export const InventoryListTable = () => {
           orderBy={[
             { key: "title", label: t("fields.title") },
             { key: "sku", label: t("fields.sku") },
-            { key: "stocked_quantity", label: t("fields.inStock") },
-            { key: "reserved_quantity", label: t("inventory.reserved") },
+            { key: "created_at", label: t("fields.createdAt") },
+            { key: "updated_at", label: t("fields.updatedAt") },
           ]}
           navigateTo={(row) => `${row.id}`}
           commands={[
