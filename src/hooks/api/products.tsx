@@ -1,31 +1,32 @@
-import type { FetchError } from "@medusajs/js-sdk";
-import type { HttpTypes } from "@medusajs/types";
+import type { AttributeDTO } from '@custom-types/index';
+import type {
+  AdminProduct,
+  AdminProductResponse,
+  AdminProductUpdate,
+  ExtendedAdminProductListParams
+} from '@custom-types/product/common';
+import { backendUrl, getAuthToken, sdk } from '@lib/client';
+import { queryClient } from '@lib/query-client';
+import { queryKeysFactory } from '@lib/query-key-factory';
+import type { FetchError } from '@medusajs/js-sdk';
+import type { HttpTypes } from '@medusajs/types';
 import {
   useMutation,
   useQuery,
   type QueryKey,
   type UseMutationOptions,
-  type UseQueryOptions,
-} from "@tanstack/react-query";
-import { sdk, backendUrl, getAuthToken } from "@lib/client";
-import { queryClient } from "@lib/query-client";
-import { queryKeysFactory } from "@lib/query-key-factory";
-import { inventoryItemsQueryKeys } from "./inventory.tsx";
-import type { AttributeDTO } from "@custom-types/index";
-import type {
-  AdminProduct,
-  AdminProductResponse,
-  AdminProductUpdate,
-  ExtendedAdminProductListParams,
-} from "@custom-types/product/common";
+  type UseQueryOptions
+} from '@tanstack/react-query';
 
-const PRODUCTS_QUERY_KEY = "products" as const;
+import { inventoryItemsQueryKeys } from './inventory.tsx';
+
+const PRODUCTS_QUERY_KEY = 'products' as const;
 export const productsQueryKeys = queryKeysFactory(PRODUCTS_QUERY_KEY);
 
-const VARIANTS_QUERY_KEY = "product_variants" as const;
+const VARIANTS_QUERY_KEY = 'product_variants' as const;
 export const variantsQueryKeys = queryKeysFactory(VARIANTS_QUERY_KEY);
 
-const OPTIONS_QUERY_KEY = "product_options" as const;
+const OPTIONS_QUERY_KEY = 'product_options' as const;
 export const optionsQueryKeys = queryKeysFactory(OPTIONS_QUERY_KEY);
 
 type CustomTagsResponse = {
@@ -33,7 +34,7 @@ type CustomTagsResponse = {
   custom_tags: Array<{
     id: string;
     value: string;
-    type: "pet_type" | "brand";
+    type: 'pet_type' | 'brand';
     status?: string;
   }>;
   count: number;
@@ -57,11 +58,11 @@ export const useCreateProductOption = (
     ) => {
       queryClient.invalidateQueries({ queryKey: optionsQueryKeys.lists() });
       queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.detail(productId),
+        queryKey: productsQueryKeys.detail(productId)
       });
       options?.onSuccess?.(data, variables, context);
     },
-    ...options,
+    ...options
   });
 };
 
@@ -84,15 +85,15 @@ export const useUpdateProductOption = (
     ) => {
       queryClient.invalidateQueries({ queryKey: optionsQueryKeys.lists() });
       queryClient.invalidateQueries({
-        queryKey: optionsQueryKeys.detail(optionId),
+        queryKey: optionsQueryKeys.detail(optionId)
       });
       queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.detail(productId),
+        queryKey: productsQueryKeys.detail(productId)
       });
 
       options?.onSuccess?.(data, variables, context);
     },
-    ...options,
+    ...options
   });
 };
 
@@ -114,15 +115,15 @@ export const useDeleteProductOption = (
     ) => {
       queryClient.invalidateQueries({ queryKey: optionsQueryKeys.lists() });
       queryClient.invalidateQueries({
-        queryKey: optionsQueryKeys.detail(optionId),
+        queryKey: optionsQueryKeys.detail(optionId)
       });
       queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.detail(productId),
+        queryKey: productsQueryKeys.detail(productId)
       });
 
       options?.onSuccess?.(data, variables, context);
     },
-    ...options,
+    ...options
   });
 };
 
@@ -137,14 +138,13 @@ export const useProductVariant = (
       HttpTypes.AdminProductVariantResponse,
       QueryKey
     >,
-    "queryFn" | "queryKey"
+    'queryFn' | 'queryKey'
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () =>
-      sdk.admin.product.retrieveVariant(productId, variantId, query),
+    queryFn: () => sdk.admin.product.retrieveVariant(productId, variantId, query),
     queryKey: variantsQueryKeys.detail(variantId, query),
-    ...options,
+    ...options
   });
 
   return { ...data, ...rest };
@@ -160,13 +160,13 @@ export const useProductVariants = (
       HttpTypes.AdminProductVariantListResponse,
       QueryKey
     >,
-    "queryFn" | "queryKey"
+    'queryFn' | 'queryKey'
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () => sdk.admin.product.listVariants(productId, query),
     queryKey: variantsQueryKeys.list({ productId, ...query }),
-    ...options,
+    ...options
   });
 
   return { ...data, ...rest };
@@ -190,11 +190,11 @@ export const useCreateProductVariant = (
     ) => {
       queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() });
       queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.detail(productId),
+        queryKey: productsQueryKeys.detail(productId)
       });
       options?.onSuccess?.(data, variables, context);
     },
-    ...options,
+    ...options
   });
 };
 
@@ -217,15 +217,15 @@ export const useUpdateProductVariant = (
     ) => {
       queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() });
       queryClient.invalidateQueries({
-        queryKey: variantsQueryKeys.detail(variantId),
+        queryKey: variantsQueryKeys.detail(variantId)
       });
       queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.detail(productId),
+        queryKey: productsQueryKeys.detail(productId)
       });
 
       options?.onSuccess?.(data, variables, context);
     },
-    ...options,
+    ...options
   });
 };
 
@@ -234,30 +234,28 @@ export const useUpdateProductVariantsBatch = (
   options?: UseMutationOptions<
     Awaited<ReturnType<typeof sdk.admin.product.batchVariants>>,
     FetchError,
-    HttpTypes.AdminBatchProductVariantRequest["update"]
+    HttpTypes.AdminBatchProductVariantRequest['update']
   >
 ) => {
   return useMutation({
-    mutationFn: (
-      payload: HttpTypes.AdminBatchProductVariantRequest["update"]
-    ) =>
+    mutationFn: (payload: HttpTypes.AdminBatchProductVariantRequest['update']) =>
       sdk.admin.product.batchVariants(productId, {
-        update: payload,
+        update: payload
       }),
     onSuccess: (
       data: Awaited<ReturnType<typeof sdk.admin.product.batchVariants>>,
-      variables: HttpTypes.AdminBatchProductVariantRequest["update"],
+      variables: HttpTypes.AdminBatchProductVariantRequest['update'],
       context: unknown
     ) => {
       queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() });
       queryClient.invalidateQueries({ queryKey: variantsQueryKeys.details() });
       queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.detail(productId),
+        queryKey: productsQueryKeys.detail(productId)
       });
 
       options?.onSuccess?.(data, variables, context);
     },
-    ...options,
+    ...options
   });
 };
 
@@ -280,12 +278,12 @@ export const useProductVariantsInventoryItemsBatch = (
       queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() });
       queryClient.invalidateQueries({ queryKey: variantsQueryKeys.details() });
       queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.detail(productId),
+        queryKey: productsQueryKeys.detail(productId)
       });
 
       options?.onSuccess?.(data, variables, context);
     },
-    ...options,
+    ...options
   });
 };
 
@@ -307,15 +305,15 @@ export const useDeleteVariant = (
     ) => {
       queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() });
       queryClient.invalidateQueries({
-        queryKey: variantsQueryKeys.detail(variantId),
+        queryKey: variantsQueryKeys.detail(variantId)
       });
       queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.detail(productId),
+        queryKey: productsQueryKeys.detail(productId)
       });
 
       options?.onSuccess?.(data, variables, context);
     },
-    ...options,
+    ...options
   });
 };
 
@@ -328,20 +326,19 @@ export const useDeleteVariantLazy = (
   >
 ) => {
   return useMutation({
-    mutationFn: ({ variantId }) =>
-      sdk.admin.product.deleteVariant(productId, variantId),
+    mutationFn: ({ variantId }) => sdk.admin.product.deleteVariant(productId, variantId),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() });
       queryClient.invalidateQueries({
-        queryKey: variantsQueryKeys.detail(variables.variantId),
+        queryKey: variantsQueryKeys.detail(variables.variantId)
       });
       queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.detail(productId),
+        queryKey: productsQueryKeys.detail(productId)
       });
 
       options?.onSuccess?.(data, variables, context);
     },
-    ...options,
+    ...options
   });
 };
 
@@ -349,38 +346,31 @@ export const useProduct = (
   id: string,
   query?: Record<string, unknown>,
   options?: Omit<
-    UseQueryOptions<
-      AdminProductResponse,
-      FetchError,
-      AdminProductResponse,
-      QueryKey
-    >,
-    "queryFn" | "queryKey"
+    UseQueryOptions<AdminProductResponse, FetchError, AdminProductResponse, QueryKey>,
+    'queryFn' | 'queryKey'
   >
 ) => {
   const { fields, ...restQuery } = query || {};
   const sanitizeFields = (fields?: string) =>
-    typeof fields === "string"
+    typeof fields === 'string'
       ? fields
-          .split(",")
-          .map((f) => f.trim())
+          .split(',')
+          .map(f => f.trim())
           .filter(
-            (f) =>
+            f =>
               f &&
-              f !== "+custom_tags" &&
-              f !== "custom_tags" &&
-              f !== "+custom_tags.*" &&
-              f !== "custom_tags.*"
+              f !== '+custom_tags' &&
+              f !== 'custom_tags' &&
+              f !== '+custom_tags.*' &&
+              f !== 'custom_tags.*'
           )
-          .join(",")
+          .join(',')
       : fields;
 
-  const sanitizedFields = sanitizeFields(
-    typeof fields === "string" ? fields : undefined
-  );
+  const sanitizedFields = sanitizeFields(typeof fields === 'string' ? fields : undefined);
   const finalQuery = {
     ...restQuery,
-    ...(sanitizedFields ? { fields: sanitizedFields } : {}),
+    ...(sanitizedFields ? { fields: sanitizedFields } : {})
   };
 
   const { data, ...rest } = useQuery({
@@ -389,15 +379,14 @@ export const useProduct = (
         sdk.admin.product.retrieve(id, finalQuery),
         sdk.client
           .fetch(`/admin/products/${id}/custom-tags`, {
-            method: "GET",
+            method: 'GET'
           })
-          .catch(() => null),
+          .catch(() => null)
       ]);
 
       const product = productRes.product as AdminProduct;
       const tagsResponse = tagsRes as CustomTagsResponse;
-      const customTags =
-        tagsResponse?.custom_tags || [];
+      const customTags = tagsResponse?.custom_tags || [];
       if (customTags?.length) {
         product.custom_tags = customTags;
       }
@@ -406,9 +395,9 @@ export const useProduct = (
     },
     queryKey: productsQueryKeys.detail(id, {
       ...query,
-      ...(sanitizedFields ? { fields: sanitizedFields } : {}),
+      ...(sanitizedFields ? { fields: sanitizedFields } : {})
     }),
-    ...options,
+    ...options
   });
 
   return { ...data, ...rest };
@@ -423,13 +412,13 @@ export const useProducts = (
       HttpTypes.AdminProductListResponse,
       QueryKey
     >,
-    "queryFn" | "queryKey"
+    'queryFn' | 'queryKey'
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () => sdk.admin.product.list(query),
     queryKey: productsQueryKeys.list(query),
-    ...options,
+    ...options
   });
 
   return { ...data, ...rest };
@@ -443,24 +432,24 @@ export const useCreateProduct = (
   >
 ) => {
   return useMutation({
-    mutationFn: async (payload) => {
+    mutationFn: async payload => {
       const token = getAuthToken();
       if (!token) {
-        throw new Error("No authentication token");
+        throw new Error('No authentication token');
       }
 
       const response = await fetch(`${backendUrl}/admin/products/custom`, {
-        method: "POST",
+        method: 'POST',
         headers: {
           authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(payload)
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || error.error || "Failed to create product");
+        throw new Error(error.message || error.error || 'Failed to create product');
       }
 
       return response.json();
@@ -469,35 +458,31 @@ export const useCreateProduct = (
       queryClient.invalidateQueries({ queryKey: productsQueryKeys.lists() });
       // if `manage_inventory` is true on created variants that will create inventory items automatically
       queryClient.invalidateQueries({
-        queryKey: inventoryItemsQueryKeys.lists(),
+        queryKey: inventoryItemsQueryKeys.lists()
       });
       options?.onSuccess?.(data, variables, context);
     },
-    ...options,
+    ...options
   });
 };
 
 export const useUpdateProduct = (
   id: string,
-  options?: UseMutationOptions<
-    AdminProductResponse,
-    FetchError,
-    AdminProductUpdate
-  >
+  options?: UseMutationOptions<AdminProductResponse, FetchError, AdminProductUpdate>
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.product.update(id, payload),
+    mutationFn: payload => sdk.admin.product.update(id, payload),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.lists(),
+        queryKey: productsQueryKeys.lists()
       });
       await queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.detail(id),
+        queryKey: productsQueryKeys.detail(id)
       });
 
       options?.onSuccess?.(data, variables, context);
     },
-    ...options,
+    ...options
   });
 };
 
@@ -521,7 +506,7 @@ export const useDeleteProduct = (
 
       options?.onSuccess?.(data, variables, context);
     },
-    ...options,
+    ...options
   });
 };
 
@@ -534,11 +519,11 @@ export const useExportProducts = (
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.product.export(payload, query),
+    mutationFn: payload => sdk.admin.product.export(payload, query),
     onSuccess: (data, variables, context) => {
       options?.onSuccess?.(data, variables, context);
     },
-    ...options,
+    ...options
   });
 };
 
@@ -550,11 +535,11 @@ export const useImportProducts = (
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.product.createImport(payload),
+    mutationFn: payload => sdk.admin.product.createImport(payload),
     onSuccess: (data, variables, context) => {
       options?.onSuccess?.(data, variables, context);
     },
-    ...options,
+    ...options
   });
 };
 
@@ -562,11 +547,11 @@ export const useConfirmImportProducts = (
   options?: UseMutationOptions<Record<string, never>, FetchError, string>
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.product.confirmImport(payload),
+    mutationFn: payload => sdk.admin.product.confirmImport(payload),
     onSuccess: (data, variables, context) => {
       options?.onSuccess?.(data, variables, context);
     },
-    ...options,
+    ...options
   });
 };
 
@@ -574,9 +559,9 @@ export const useProductAttributes = (id: string) => {
   const { data, ...rest } = useQuery<{ attributes: AttributeDTO[] }>({
     queryFn: () =>
       sdk.client.fetch(`/admin/products/${id}/applicable-attributes`, {
-        method: "GET",
+        method: 'GET'
       }),
-    queryKey: ["product", id, "product-attributes"],
+    queryKey: ['product', id, 'product-attributes']
   });
 
   return { data, ...rest };

@@ -1,21 +1,17 @@
-import { ReactNode } from "react";
+import { ReactNode } from 'react';
 
-import { HttpTypes } from "@medusajs/types";
-import { Button } from "@medusajs/ui";
+import { HttpTypes } from '@medusajs/types';
+import { Button } from '@medusajs/ui';
+import { Table } from '@tanstack/react-table';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
-import { Table } from "@tanstack/react-table";
-import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
-
-import {
-  NoRecords,
-  NoResults,
-} from "../../../../../components/common/empty-table-content";
-import { TableFooterSkeleton } from "../../../../../components/common/skeleton";
-import { LocalizedTablePagination } from "../../../../../components/localization/localized-table-pagination";
-import { DataTableOrderBy } from "../../../../../components/table/data-table/data-table-order-by";
-import { DataTableSearch } from "../../../../../components/table/data-table/data-table-search";
-import { TaxOverrideCard } from "../tax-override-card";
+import { NoRecords, NoResults } from '../../../../../components/common/empty-table-content';
+import { TableFooterSkeleton } from '../../../../../components/common/skeleton';
+import { LocalizedTablePagination } from '../../../../../components/localization/localized-table-pagination';
+import { DataTableOrderBy } from '../../../../../components/table/data-table/data-table-order-by';
+import { DataTableSearch } from '../../../../../components/table/data-table/data-table-search';
+import { TaxOverrideCard } from '../tax-override-card';
 
 type TaxOverrideTableProps = {
   isPending: boolean;
@@ -25,7 +21,7 @@ type TaxOverrideTableProps = {
   action: { label: string; to: string };
   prefix?: string;
   children?: ReactNode;
-  "data-testid"?: string;
+  'data-testid'?: string;
 };
 
 export const TaxOverrideTable = ({
@@ -36,7 +32,7 @@ export const TaxOverrideTable = ({
   queryObject,
   prefix,
   children,
-  "data-testid": dataTestId,
+  'data-testid': dataTestId
 }: TaxOverrideTableProps) => {
   const { t } = useTranslation();
   if (isPending) {
@@ -55,16 +51,21 @@ export const TaxOverrideTable = ({
     );
   }
 
-  const noQuery =
-    Object.values(queryObject).filter((v) => Boolean(v)).length === 0;
+  const noQuery = Object.values(queryObject).filter(v => Boolean(v)).length === 0;
   const noResults = !isPending && count === 0 && !noQuery;
   const noRecords = !isPending && count === 0 && noQuery;
 
   const { pageIndex, pageSize } = table.getState().pagination;
 
   return (
-    <div className="flex flex-col divide-y" data-testid={dataTestId}>
-      <div className="flex flex-col justify-between gap-x-4 gap-y-3 px-6 py-4 md:flex-row md:items-center" data-testid={dataTestId ? `${dataTestId}-header` : undefined}>
+    <div
+      className="flex flex-col divide-y"
+      data-testid={dataTestId}
+    >
+      <div
+        className="flex flex-col justify-between gap-x-4 gap-y-3 px-6 py-4 md:flex-row md:items-center"
+        data-testid={dataTestId ? `${dataTestId}-header` : undefined}
+      >
         <div>{children}</div>
         <div className="flex items-center gap-x-2">
           {!noRecords && (
@@ -74,18 +75,22 @@ export const TaxOverrideTable = ({
               </div>
               <DataTableOrderBy
                 keys={[
-                  { key: "name", label: t("fields.name") },
-                  { key: "rate", label: t("fields.rate") },
-                  { key: "code", label: t("fields.code") },
-                  { key: "updated_at", label: t("fields.updatedAt") },
-                  { key: "created_at", label: t("fields.createdAt") },
+                  { key: 'name', label: t('fields.name') },
+                  { key: 'rate', label: t('fields.rate') },
+                  { key: 'code', label: t('fields.code') },
+                  { key: 'updated_at', label: t('fields.updatedAt') },
+                  { key: 'created_at', label: t('fields.createdAt') }
                 ]}
                 prefix={prefix}
               />
             </div>
           )}
           <Link to={action.to}>
-            <Button size="small" variant="secondary" data-testid={dataTestId ? `${dataTestId}-create-button` : undefined}>
+            <Button
+              size="small"
+              variant="secondary"
+              data-testid={dataTestId ? `${dataTestId}-create-button` : undefined}
+            >
               {action.label}
             </Button>
           </Link>
@@ -95,7 +100,7 @@ export const TaxOverrideTable = ({
       {noRecords && <NoRecords />}
       {!noRecords && !noResults
         ? !isPending
-          ? table.getRowModel().rows.map((row) => {
+          ? table.getRowModel().rows.map(row => {
               return (
                 <TaxOverrideCard
                   key={row.id}

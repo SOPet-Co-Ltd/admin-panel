@@ -1,21 +1,21 @@
-import { Divider, Heading } from "@medusajs/ui"
-import { UseFormReturn } from "react-hook-form"
-import { useTranslation } from "react-i18next"
+import { Divider, Heading } from '@medusajs/ui';
+import { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
-import { FormExtensionZone } from "../../../../../dashboard-app"
-import { useExtension } from "../../../../../providers/extension-provider"
-import { ProductCreateSchemaType } from "../../types"
-import { ProductCreateGeneralSection } from "./components/product-create-details-general-section"
-import { ProductCreateMediaSection } from "./components/product-create-details-media-section"
-import { ProductCreateVariantsSection } from "./components/product-create-details-variant-section"
+import { FormExtensionZone } from '../../../../../dashboard-app';
+import { useExtension } from '../../../../../providers/extension-provider';
+import { ProductCreateSchemaType } from '../../types';
+import { ProductCreateGeneralSection } from './components/product-create-details-general-section';
+import { ProductCreateMediaSection } from './components/product-create-details-media-section';
+import { ProductCreateVariantsSection } from './components/product-create-details-variant-section';
 
 type ProductAttributesProps = {
-  form: UseFormReturn<ProductCreateSchemaType>
-}
+  form: UseFormReturn<ProductCreateSchemaType>;
+};
 
 export const ProductCreateDetailsForm = ({ form }: ProductAttributesProps) => {
-  const { getFormFields } = useExtension()
-  const fields = getFormFields("product", "create", "general")
+  const { getFormFields } = useExtension();
+  const fields = getFormFields('product', 'create', 'general');
 
   return (
     <div className="flex flex-col items-center p-16">
@@ -23,22 +23,25 @@ export const ProductCreateDetailsForm = ({ form }: ProductAttributesProps) => {
         <Header />
         <div className="flex flex-col gap-y-6">
           <ProductCreateGeneralSection form={form} />
-          <FormExtensionZone fields={fields} form={form} />
+          <FormExtensionZone
+            fields={fields}
+            form={form}
+          />
           <ProductCreateMediaSection form={form} />
         </div>
         <Divider />
         <ProductCreateVariantsSection form={form} />
       </div>
     </div>
-  )
-}
+  );
+};
 
 const Header = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <div className="flex flex-col">
-      <Heading>{t("products.create.header")}</Heading>
+      <Heading>{t('products.create.header')}</Heading>
     </div>
-  )
-}
+  );
+};

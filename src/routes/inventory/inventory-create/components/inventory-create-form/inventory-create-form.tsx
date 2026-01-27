@@ -1,4 +1,7 @@
-import { zodResolver } from "@hookform/resolvers/zod"
+import { useCallback, useEffect, useState } from 'react';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import { HttpTypes } from '@medusajs/types';
 import {
   Button,
   clx,
@@ -8,110 +11,102 @@ import {
   ProgressStatus,
   ProgressTabs,
   Textarea,
-  toast,
-} from "@medusajs/ui"
-import { useCallback, useEffect, useState } from "react"
-import { useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
+  toast
+} from '@medusajs/ui';
+import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
-import { HttpTypes } from "@medusajs/types"
-import { Form } from "../../../../../components/common/form"
-import { SwitchBox } from "../../../../../components/common/switch-box"
-import { CountrySelect } from "../../../../../components/inputs/country-select"
-import {
-  RouteFocusModal,
-  useRouteModal,
-} from "../../../../../components/modals"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
+import { Form } from '../../../../../components/common/form';
+import { SwitchBox } from '../../../../../components/common/switch-box';
+import { CountrySelect } from '../../../../../components/inputs/country-select';
+import { RouteFocusModal, useRouteModal } from '../../../../../components/modals';
+import { KeyboundForm } from '../../../../../components/utilities/keybound-form';
 import {
   inventoryItemsQueryKeys,
-  useCreateInventoryItem,
-} from "../../../../../hooks/api/inventory"
-import { sdk } from "../../../../../lib/client"
+  useCreateInventoryItem
+} from '../../../../../hooks/api/inventory';
+import { useDocumentDirection } from '../../../../../hooks/use-document-direction';
+import { sdk } from '../../../../../lib/client';
 import {
   transformNullableFormData,
   transformNullableFormNumber,
-  transformNullableFormNumbers,
-} from "../../../../../lib/form-helpers"
-import { queryClient } from "../../../../../lib/query-client"
-import { InventoryAvailabilityForm } from "./inventory-availability-form"
-import { CreateInventoryItemSchema } from "./schema"
-import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
+  transformNullableFormNumbers
+} from '../../../../../lib/form-helpers';
+import { queryClient } from '../../../../../lib/query-client';
+import { InventoryAvailabilityForm } from './inventory-availability-form';
+import { CreateInventoryItemSchema } from './schema';
 
 enum Tab {
-  DETAILS = "details",
-  AVAILABILITY = "availability",
+  DETAILS = 'details',
+  AVAILABILITY = 'availability'
 }
 
 type StepStatus = {
-  [key in Tab]: ProgressStatus
-}
+  [key in Tab]: ProgressStatus;
+};
 
 type InventoryCreateFormProps = {
-  locations: HttpTypes.AdminStockLocation[]
-}
+  locations: HttpTypes.AdminStockLocation[];
+};
 
 export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
-  const { t } = useTranslation()
-  const { handleSuccess } = useRouteModal()
-  const [tab, setTab] = useState<Tab>(Tab.DETAILS)
-  const direction = useDocumentDirection()
+  const { t } = useTranslation();
+  const { handleSuccess } = useRouteModal();
+  const [tab, setTab] = useState<Tab>(Tab.DETAILS);
+  const direction = useDocumentDirection();
   const form = useForm<CreateInventoryItemSchema>({
     defaultValues: {
-      title: "",
-      sku: "",
-      hs_code: "",
-      weight: "",
-      length: "",
-      height: "",
-      width: "",
-      origin_country: "",
-      mid_code: "",
-      material: "",
-      description: "",
+      title: '',
+      sku: '',
+      hs_code: '',
+      weight: '',
+      length: '',
+      height: '',
+      width: '',
+      origin_country: '',
+      mid_code: '',
+      material: '',
+      description: '',
       requires_shipping: true,
-      thumbnail: "",
-      locations: Object.fromEntries(
-        locations.map((location) => [location.id, ""])
-      ),
+      thumbnail: '',
+      locations: Object.fromEntries(locations.map(location => [location.id, '']))
     },
-    resolver: zodResolver(CreateInventoryItemSchema),
-  })
+    resolver: zodResolver(CreateInventoryItemSchema)
+  });
 
   const {
     trigger,
-    formState: { isDirty },
-  } = form
+    formState: { isDirty }
+  } = form;
 
-  const { mutateAsync: createInventoryItem, isPending: isLoading } =
-    useCreateInventoryItem()
+  const { mutateAsync: createInventoryItem, isPending: isLoading } = useCreateInventoryItem();
 
-  const handleSubmit = form.handleSubmit(async (data) => {
-    const { locations, weight, length, height, width, ...payload } = data
+  const handleSubmit = form.handleSubmit(async data => {
+    const { locations, weight, length, height, width, ...payload } = data;
 
-    const cleanData = transformNullableFormData(payload, false)
+    const cleanData = transformNullableFormData(payload, false);
     const cleanNumbers = transformNullableFormNumbers(
       {
         weight,
         length,
         height,
-        width,
+        width
       },
       false
-    )
+    );
 
     const { inventory_item } = await createInventoryItem(
       {
         ...cleanData,
-        ...cleanNumbers,
+        ...cleanNumbers
       },
       {
-        onError: (e) => {
-          toast.error(e.message)
-          return
-        },
+        onError: e => {
+          toast.error(e.message);
+          return;
+        }
       }
-    )
+    );
 
     await sdk.admin.inventoryItem
       .batchUpdateLevels(inventory_item.id, {
@@ -119,85 +114,82 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
           .filter(([_, quantiy]) => !!quantiy)
           .map(([location_id, stocked_quantity]) => ({
             location_id,
-            stocked_quantity: transformNullableFormNumber(
-              stocked_quantity,
-              false
-            ),
-          })),
+            stocked_quantity: transformNullableFormNumber(stocked_quantity, false)
+          }))
       })
       .then(async () => {
         await queryClient.invalidateQueries({
-          queryKey: inventoryItemsQueryKeys.lists(),
-        })
+          queryKey: inventoryItemsQueryKeys.lists()
+        });
       })
-      .catch((e) => {
+      .catch(e => {
         // Since the inventory item is created, we only log the error,
         // but still close the modal to prevent the user from trying to
         // create the same item again.
-        toast.error(e.message)
+        toast.error(e.message);
       })
       .finally(() => {
-        handleSuccess()
-        toast.success(t("inventory.create.successToast"))
-      })
-  })
+        handleSuccess();
+        toast.success(t('inventory.create.successToast'));
+      });
+  });
 
   const [status, setStatus] = useState<StepStatus>({
-    [Tab.AVAILABILITY]: "not-started",
-    [Tab.DETAILS]: "not-started",
-  })
+    [Tab.AVAILABILITY]: 'not-started',
+    [Tab.DETAILS]: 'not-started'
+  });
 
   const onTabChange = useCallback(
     async (value: Tab) => {
-      const result = await trigger()
+      const result = await trigger();
 
       if (!result) {
-        return
+        return;
       }
 
-      setTab(value)
+      setTab(value);
     },
     [trigger]
-  )
+  );
 
   const onNext = useCallback(async () => {
-    const result = await trigger()
+    const result = await trigger();
 
     if (!result) {
-      return
+      return;
     }
 
     switch (tab) {
       case Tab.DETAILS: {
-        setTab(Tab.AVAILABILITY)
-        break
+        setTab(Tab.AVAILABILITY);
+        break;
       }
       case Tab.AVAILABILITY:
-        break
+        break;
     }
-  }, [tab, trigger])
+  }, [tab, trigger]);
 
   useEffect(() => {
     if (isDirty) {
-      setStatus((prev) => ({ ...prev, [Tab.DETAILS]: "in-progress" }))
+      setStatus(prev => ({ ...prev, [Tab.DETAILS]: 'in-progress' }));
     } else {
-      setStatus((prev) => ({ ...prev, [Tab.DETAILS]: "not-started" }))
+      setStatus(prev => ({ ...prev, [Tab.DETAILS]: 'not-started' }));
     }
-  }, [isDirty])
+  }, [isDirty]);
 
   useEffect(() => {
     if (tab === Tab.DETAILS && isDirty) {
-      setStatus((prev) => ({ ...prev, [Tab.DETAILS]: "in-progress" }))
+      setStatus(prev => ({ ...prev, [Tab.DETAILS]: 'in-progress' }));
     }
 
     if (tab === Tab.AVAILABILITY) {
-      setStatus((prev) => ({
+      setStatus(prev => ({
         ...prev,
-        [Tab.DETAILS]: "completed",
-        [Tab.AVAILABILITY]: "in-progress",
-      }))
+        [Tab.DETAILS]: 'completed',
+        [Tab.AVAILABILITY]: 'in-progress'
+      }));
     }
-  }, [tab, isDirty])
+  }, [tab, isDirty]);
 
   return (
     <RouteFocusModal.Form form={form}>
@@ -205,21 +197,21 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
         dir={direction}
         value={tab}
         className="h-full"
-        onValueChange={(tab) => onTabChange(tab as Tab)}
+        onValueChange={tab => onTabChange(tab as Tab)}
       >
         <KeyboundForm
           className="flex h-full flex-col overflow-hidden"
           onSubmit={handleSubmit}
         >
           <RouteFocusModal.Header>
-            <ProgressTabs.List className="border-ui-border-base -my-2 ml-2 min-w-0 flex-1 border-l">
+            <ProgressTabs.List className="-my-2 ml-2 min-w-0 flex-1 border-l border-ui-border-base">
               <ProgressTabs.Trigger
                 value={Tab.DETAILS}
                 status={status[Tab.DETAILS]}
                 className="w-full max-w-[200px]"
               >
                 <span className="w-full cursor-auto overflow-hidden text-ellipsis whitespace-nowrap">
-                  {t("inventory.create.details")}
+                  {t('inventory.create.details')}
                 </span>
               </ProgressTabs.Trigger>
               <ProgressTabs.Trigger
@@ -228,17 +220,16 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
                 status={status[Tab.AVAILABILITY]}
               >
                 <span className="w-full overflow-hidden text-ellipsis whitespace-nowrap">
-                  {t("inventory.create.availability")}
+                  {t('inventory.create.availability')}
                 </span>
               </ProgressTabs.Trigger>
             </ProgressTabs.List>
           </RouteFocusModal.Header>
 
           <RouteFocusModal.Body
-            className={clx(
-              "flex h-full w-full flex-col items-center divide-y overflow-hidden",
-              { "mx-auto": tab === Tab.DETAILS }
-            )}
+            className={clx('flex h-full w-full flex-col items-center divide-y overflow-hidden', {
+              'mx-auto': tab === Tab.DETAILS
+            })}
           >
             <ProgressTabs.Content
               value={Tab.DETAILS}
@@ -246,7 +237,7 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
             >
               <div className="mx-auto flex w-full max-w-[720px] flex-col gap-y-8 px-px py-16">
                 <div className="flex flex-col gap-y-8">
-                  <Heading>{t("inventory.create.title")}</Heading>
+                  <Heading>{t('inventory.create.title')}</Heading>
                   <div className="flex flex-col gap-y-6">
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                       <Form.Field
@@ -255,16 +246,16 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
                         render={({ field }) => {
                           return (
                             <Form.Item>
-                              <Form.Label>{t("fields.title")}</Form.Label>
+                              <Form.Label>{t('fields.title')}</Form.Label>
                               <Form.Control>
                                 <Input
                                   {...field}
-                                  placeholder={t("fields.title")}
+                                  placeholder={t('fields.title')}
                                 />
                               </Form.Control>
                               <Form.ErrorMessage />
                             </Form.Item>
-                          )
+                          );
                         }}
                       />
 
@@ -274,13 +265,16 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
                         render={({ field }) => {
                           return (
                             <Form.Item>
-                              <Form.Label>{t("fields.sku")}</Form.Label>
+                              <Form.Label>{t('fields.sku')}</Form.Label>
                               <Form.Control>
-                                <Input {...field} placeholder="sku-123" />
+                                <Input
+                                  {...field}
+                                  placeholder="sku-123"
+                                />
                               </Form.Control>
                               <Form.ErrorMessage />
                             </Form.Item>
-                          )
+                          );
                         }}
                       />
                     </div>
@@ -292,7 +286,7 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
                         return (
                           <Form.Item>
                             <Form.Label optional>
-                              {t("products.fields.description.label")}
+                              {t('products.fields.description.label')}
                             </Form.Label>
                             <Form.Control>
                               <Textarea
@@ -301,7 +295,7 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
                               />
                             </Form.Control>
                           </Form.Item>
-                        )
+                        );
                       }}
                     />
                   </div>
@@ -309,17 +303,15 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
                   <SwitchBox
                     control={form.control}
                     name="requires_shipping"
-                    label={t("inventory.create.requiresShipping")}
-                    description={t("inventory.create.requiresShippingHint")}
+                    label={t('inventory.create.requiresShipping')}
+                    description={t('inventory.create.requiresShippingHint')}
                   />
                 </div>
 
                 <Divider />
 
                 <div className="flex flex-col gap-y-6">
-                  <Heading level="h2">
-                    {t("inventory.create.attributes")}
-                  </Heading>
+                  <Heading level="h2">{t('inventory.create.attributes')}</Heading>
 
                   <div className="grid grid-cols-1 gap-x-4 gap-y-4 lg:grid-cols-2 lg:gap-y-8">
                     <Form.Field
@@ -328,9 +320,7 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
                       render={({ field }) => {
                         return (
                           <Form.Item>
-                            <Form.Label optional>
-                              {t("products.fields.width.label")}
-                            </Form.Label>
+                            <Form.Label optional>{t('products.fields.width.label')}</Form.Label>
                             <Form.Control>
                               <Input
                                 {...field}
@@ -340,7 +330,7 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
                               />
                             </Form.Control>
                           </Form.Item>
-                        )
+                        );
                       }}
                     />
 
@@ -350,9 +340,7 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
                       render={({ field }) => {
                         return (
                           <Form.Item>
-                            <Form.Label optional>
-                              {t("products.fields.length.label")}
-                            </Form.Label>
+                            <Form.Label optional>{t('products.fields.length.label')}</Form.Label>
                             <Form.Control>
                               <Input
                                 {...field}
@@ -362,7 +350,7 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
                               />
                             </Form.Control>
                           </Form.Item>
-                        )
+                        );
                       }}
                     />
 
@@ -372,9 +360,7 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
                       render={({ field }) => {
                         return (
                           <Form.Item>
-                            <Form.Label optional>
-                              {t("products.fields.height.label")}
-                            </Form.Label>
+                            <Form.Label optional>{t('products.fields.height.label')}</Form.Label>
                             <Form.Control>
                               <Input
                                 {...field}
@@ -384,7 +370,7 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
                               />
                             </Form.Control>
                           </Form.Item>
-                        )
+                        );
                       }}
                     />
 
@@ -394,9 +380,7 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
                       render={({ field }) => {
                         return (
                           <Form.Item>
-                            <Form.Label optional>
-                              {t("products.fields.weight.label")}
-                            </Form.Label>
+                            <Form.Label optional>{t('products.fields.weight.label')}</Form.Label>
                             <Form.Control>
                               <Input
                                 {...field}
@@ -406,7 +390,7 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
                               />
                             </Form.Control>
                           </Form.Item>
-                        )
+                        );
                       }}
                     />
 
@@ -416,14 +400,12 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
                       render={({ field }) => {
                         return (
                           <Form.Item>
-                            <Form.Label optional>
-                              {t("products.fields.mid_code.label")}
-                            </Form.Label>
+                            <Form.Label optional>{t('products.fields.mid_code.label')}</Form.Label>
                             <Form.Control>
                               <Input {...field} />
                             </Form.Control>
                           </Form.Item>
-                        )
+                        );
                       }}
                     />
 
@@ -433,14 +415,12 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
                       render={({ field }) => {
                         return (
                           <Form.Item>
-                            <Form.Label optional>
-                              {t("products.fields.hs_code.label")}
-                            </Form.Label>
+                            <Form.Label optional>{t('products.fields.hs_code.label')}</Form.Label>
                             <Form.Control>
                               <Input {...field} />
                             </Form.Control>
                           </Form.Item>
-                        )
+                        );
                       }}
                     />
 
@@ -451,13 +431,13 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
                         return (
                           <Form.Item>
                             <Form.Label optional>
-                              {t("products.fields.countryOrigin.label")}
+                              {t('products.fields.countryOrigin.label')}
                             </Form.Label>
                             <Form.Control>
                               <CountrySelect {...field} />
                             </Form.Control>
                           </Form.Item>
-                        )
+                        );
                       }}
                     />
 
@@ -467,14 +447,12 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
                       render={({ field }) => {
                         return (
                           <Form.Item>
-                            <Form.Label optional>
-                              {t("products.fields.material.label")}
-                            </Form.Label>
+                            <Form.Label optional>{t('products.fields.material.label')}</Form.Label>
                             <Form.Control>
                               <Input {...field} />
                             </Form.Control>
                           </Form.Item>
-                        )
+                        );
                       }}
                     />
                   </div>
@@ -486,14 +464,20 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
               value={Tab.AVAILABILITY}
               className="size-full"
             >
-              <InventoryAvailabilityForm form={form} locations={locations} />
+              <InventoryAvailabilityForm
+                form={form}
+                locations={locations}
+              />
             </ProgressTabs.Content>
           </RouteFocusModal.Body>
           <RouteFocusModal.Footer>
             <div className="flex items-center justify-end gap-x-2">
               <RouteFocusModal.Close asChild>
-                <Button variant="secondary" size="small">
-                  {t("actions.cancel")}
+                <Button
+                  variant="secondary"
+                  size="small"
+                >
+                  {t('actions.cancel')}
                 </Button>
               </RouteFocusModal.Close>
               <Button
@@ -501,17 +485,15 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
                 className="whitespace-nowrap"
                 isLoading={isLoading}
                 onClick={tab !== Tab.AVAILABILITY ? onNext : undefined}
-                key={tab === Tab.AVAILABILITY ? "details" : "pricing"}
-                type={tab === Tab.AVAILABILITY ? "submit" : "button"}
+                key={tab === Tab.AVAILABILITY ? 'details' : 'pricing'}
+                type={tab === Tab.AVAILABILITY ? 'submit' : 'button'}
               >
-                {tab === Tab.AVAILABILITY
-                  ? t("actions.save")
-                  : t("general.next")}
+                {tab === Tab.AVAILABILITY ? t('actions.save') : t('general.next')}
               </Button>
             </div>
           </RouteFocusModal.Footer>
         </KeyboundForm>
       </ProgressTabs>
     </RouteFocusModal.Form>
-  )
+  );
 }

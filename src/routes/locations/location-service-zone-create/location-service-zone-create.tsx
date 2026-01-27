@@ -1,40 +1,37 @@
-import { json, useParams } from "react-router-dom"
+import { json, useParams } from 'react-router-dom';
 
-import { RouteFocusModal } from "../../../components/modals"
-import { useStockLocation } from "../../../hooks/api/stock-locations"
-import { CreateServiceZoneForm } from "./components/create-service-zone-form"
-import { FulfillmentSetType } from "../common/constants"
+import { RouteFocusModal } from '../../../components/modals';
+import { useStockLocation } from '../../../hooks/api/stock-locations';
+import { FulfillmentSetType } from '../common/constants';
+import { CreateServiceZoneForm } from './components/create-service-zone-form';
 
 export function LocationCreateServiceZone() {
-  const { fset_id, location_id } = useParams()
+  const { fset_id, location_id } = useParams();
 
-  const { stock_location, isPending, isFetching, isError, error } =
-    useStockLocation(location_id!, {
-      fields: "*fulfillment_sets",
-    })
+  const { stock_location, isPending, isFetching, isError, error } = useStockLocation(location_id!, {
+    fields: '*fulfillment_sets'
+  });
 
-  const fulfillmentSet = stock_location?.fulfillment_sets?.find(
-    (f) => f.id === fset_id
-  )
+  const fulfillmentSet = stock_location?.fulfillment_sets?.find(f => f.id === fset_id);
 
   const type: FulfillmentSetType =
     fulfillmentSet?.type === FulfillmentSetType.Pickup
       ? FulfillmentSetType.Pickup
-      : FulfillmentSetType.Shipping
+      : FulfillmentSetType.Shipping;
 
   if (!isPending && !isFetching && !fulfillmentSet) {
-    throw json(
-      { message: `Fulfillment set with ID: ${fset_id} was not found.` },
-      404
-    )
+    throw json({ message: `Fulfillment set with ID: ${fset_id} was not found.` }, 404);
   }
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
-    <RouteFocusModal prev={`/settings/locations/${location_id}`} data-testid="location-service-zone-create-modal">
+    <RouteFocusModal
+      prev={`/settings/locations/${location_id}`}
+      data-testid="location-service-zone-create-modal"
+    >
       {fulfillmentSet && (
         <CreateServiceZoneForm
           fulfillmentSet={fulfillmentSet}
@@ -43,5 +40,5 @@ export function LocationCreateServiceZone() {
         />
       )}
     </RouteFocusModal>
-  )
+  );
 }
