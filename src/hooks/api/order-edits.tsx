@@ -1,13 +1,12 @@
-import { useMutation, UseMutationOptions } from "@tanstack/react-query"
+import { FetchError } from '@medusajs/js-sdk';
+import { HttpTypes } from '@medusajs/types';
+import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 
-import { HttpTypes } from "@medusajs/types"
-
-import { sdk } from "../../lib/client"
-import { queryClient } from "../../lib/query-client"
-import { ordersQueryKeys } from "./orders"
-import { FetchError } from "@medusajs/js-sdk"
-import { reservationItemsQueryKeys } from "./reservations"
-import { inventoryItemsQueryKeys } from "./inventory.tsx"
+import { sdk } from '../../lib/client';
+import { queryClient } from '../../lib/query-client';
+import { inventoryItemsQueryKeys } from './inventory.tsx';
+import { ordersQueryKeys } from './orders';
+import { reservationItemsQueryKeys } from './reservations';
 
 export const useCreateOrderEdit = (
   orderId: string,
@@ -22,94 +21,86 @@ export const useCreateOrderEdit = (
       sdk.admin.orderEdit.initiateRequest(payload),
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
-        queryKey: ordersQueryKeys.details(),
-      })
+        queryKey: ordersQueryKeys.details()
+      });
 
       queryClient.invalidateQueries({
-        queryKey: ordersQueryKeys.preview(orderId),
-      })
-      options?.onSuccess?.(data, variables, context)
+        queryKey: ordersQueryKeys.preview(orderId)
+      });
+      options?.onSuccess?.(data, variables, context);
     },
-    ...options,
-  })
-}
+    ...options
+  });
+};
 
 export const useRequestOrderEdit = (
   id: string,
-  options?: UseMutationOptions<
-    HttpTypes.AdminOrderEditPreviewResponse,
-    FetchError,
-    void
-  >
+  options?: UseMutationOptions<HttpTypes.AdminOrderEditPreviewResponse, FetchError, void>
 ) => {
   return useMutation({
     mutationFn: () => sdk.admin.orderEdit.request(id),
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
-        queryKey: ordersQueryKeys.details(),
-      })
+        queryKey: ordersQueryKeys.details()
+      });
 
       queryClient.invalidateQueries({
-        queryKey: ordersQueryKeys.preview(id),
-      })
+        queryKey: ordersQueryKeys.preview(id)
+      });
 
       queryClient.invalidateQueries({
-        queryKey: ordersQueryKeys.changes(id),
-      })
+        queryKey: ordersQueryKeys.changes(id)
+      });
 
       queryClient.invalidateQueries({
-        queryKey: ordersQueryKeys.lineItems(id),
-      })
-      options?.onSuccess?.(data, variables, context)
+        queryKey: ordersQueryKeys.lineItems(id)
+      });
+      options?.onSuccess?.(data, variables, context);
     },
-    ...options,
-  })
-}
+    ...options
+  });
+};
 
 export const useConfirmOrderEdit = (
   id: string,
-  options?: UseMutationOptions<
-    HttpTypes.AdminOrderEditPreviewResponse,
-    FetchError,
-    void
-  >
+  options?: UseMutationOptions<HttpTypes.AdminOrderEditPreviewResponse, FetchError, void>
 ) => {
   return useMutation({
     mutationFn: () => sdk.admin.orderEdit.confirm(id),
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
-        queryKey: ordersQueryKeys.details(),
-      })
+        queryKey: ordersQueryKeys.details()
+      });
 
       queryClient.invalidateQueries({
-        queryKey: ordersQueryKeys.preview(id),
-      })
+        queryKey: ordersQueryKeys.preview(id)
+      });
 
       queryClient.invalidateQueries({
-        queryKey: ordersQueryKeys.changes(id),
-      })
+        queryKey: ordersQueryKeys.changes(id)
+      });
 
       queryClient.invalidateQueries({
-        queryKey: ordersQueryKeys.lineItems(id),
-      })
+        queryKey: ordersQueryKeys.lineItems(id)
+      });
 
       queryClient.invalidateQueries({
-        queryKey: reservationItemsQueryKeys.lists(),
-      })
+        queryKey: reservationItemsQueryKeys.lists()
+      });
 
       queryClient.invalidateQueries({
-        queryKey: inventoryItemsQueryKeys.lists(),
-      })
+        queryKey: inventoryItemsQueryKeys.lists()
+      });
 
       queryClient.invalidateQueries({
-        queryKey: inventoryItemsQueryKeys.details(),
-      })
+        queryKey: inventoryItemsQueryKeys.details()
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
-    ...options,
-  })
-}
+    ...options
+  });
+};
 
 export const useCancelOrderEdit = (
   orderId: string,
@@ -119,25 +110,25 @@ export const useCancelOrderEdit = (
     mutationFn: () => sdk.admin.orderEdit.cancelRequest(orderId),
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
-        queryKey: ordersQueryKeys.details(),
-      })
+        queryKey: ordersQueryKeys.details()
+      });
 
       queryClient.invalidateQueries({
-        queryKey: ordersQueryKeys.preview(orderId),
-      })
+        queryKey: ordersQueryKeys.preview(orderId)
+      });
 
       queryClient.invalidateQueries({
-        queryKey: ordersQueryKeys.changes(orderId),
-      })
+        queryKey: ordersQueryKeys.changes(orderId)
+      });
 
       queryClient.invalidateQueries({
-        queryKey: ordersQueryKeys.lineItems(orderId),
-      })
-      options?.onSuccess?.(data, variables, context)
+        queryKey: ordersQueryKeys.lineItems(orderId)
+      });
+      options?.onSuccess?.(data, variables, context);
     },
-    ...options,
-  })
-}
+    ...options
+  });
+};
 
 export const useAddOrderEditItems = (
   id: string,
@@ -152,13 +143,13 @@ export const useAddOrderEditItems = (
       sdk.admin.orderEdit.addItems(id, payload),
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
-        queryKey: ordersQueryKeys.preview(id),
-      })
-      options?.onSuccess?.(data, variables, context)
+        queryKey: ordersQueryKeys.preview(id)
+      });
+      options?.onSuccess?.(data, variables, context);
     },
-    ...options,
-  })
-}
+    ...options
+  });
+};
 
 /**
  * Update (quantity) of an item that was originally on the order.
@@ -176,17 +167,17 @@ export const useUpdateOrderEditOriginalItem = (
       itemId,
       ...payload
     }: HttpTypes.AdminUpdateOrderEditItem & { itemId: string }) => {
-      return sdk.admin.orderEdit.updateOriginalItem(id, itemId, payload)
+      return sdk.admin.orderEdit.updateOriginalItem(id, itemId, payload);
     },
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
-        queryKey: ordersQueryKeys.preview(id),
-      })
-      options?.onSuccess?.(data, variables, context)
+        queryKey: ordersQueryKeys.preview(id)
+      });
+      options?.onSuccess?.(data, variables, context);
     },
-    ...options,
-  })
-}
+    ...options
+  });
+};
 
 /**
  * Update (quantity) of an item that was added to the order edit.
@@ -204,17 +195,17 @@ export const useUpdateOrderEditAddedItem = (
       actionId,
       ...payload
     }: HttpTypes.AdminUpdateOrderEditItem & { actionId: string }) => {
-      return sdk.admin.orderEdit.updateAddedItem(id, actionId, payload)
+      return sdk.admin.orderEdit.updateAddedItem(id, actionId, payload);
     },
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
-        queryKey: ordersQueryKeys.preview(id),
-      })
-      options?.onSuccess?.(data, variables, context)
+        queryKey: ordersQueryKeys.preview(id)
+      });
+      options?.onSuccess?.(data, variables, context);
     },
-    ...options,
-  })
-}
+    ...options
+  });
+};
 
 /**
  * Remove item that was added to the edit.
@@ -222,21 +213,16 @@ export const useUpdateOrderEditAddedItem = (
  */
 export const useRemoveOrderEditItem = (
   id: string,
-  options?: UseMutationOptions<
-    HttpTypes.AdminOrderEditPreviewResponse,
-    FetchError,
-    string
-  >
+  options?: UseMutationOptions<HttpTypes.AdminOrderEditPreviewResponse, FetchError, string>
 ) => {
   return useMutation({
-    mutationFn: (actionId: string) =>
-      sdk.admin.orderEdit.removeAddedItem(id, actionId),
+    mutationFn: (actionId: string) => sdk.admin.orderEdit.removeAddedItem(id, actionId),
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
-        queryKey: ordersQueryKeys.preview(id),
-      })
-      options?.onSuccess?.(data, variables, context)
+        queryKey: ordersQueryKeys.preview(id)
+      });
+      options?.onSuccess?.(data, variables, context);
     },
-    ...options,
-  })
-}
+    ...options
+  });
+};

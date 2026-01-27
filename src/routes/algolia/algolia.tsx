@@ -1,36 +1,27 @@
-import { useState, useMemo } from "react";
-import {
-  Button,
-  Container,
-  Heading,
-  StatusBadge,
-  Table,
-  Text,
-  toast,
-  Label,
-} from "@medusajs/ui";
+import { useMemo, useState } from 'react';
 
-import { Combobox } from "@components/inputs/combobox";
-import { useAlgolia, useSyncAlgolia, useSyncAlgoliaProduct } from "@hooks/api/algolia";
-import { useProducts } from "@hooks/api/products";
+import { Combobox } from '@components/inputs/combobox';
+import { useAlgolia, useSyncAlgolia, useSyncAlgoliaProduct } from '@hooks/api/algolia';
+import { useProducts } from '@hooks/api/products';
+import { Button, Container, Heading, Label, StatusBadge, Table, Text, toast } from '@medusajs/ui';
 
 export const Algolia = () => {
   const { data: algolia, isLoading } = useAlgolia();
   const { mutateAsync: syncAllProducts, isPending: isSyncingAll } = useSyncAlgolia();
   const { mutateAsync: syncProduct, isPending: isSyncingProduct } = useSyncAlgoliaProduct();
-  
-  const [productId, setProductId] = useState<string>("");
-  const [productSearch, setProductSearch] = useState("");
+
+  const [productId, setProductId] = useState<string>('');
+  const [productSearch, setProductSearch] = useState('');
 
   // Fetch products for the combobox
   const { products } = useProducts(
     {
       q: productSearch,
       limit: 50,
-      fields: "id,title",
+      fields: 'id,title'
     },
     {
-      enabled: true,
+      enabled: true
     }
   );
 
@@ -40,9 +31,9 @@ export const Algolia = () => {
       return [];
     }
 
-    return products.map((product) => ({
+    return products.map(product => ({
       value: product.id,
-      label: product.title || product.id,
+      label: product.title || product.id
     }));
   }, [products]);
 
@@ -57,14 +48,13 @@ export const Algolia = () => {
       };
       toast.success(
         `Synchronization completed! Synced ${result.synced} products${
-          result.failed > 0 ? ` (${result.failed} failed)` : ""
+          result.failed > 0 ? ` (${result.failed} failed)` : ''
         }`
       );
 
       return;
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to sync all products";
+      const errorMessage = error instanceof Error ? error.message : 'Failed to sync all products';
       toast.error(errorMessage);
 
       return;
@@ -73,7 +63,7 @@ export const Algolia = () => {
 
   const handleSyncProduct = async () => {
     if (!productId.trim()) {
-      toast.error("Please enter a product ID");
+      toast.error('Please enter a product ID');
 
       return;
     }
@@ -81,20 +71,26 @@ export const Algolia = () => {
     try {
       await syncProduct(productId.trim());
       toast.success(`Product ${productId} synced successfully!`);
-      setProductId("");
+      setProductId('');
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to sync product";
+      const errorMessage = error instanceof Error ? error.message : 'Failed to sync product';
       toast.error(errorMessage);
     }
   };
 
   return (
     <Container data-testid="algolia-container">
-      <div className="flex items-center justify-between px-6 py-4" data-testid="algolia-header">
+      <div
+        className="flex items-center justify-between px-6 py-4"
+        data-testid="algolia-header"
+      >
         <div>
           <Heading data-testid="algolia-heading">Algolia Search Engine</Heading>
-          <Text className="text-ui-fg-subtle" size="small" data-testid="algolia-description">
+          <Text
+            className="text-ui-fg-subtle"
+            size="small"
+            data-testid="algolia-description"
+          >
             Manage Algolia search engine configuration and sync product data
           </Text>
         </div>
@@ -104,7 +100,9 @@ export const Algolia = () => {
         <Table data-testid="algolia-table">
           <Table.Body data-testid="algolia-table-body">
             <Table.Row data-testid="algolia-table-row-configured">
-              <Table.Cell data-testid="algolia-table-cell-configured-label">Configuration Status</Table.Cell>
+              <Table.Cell data-testid="algolia-table-cell-configured-label">
+                Configuration Status
+              </Table.Cell>
               <Table.Cell data-testid="algolia-table-cell-configured-value">
                 {isLoading ? (
                   <Text size="small">Loading...</Text>
@@ -116,18 +114,32 @@ export const Algolia = () => {
               </Table.Cell>
             </Table.Row>
             <Table.Row data-testid="algolia-table-row-application-id">
-              <Table.Cell data-testid="algolia-table-cell-application-id-label">Application ID</Table.Cell>
+              <Table.Cell data-testid="algolia-table-cell-application-id-label">
+                Application ID
+              </Table.Cell>
               <Table.Cell data-testid="algolia-table-cell-application-id-value">
-                {algolia?.appId || "Not set"}
+                {algolia?.appId || 'Not set'}
               </Table.Cell>
             </Table.Row>
             <Table.Row data-testid="algolia-table-row-product-index">
-              <Table.Cell data-testid="algolia-table-cell-product-index-label">Product Index</Table.Cell>
+              <Table.Cell data-testid="algolia-table-cell-product-index-label">
+                Product Index
+              </Table.Cell>
               <Table.Cell data-testid="algolia-table-cell-product-index-value">
                 {algolia?.productIndex ? (
-                  <StatusBadge color="green" data-testid="algolia-product-index-exists-badge">Exists</StatusBadge>
+                  <StatusBadge
+                    color="green"
+                    data-testid="algolia-product-index-exists-badge"
+                  >
+                    Exists
+                  </StatusBadge>
                 ) : (
-                  <StatusBadge color="red" data-testid="algolia-product-index-not-exists-badge">Doesn&apos;t exist</StatusBadge>
+                  <StatusBadge
+                    color="red"
+                    data-testid="algolia-product-index-not-exists-badge"
+                  >
+                    Doesn&apos;t exist
+                  </StatusBadge>
                 )}
               </Table.Cell>
             </Table.Row>
@@ -136,11 +148,18 @@ export const Algolia = () => {
 
         <div className="mt-6 space-y-6">
           <div className="rounded-lg border border-ui-border-base p-6">
-            <Heading level="h2" className="mb-4">
+            <Heading
+              level="h2"
+              className="mb-4"
+            >
               Sync All Products
             </Heading>
-            <Text className="text-ui-fg-subtle mb-4" size="small">
-              Synchronize custom tags for all products in your store to Algolia. This may take a few minutes for large catalogs.
+            <Text
+              className="mb-4 text-ui-fg-subtle"
+              size="small"
+            >
+              Synchronize custom tags for all products in your store to Algolia. This may take a few
+              minutes for large catalogs.
             </Text>
             <Button
               onClick={handleSyncAllProducts}
@@ -148,15 +167,21 @@ export const Algolia = () => {
               isLoading={isSyncingAll}
               data-testid="algolia-sync-all-button"
             >
-              {isSyncingAll ? "Syncing..." : "Sync All Products"}
+              {isSyncingAll ? 'Syncing...' : 'Sync All Products'}
             </Button>
           </div>
 
           <div className="rounded-lg border border-ui-border-base p-6">
-            <Heading level="h2" className="mb-4">
+            <Heading
+              level="h2"
+              className="mb-4"
+            >
               Sync Single Product
             </Heading>
-            <Text className="text-ui-fg-subtle mb-4" size="small">
+            <Text
+              className="mb-4 text-ui-fg-subtle"
+              size="small"
+            >
               Synchronize custom tags for a specific product by selecting it from the list.
             </Text>
             <div className="flex gap-2">
@@ -165,7 +190,7 @@ export const Algolia = () => {
                 <Combobox
                   id="product-select"
                   value={productId}
-                  onChange={(value) => setProductId(value || "")}
+                  onChange={value => setProductId(value || '')}
                   searchValue={productSearch}
                   onSearchValueChange={setProductSearch}
                   options={productOptions}
@@ -181,7 +206,7 @@ export const Algolia = () => {
                   isLoading={isSyncingProduct}
                   data-testid="algolia-sync-product-button"
                 >
-                  {isSyncingProduct ? "Syncing..." : "Sync Product"}
+                  {isSyncingProduct ? 'Syncing...' : 'Sync Product'}
                 </Button>
               </div>
             </div>

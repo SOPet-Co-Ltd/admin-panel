@@ -1,13 +1,12 @@
-import type { HttpTypes, PaginatedResponse } from "@medusajs/types";
-
-import type { AttributeDTO } from "@custom-types/attribute";
+import type { AttributeDTO } from '@custom-types/attribute';
+import type { HttpTypes, PaginatedResponse } from '@medusajs/types';
 
 export interface AdminProduct extends HttpTypes.AdminProduct {
   attribute_values?: AttributeDTO[];
   custom_tags?: Array<{
     id: string;
     value: string;
-    type: "pet_type" | "brand";
+    type: 'pet_type' | 'brand';
   }>;
 }
 
@@ -26,5 +25,5 @@ export type AdminProductListResponse = PaginatedResponse<{
 }>;
 
 export interface ExtendedAdminProductListParams extends HttpTypes.AdminProductListParams {
-  tag_id?: string | string[]
+  tag_id?: string | string[];
 }

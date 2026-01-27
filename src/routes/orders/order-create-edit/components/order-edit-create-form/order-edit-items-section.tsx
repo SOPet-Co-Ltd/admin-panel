@@ -1,20 +1,19 @@
-import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { MagnifyingGlass } from "@medusajs/icons";
-import { AdminOrder, AdminOrderPreview } from "@medusajs/types";
-import { Button, Heading, Input, Text, toast } from "@medusajs/ui";
-
-import debounce from "lodash/debounce";
-import { useTranslation } from "react-i18next";
+import { MagnifyingGlass } from '@medusajs/icons';
+import { AdminOrder, AdminOrderPreview } from '@medusajs/types';
+import { Button, Heading, Input, Text, toast } from '@medusajs/ui';
+import debounce from 'lodash/debounce';
+import { useTranslation } from 'react-i18next';
 
 import {
   RouteFocusModal,
   StackedFocusModal,
-  useStackedModal,
-} from "../../../../../components/modals";
-import { useAddOrderEditItems } from "../../../../../hooks/api/order-edits";
-import { AddOrderEditItemsTable } from "../add-order-edit-items-table";
-import { OrderEditItem } from "./order-edit-item";
+  useStackedModal
+} from '../../../../../components/modals';
+import { useAddOrderEditItems } from '../../../../../hooks/api/order-edits';
+import { AddOrderEditItemsTable } from '../add-order-edit-items-table';
+import { OrderEditItem } from './order-edit-item';
 
 type ExchangeInboundSectionProps = {
   order: AdminOrder;
@@ -23,33 +22,30 @@ type ExchangeInboundSectionProps = {
 
 let addedVariants: string[] = [];
 
-export const OrderEditItemsSection = ({
-  order,
-  preview,
-}: ExchangeInboundSectionProps) => {
+export const OrderEditItemsSection = ({ order, preview }: ExchangeInboundSectionProps) => {
   const { t } = useTranslation();
 
   const { setIsOpen } = useStackedModal();
-  const [filterTerm, setFilterTerm] = useState("");
+  const [filterTerm, setFilterTerm] = useState('');
 
   const { mutateAsync: addItems, isPending } = useAddOrderEditItems(order.id);
 
   const onItemsSelected = async () => {
     await addItems(
       {
-        items: addedVariants.map((i) => ({
+        items: addedVariants.map(i => ({
           variant_id: i,
-          quantity: 1,
-        })),
+          quantity: 1
+        }))
       },
       {
-        onError: (e) => {
+        onError: e => {
           toast.error(e.message);
-        },
-      },
+        }
+      }
     );
 
-    setIsOpen("inbound-items", false);
+    setIsOpen('inbound-items', false);
   };
 
   const debouncedOnChange = useCallback(
@@ -58,7 +54,7 @@ export const OrderEditItemsSection = ({
 
       setFilterTerm(value);
     }, 500),
-    [setFilterTerm],
+    [setFilterTerm]
   );
 
   useEffect(() => {
@@ -70,29 +66,32 @@ export const OrderEditItemsSection = ({
   const filteredItems = useMemo(() => {
     const lowerFilterTerm = filterTerm.toLowerCase();
     return preview.items.filter(
-      (i) =>
+      i =>
         i.title.toLowerCase().includes(filterTerm) ||
-        i.product_title?.toLowerCase().includes(filterTerm),
+        i.product_title?.toLowerCase().includes(filterTerm)
     );
   }, [preview, filterTerm]);
 
   return (
     <div>
       <div className="mb-3 mt-8 flex items-center justify-between">
-        <Heading level="h2">{t("fields.items")}</Heading>
+        <Heading level="h2">{t('fields.items')}</Heading>
 
         <div className="flex gap-2">
           <Input
             onChange={debouncedOnChange}
-            placeholder={t("fields.search")}
+            placeholder={t('fields.search')}
             autoComplete="off"
             type="search"
           />
 
           <StackedFocusModal id="inbound-items">
             <StackedFocusModal.Trigger asChild>
-              <Button variant="secondary" size="small">
-                {t("actions.addItems")}
+              <Button
+                variant="secondary"
+                size="small"
+              >
+                {t('actions.addItems')}
               </Button>
             </StackedFocusModal.Trigger>
 
@@ -101,7 +100,7 @@ export const OrderEditItemsSection = ({
 
               <AddOrderEditItemsTable
                 currencyCode={order.currency_code}
-                onSelectionChange={(finalSelection) => {
+                onSelectionChange={finalSelection => {
                   addedVariants = finalSelection;
                 }}
               />
@@ -110,8 +109,12 @@ export const OrderEditItemsSection = ({
                 <div className="flex w-full items-center justify-end gap-x-4">
                   <div className="flex items-center justify-end gap-x-2">
                     <RouteFocusModal.Close asChild>
-                      <Button type="button" variant="secondary" size="small">
-                        {t("actions.cancel")}
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="small"
+                      >
+                        {t('actions.cancel')}
                       </Button>
                     </RouteFocusModal.Close>
                     <Button
@@ -123,7 +126,7 @@ export const OrderEditItemsSection = ({
                       disabled={isPending}
                       onClick={async () => await onItemsSelected()}
                     >
-                      {t("actions.save")}
+                      {t('actions.save')}
                     </Button>
                   </div>
                 </div>
@@ -133,7 +136,7 @@ export const OrderEditItemsSection = ({
         </div>
       </div>
 
-      {filteredItems.map((item) => (
+      {filteredItems.map(item => (
         <OrderEditItem
           key={item.id}
           item={item}
@@ -145,8 +148,12 @@ export const OrderEditItemsSection = ({
       {filterTerm && !filteredItems.length && (
         <div className="flex flex-col items-center justify-center gap-y-2 rounded-xl bg-ui-bg-subtle p-3 text-center shadow-elevation-card-rest">
           <MagnifyingGlass className="text-ui-fg-subtle" />
-          <Text size="small" leading="compact" weight="plus">
-            {t("general.noSearchResults")}
+          <Text
+            size="small"
+            leading="compact"
+            weight="plus"
+          >
+            {t('general.noSearchResults')}
           </Text>
         </div>
       )}

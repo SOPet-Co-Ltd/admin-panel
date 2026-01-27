@@ -3,10 +3,7 @@ export type TwoColumnLayoutProps = {
   secondCol: React.ReactNode;
 };
 
-export const TwoColumnLayout = ({
-  firstCol,
-  secondCol,
-}: TwoColumnLayoutProps) => {
+export const TwoColumnLayout = ({ firstCol, secondCol }: TwoColumnLayoutProps) => {
   return (
     <div className="flex flex-col gap-x-4 gap-y-3 xl:flex-row xl:items-start">
       <div className="flex w-full flex-col gap-y-3">{firstCol}</div>

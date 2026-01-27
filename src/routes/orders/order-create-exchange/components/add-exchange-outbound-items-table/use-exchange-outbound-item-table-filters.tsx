@@ -1,22 +1,22 @@
-import { useTranslation } from "react-i18next"
+import { useTranslation } from 'react-i18next';
 
-import { Filter } from "../../../../../components/table/data-table"
+import { Filter } from '../../../../../components/table/data-table';
 
 export const useExchangeOutboundItemTableFilters = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   const filters: Filter[] = [
     {
-      key: "created_at",
-      label: t("fields.createdAt"),
-      type: "date",
+      key: 'created_at',
+      label: t('fields.createdAt'),
+      type: 'date'
     },
     {
-      key: "updated_at",
-      label: t("fields.updatedAt"),
-      type: "date",
-    },
-  ]
+      key: 'updated_at',
+      label: t('fields.updatedAt'),
+      type: 'date'
+    }
+  ];
 
-  return filters
-}
+  return filters;
+};
