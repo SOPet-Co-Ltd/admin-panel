@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Alert, Button, Heading, Hint, Input, Text, toast } from '@medusajs/ui';
@@ -6,7 +6,6 @@ import i18n from 'i18next';
 import { AnimatePresence, motion } from 'motion/react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { decodeToken } from 'react-jwt';
 import { Link, useSearchParams } from 'react-router-dom';
 import * as z from 'zod';
 
@@ -14,6 +13,7 @@ import { Form } from '../../components/common/form';
 import AvatarBox from '../../components/common/logo-box/avatar-box';
 import { useSignUpWithEmailPass } from '../../hooks/api/auth';
 import { useAcceptInvite } from '../../hooks/api/invites';
+import { backendUrl } from '../../lib/client/client';
 import { isFetchError } from '../../lib/is-fetch-error';
 
 const CreateAccountSchema = z
@@ -34,22 +34,61 @@ const CreateAccountSchema = z
   });
 
 // TODO: Update to V2 format
-type DecodedInvite = {
-  id: string;
-  jti: string;
-  exp: number;
-  iat: number;
-  email: string;
-};
-
 export const Invite = () => {
   const [searchParams] = useSearchParams();
   const [success, setSuccess] = useState(false);
 
   const token = searchParams.get('token');
-  const invite: DecodedInvite | null = token ? decodeToken(token) : null;
-  const isValidInvite = invite && validateDecodedInvite(invite);
-  const inviteEmail = invite?.email;
+  const encryptedEmail = searchParams.get('e') || undefined;
+
+  const [inviteEmail, setInviteEmail] = useState<string | null>(null);
+  const [inviteStatus, setInviteStatus] = useState<'loading' | 'valid' | 'invalid'>('loading');
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function run() {
+      if (!token) {
+        setInviteStatus('invalid');
+        setInviteEmail(null);
+        return;
+      }
+
+      setInviteStatus('loading');
+      setInviteEmail(null);
+
+      try {
+        const res = await fetch(`${backendUrl}/auth/invites/preview`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ token, e: encryptedEmail })
+        });
+
+        if (!res.ok) {
+          throw new Error('Invalid invite');
+        }
+
+        const data = (await res.json()) as { email?: string };
+        if (!cancelled && data?.email) {
+          setInviteEmail(data.email);
+          setInviteStatus('valid');
+        } else if (!cancelled) {
+          setInviteStatus('invalid');
+        }
+      } catch {
+        if (!cancelled) {
+          setInviteStatus('invalid');
+        }
+      }
+    }
+
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [token, encryptedEmail]);
 
   return (
     <div
@@ -62,7 +101,7 @@ export const Invite = () => {
       >
         <AvatarBox checked={success} />
         <div className="max-h-[557px] w-full will-change-contents">
-          {isValidInvite && inviteEmail ? (
+          {inviteStatus === 'valid' && inviteEmail ? (
             <AnimatePresence>
               {!success ? (
                 <motion.div
@@ -104,7 +143,7 @@ export const Invite = () => {
                     <CreateView
                       onSuccess={() => setSuccess(true)}
                       token={token!}
-                      invite={invite}
+                      inviteEmail={inviteEmail}
                     />
                   </motion.div>
                 </motion.div>
@@ -131,6 +170,18 @@ export const Invite = () => {
                 </motion.div>
               )}
             </AnimatePresence>
+          ) : inviteStatus === 'loading' ? (
+            <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center gap-y-1">
+                <Heading>Validating invitation</Heading>
+                <Text
+                  size="small"
+                  className="text-center text-ui-fg-subtle"
+                >
+                  Please wait…
+                </Text>
+              </div>
+            </div>
           ) : (
             <InvalidView />
           )}
@@ -190,11 +241,11 @@ const InvalidView = () => {
 const CreateView = ({
   onSuccess,
   token,
-  invite
+  inviteEmail
 }: {
   onSuccess: () => void;
   token: string;
-  invite: DecodedInvite;
+  inviteEmail: string;
 }) => {
   const { t } = useTranslation();
   const [invalid, setInvalid] = useState(false);
@@ -216,12 +267,12 @@ const CreateView = ({
   const handleSubmit = form.handleSubmit(async data => {
     try {
       const authToken = await signUpEmailPass({
-        email: invite.email,
+        email: inviteEmail,
         password: data.password
       });
 
       const invitePayload = {
-        email: invite.email,
+        email: inviteEmail,
         first_name: data.first_name,
         last_name: data.last_name
       };
@@ -298,7 +349,7 @@ const CreateView = ({
                 className="break-all font-medium text-ui-fg-base"
                 data-testid="invite-email-readonly-value"
               >
-                {invite.email}
+                {inviteEmail}
               </Text>
               <Text
                 size="small"
@@ -479,14 +530,4 @@ const SuccessView = () => {
   );
 };
 
-const InviteSchema = z.object({
-  id: z.string(),
-  jti: z.string(),
-  exp: z.number(),
-  iat: z.number(),
-  email: z.string().email()
-});
-
-const validateDecodedInvite = (decoded: any): decoded is DecodedInvite => {
-  return InviteSchema.safeParse(decoded).success;
-};
+// Invite token validation is handled server-side in /auth/invites/preview.
