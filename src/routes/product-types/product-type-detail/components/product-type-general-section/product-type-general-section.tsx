@@ -1,49 +1,48 @@
-import { PencilSquare, Trash } from "@medusajs/icons"
-import { HttpTypes } from "@medusajs/types"
-import { Container, Heading } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
-import { ActionMenu } from "../../../../../components/common/action-menu"
-import { useDeleteProductTypeAction } from "../../../common/hooks/use-delete-product-type-action"
+import { PencilSquare, Trash } from '@medusajs/icons';
+import { HttpTypes } from '@medusajs/types';
+import { Container, Heading } from '@medusajs/ui';
+import { useTranslation } from 'react-i18next';
+
+import { ActionMenu } from '../../../../../components/common/action-menu';
+import { useDeleteProductTypeAction } from '../../../common/hooks/use-delete-product-type-action';
 
 type ProductTypeGeneralSectionProps = {
-  productType: HttpTypes.AdminProductType
-}
+  productType: HttpTypes.AdminProductType;
+};
 
-export const ProductTypeGeneralSection = ({
-  productType,
-}: ProductTypeGeneralSectionProps) => {
-  const { t } = useTranslation()
-  const handleDelete = useDeleteProductTypeAction(
-    productType.id,
-    productType.value
-  )
+export const ProductTypeGeneralSection = ({ productType }: ProductTypeGeneralSectionProps) => {
+  const { t } = useTranslation();
+  const handleDelete = useDeleteProductTypeAction(productType.id, productType.value);
 
   return (
-    <Container className="flex items-center justify-between" data-testid="product-type-general-section-container">
+    <Container
+      className="flex items-center justify-between"
+      data-testid="product-type-general-section-container"
+    >
       <Heading data-testid="product-type-general-section-heading">{productType.value}</Heading>
       <ActionMenu
         groups={[
           {
             actions: [
               {
-                label: t("actions.edit"),
+                label: t('actions.edit'),
                 icon: <PencilSquare />,
-                to: "edit",
-              },
-            ],
+                to: 'edit'
+              }
+            ]
           },
           {
             actions: [
               {
-                label: t("actions.delete"),
+                label: t('actions.delete'),
                 icon: <Trash />,
-                onClick: handleDelete,
-              },
-            ],
-          },
+                onClick: handleDelete
+              }
+            ]
+          }
         ]}
         data-testid="product-type-general-section-action-menu"
       />
     </Container>
-  )
-}
+  );
+};

@@ -1,48 +1,45 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Button, Heading, Input, Text, toast } from "@medusajs/ui"
-import { useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
-import * as zod from "zod"
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button, Heading, Input, Text, toast } from '@medusajs/ui';
+import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import * as zod from 'zod';
 
-import { Form } from "../../../../../components/common/form"
-import { HandleInput } from "../../../../../components/inputs/handle-input"
-import {
-  RouteFocusModal,
-  useRouteModal,
-} from "../../../../../components/modals"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { useCreateCollection } from "../../../../../hooks/api/collections"
+import { Form } from '../../../../../components/common/form';
+import { HandleInput } from '../../../../../components/inputs/handle-input';
+import { RouteFocusModal, useRouteModal } from '../../../../../components/modals';
+import { KeyboundForm } from '../../../../../components/utilities/keybound-form';
+import { useCreateCollection } from '../../../../../hooks/api/collections';
 
 const CreateCollectionSchema = zod.object({
   title: zod.string().min(1),
-  handle: zod.string().optional(),
-})
+  handle: zod.string().optional()
+});
 
 export const CreateCollectionForm = () => {
-  const { t } = useTranslation()
-  const { handleSuccess } = useRouteModal()
+  const { t } = useTranslation();
+  const { handleSuccess } = useRouteModal();
 
   const form = useForm<zod.infer<typeof CreateCollectionSchema>>({
     defaultValues: {
-      title: "",
-      handle: "",
+      title: '',
+      handle: ''
     },
-    resolver: zodResolver(CreateCollectionSchema),
-  })
+    resolver: zodResolver(CreateCollectionSchema)
+  });
 
-  const { mutateAsync, isPending } = useCreateCollection()
+  const { mutateAsync, isPending } = useCreateCollection();
 
-  const handleSubmit = form.handleSubmit(async (data) => {
+  const handleSubmit = form.handleSubmit(async data => {
     await mutateAsync(data, {
       onSuccess: ({ collection }) => {
-        handleSuccess(`/collections/${collection.id}`)
-        toast.success(t("collections.createSuccess"))
+        handleSuccess(`/collections/${collection.id}`);
+        toast.success(t('collections.createSuccess'));
       },
-      onError: (error) => {
-        toast.error(error.message)
-      },
-    })
-  })
+      onError: error => {
+        toast.error(error.message);
+      }
+    });
+  });
 
   return (
     <RouteFocusModal.Form form={form}>
@@ -55,9 +52,12 @@ export const CreateCollectionForm = () => {
         <RouteFocusModal.Body className="flex size-full flex-col items-center p-16">
           <div className="flex w-full max-w-[720px] flex-col gap-y-8">
             <div>
-              <Heading>{t("collections.createCollection")}</Heading>
-              <Text size="small" className="text-ui-fg-subtle">
-                {t("collections.createCollectionHint")}
+              <Heading>{t('collections.createCollection')}</Heading>
+              <Text
+                size="small"
+                className="text-ui-fg-subtle"
+              >
+                {t('collections.createCollectionHint')}
               </Text>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -67,13 +67,16 @@ export const CreateCollectionForm = () => {
                 render={({ field }) => {
                   return (
                     <Form.Item>
-                      <Form.Label>{t("fields.title")}</Form.Label>
+                      <Form.Label>{t('fields.title')}</Form.Label>
                       <Form.Control>
-                        <Input autoComplete="off" {...field} />
+                        <Input
+                          autoComplete="off"
+                          {...field}
+                        />
                       </Form.Control>
                       <Form.ErrorMessage />
                     </Form.Item>
-                  )
+                  );
                 }}
               />
               <Form.Field
@@ -84,16 +87,16 @@ export const CreateCollectionForm = () => {
                     <Form.Item>
                       <Form.Label
                         optional
-                        tooltip={t("collections.handleTooltip")}
+                        tooltip={t('collections.handleTooltip')}
                       >
-                        {t("fields.handle")}
+                        {t('fields.handle')}
                       </Form.Label>
                       <Form.Control>
                         <HandleInput {...field} />
                       </Form.Control>
                       <Form.ErrorMessage />
                     </Form.Item>
-                  )
+                  );
                 }}
               />
             </div>
@@ -101,8 +104,11 @@ export const CreateCollectionForm = () => {
         </RouteFocusModal.Body>
         <RouteFocusModal.Footer>
           <RouteFocusModal.Close asChild>
-            <Button size="small" variant="secondary">
-              {t("actions.cancel")}
+            <Button
+              size="small"
+              variant="secondary"
+            >
+              {t('actions.cancel')}
             </Button>
           </RouteFocusModal.Close>
           <Button
@@ -111,10 +117,10 @@ export const CreateCollectionForm = () => {
             type="submit"
             isLoading={isPending}
           >
-            {t("actions.create")}
+            {t('actions.create')}
           </Button>
         </RouteFocusModal.Footer>
       </KeyboundForm>
     </RouteFocusModal.Form>
-  )
-}
+  );
+};

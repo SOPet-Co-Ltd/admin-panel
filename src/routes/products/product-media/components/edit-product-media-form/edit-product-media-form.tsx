@@ -1,58 +1,45 @@
-import { Fragment, useCallback, useState } from "react";
-
-import { ThumbnailBadge } from "@medusajs/icons";
-import type { HttpTypes } from "@medusajs/types";
-import {
-  Button,
-  Checkbox,
-  CommandBar,
-  Tooltip,
-  clx,
-  toast,
-} from "@medusajs/ui";
+import { Fragment, useCallback, useState } from 'react';
 
 import {
+  defaultDropAnimationSideEffects,
   DndContext,
   DragOverlay,
   KeyboardSensor,
   PointerSensor,
-  defaultDropAnimationSideEffects,
   useSensor,
   useSensors,
-} from "@dnd-kit/core";
-import type {
-  DragEndEvent,
-  DragStartEvent,
-  DropAnimation,
-  UniqueIdentifier,
-} from "@dnd-kit/core";
+  type DragEndEvent,
+  type DragStartEvent,
+  type DropAnimation,
+  type UniqueIdentifier
+} from '@dnd-kit/core';
 import {
-  SortableContext,
   arrayMove,
   rectSortingStrategy,
+  SortableContext,
   sortableKeyboardCoordinates,
-  useSortable,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm } from "react-hook-form";
-import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
-import type { z } from "zod";
+  useSortable
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ThumbnailBadge } from '@medusajs/icons';
+import type { HttpTypes } from '@medusajs/types';
+import { Button, Checkbox, clx, CommandBar, toast, Tooltip } from '@medusajs/ui';
+import { useFieldArray, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import type { z } from 'zod';
 
-import {
-  RouteFocusModal,
-  useRouteModal,
-} from "@/components/modals";
-import { KeyboundForm } from "@/components/utilities/keybound-form";
-import { useUpdateProduct } from "@/hooks/api/products";
-import { uploadFilesQuery, deleteFilesQuery } from "@/lib/client";
-import { UploadMediaFormItem } from "@/routes/products/common/components/upload-media-form-item";
+import { RouteFocusModal, useRouteModal } from '@/components/modals';
+import { KeyboundForm } from '@/components/utilities/keybound-form';
+import { useUpdateProduct } from '@/hooks/api/products';
+import { deleteFilesQuery, uploadFilesQuery } from '@/lib/client';
+import { UploadMediaFormItem } from '@/routes/products/common/components/upload-media-form-item';
 import {
   EditProductMediaSchema,
-} from "@/routes/products/product-create/constants";
-import type { MediaSchema } from "@/routes/products/product-create/constants";
-import type { EditProductMediaSchemaType } from "@/routes/products/product-create/types";
+  type MediaSchema
+} from '@/routes/products/product-create/constants';
+import type { EditProductMediaSchemaType } from '@/routes/products/product-create/types';
 
 type ProductMediaViewProps = {
   product: HttpTypes.AdminProduct;
@@ -67,15 +54,15 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
 
   const form = useForm<EditProductMediaSchemaType>({
     defaultValues: {
-      media: getDefaultValues(product.images, product.thumbnail),
+      media: getDefaultValues(product.images, product.thumbnail)
     },
-    resolver: zodResolver(EditProductMediaSchema),
+    resolver: zodResolver(EditProductMediaSchema)
   });
 
   const { fields, append, remove, update } = useFieldArray({
-    name: "media",
+    name: 'media',
     control: form.control,
-    keyName: "field_id",
+    keyName: 'field_id'
   });
 
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
@@ -83,8 +70,8 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
+      coordinateGetter: sortableKeyboardCoordinates
+    })
   );
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -96,12 +83,12 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
     const { active, over } = event;
 
     if (active.id !== over?.id) {
-      const oldIndex = fields.findIndex((item) => item.field_id === active.id);
-      const newIndex = fields.findIndex((item) => item.field_id === over?.id);
+      const oldIndex = fields.findIndex(item => item.field_id === active.id);
+      const newIndex = fields.findIndex(item => item.field_id === over?.id);
 
-      form.setValue("media", arrayMove(fields, oldIndex, newIndex), {
+      form.setValue('media', arrayMove(fields, oldIndex, newIndex), {
         shouldDirty: true,
-        shouldTouch: true,
+        shouldTouch: true
       });
     }
   };
@@ -113,49 +100,47 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
   const { mutateAsync, isPending } = useUpdateProduct(product.id!);
 
   const handleSubmit = form.handleSubmit(async ({ media }) => {
-    const filesToUpload = media
-      .map((m, i) => ({ file: m.file, index: i }))
-      .filter((m) => !!m.file);
+    const filesToUpload = media.map((m, i) => ({ file: m.file, index: i })).filter(m => !!m.file);
 
     let uploaded: HttpTypes.AdminFile[] = [];
 
     if (filesToUpload.length) {
       try {
-        const response = await uploadFilesQuery(filesToUpload.map((m) => m.file));
+        const response = await uploadFilesQuery(filesToUpload.map(m => m.file));
         uploaded = response.files || [];
       } catch {
-        form.setError("media", {
-          type: "invalid_file",
-          message: t("products.media.failedToUpload"),
+        form.setError('media', {
+          type: 'invalid_file',
+          message: t('products.media.failedToUpload')
         });
         uploaded = [];
       }
     }
 
     const withUpdatedUrls = media.map((entry, i) => {
-      const toUploadIndex = filesToUpload.findIndex((m) => m.index === i);
+      const toUploadIndex = filesToUpload.findIndex(m => m.index === i);
       if (toUploadIndex > -1) {
         return { ...entry, url: uploaded[toUploadIndex]?.url };
       }
-      
+
       return entry;
     });
-    const thumbnail = withUpdatedUrls.find((m) => m.isThumbnail)?.url;
+    const thumbnail = withUpdatedUrls.find(m => m.isThumbnail)?.url;
 
     await mutateAsync(
       {
-        images: withUpdatedUrls.map((file) => ({ url: file.url, id: file.id })),
-        thumbnail: thumbnail || null,
+        images: withUpdatedUrls.map(file => ({ url: file.url, id: file.id })),
+        thumbnail: thumbnail || null
       },
       {
         onSuccess: () => {
-          toast.success(t("products.media.successToast"));
+          toast.success(t('products.media.successToast'));
           handleSuccess();
         },
-        onError: (error) => {
+        onError: error => {
           toast.error(error.message);
-        },
-      },
+        }
+      }
     );
   });
 
@@ -167,23 +152,23 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
           const { [id]: _, ...rest } = selection;
           setSelection(rest);
         } else {
-          setSelection((prev) => ({ ...prev, [id]: true }));
+          setSelection(prev => ({ ...prev, [id]: true }));
         }
       };
     },
-    [selection],
+    [selection]
   );
 
   const handleDelete = async () => {
     const ids = Object.keys(selection);
-    const indices = ids.map((id) => fields.findIndex((m) => m.id === id));
-    
+    const indices = ids.map(id => fields.findIndex(m => m.id === id));
+
     // Get file IDs or URLs from selected media items
     // The backend workflow can handle both file IDs and URLs, and will skip placeholder IDs
     // Prefer URL since it's always available and the backend can extract the key from it
     const itemsToDelete = fields
       .filter((_, index) => indices.includes(index))
-      .map((field) => field.url || field.id)
+      .map(field => field.url || field.id)
       .filter((item): item is string => !!item && typeof item === 'string');
 
     // Delete from storage if there are items to delete
@@ -193,7 +178,7 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
         await deleteFilesQuery(itemsToDelete);
       } catch (error) {
         // Log error but continue with form removal
-        console.error("Failed to delete files from storage:", error);
+        console.error('Failed to delete files from storage:', error);
       }
     }
 
@@ -208,20 +193,20 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
       return;
     }
 
-    const currentThumbnailIndex = fields.findIndex((m) => m.isThumbnail);
+    const currentThumbnailIndex = fields.findIndex(m => m.isThumbnail);
 
     if (currentThumbnailIndex > -1) {
       update(currentThumbnailIndex, {
         ...fields[currentThumbnailIndex],
-        isThumbnail: false,
+        isThumbnail: false
       });
     }
 
-    const index = fields.findIndex((m) => m.id === ids[0]);
+    const index = fields.findIndex(m => m.id === ids[0]);
 
     update(index, {
       ...fields[index],
-      isThumbnail: true,
+      isThumbnail: true
     });
 
     setSelection({});
@@ -252,10 +237,10 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
               data-testid="product-edit-media-form-gallery-button"
             >
               <Link
-                to={{ pathname: ".", search: undefined }}
+                to={{ pathname: '.', search: undefined }}
                 data-testid="product-edit-media-form-gallery-link"
               >
-                {t("products.media.galleryLabel")}
+                {t('products.media.galleryLabel')}
               </Link>
             </Button>
           </div>
@@ -284,11 +269,11 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
                   data-testid="product-edit-media-form-media-grid"
                 >
                   <SortableContext
-                    items={fields.map((m) => m.field_id)}
+                    items={fields.map(m => m.field_id)}
                     strategy={rectSortingStrategy}
                     data-testid="product-edit-media-form-sortable-context"
                   >
-                    {fields.map((m) => {
+                    {fields.map(m => {
                       return (
                         <MediaGridItem
                           onCheckedChange={handleCheckedChange(m.id!)}
@@ -306,12 +291,8 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
                   >
                     {activeId ? (
                       <MediaGridItemOverlay
-                        media={fields.find((m) => m.field_id === activeId)!}
-                        checked={
-                          !!selection[
-                            fields.find((m) => m.field_id === activeId)!.id!
-                          ]
-                        }
+                        media={fields.find(m => m.field_id === activeId)!}
+                        checked={!!selection[fields.find(m => m.field_id === activeId)!.id!]}
                         data-testid={`product-edit-media-form-media-item-overlay-${activeId}`}
                       />
                     ) : null}
@@ -337,8 +318,8 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
         >
           <CommandBar.Bar data-testid="product-edit-media-form-command-bar-bar">
             <CommandBar.Value data-testid="product-edit-media-form-command-bar-value">
-              {t("general.countSelected", {
-                count: selectionCount,
+              {t('general.countSelected', {
+                count: selectionCount
               })}
             </CommandBar.Value>
             <CommandBar.Seperator data-testid="product-edit-media-form-command-bar-separator-1" />
@@ -346,7 +327,7 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
               <Fragment>
                 <CommandBar.Command
                   action={handlePromoteToThumbnail}
-                  label={t("products.media.makeThumbnail")}
+                  label={t('products.media.makeThumbnail')}
                   shortcut="t"
                   data-testid="product-edit-media-form-command-bar-make-thumbnail"
                 />
@@ -355,7 +336,7 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
             )}
             <CommandBar.Command
               action={handleDelete}
-              label={t("actions.delete")}
+              label={t('actions.delete')}
               shortcut="d"
               data-testid="product-edit-media-form-command-bar-delete"
             />
@@ -375,7 +356,7 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
                 size="small"
                 data-testid="product-edit-media-form-cancel-button"
               >
-                {t("actions.cancel")}
+                {t('actions.cancel')}
               </Button>
             </RouteFocusModal.Close>
             <Button
@@ -384,7 +365,7 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
               isLoading={isPending}
               data-testid="product-edit-media-form-save-button"
             >
-              {t("actions.save")}
+              {t('actions.save')}
             </Button>
           </div>
         </RouteFocusModal.Footer>
@@ -395,24 +376,24 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
 
 const getDefaultValues = (
   images: HttpTypes.AdminProductImage[] | null | undefined,
-  thumbnail: string | null | undefined,
+  thumbnail: string | null | undefined
 ) => {
   const media: Media[] =
-    images?.map((image) => ({
+    images?.map(image => ({
       id: image.id!,
       url: image.url!,
       isThumbnail: image.url === thumbnail,
-      file: null,
+      file: null
     })) || [];
 
-  if (thumbnail && !media.some((mediaItem) => mediaItem.url === thumbnail)) {
+  if (thumbnail && !media.some(mediaItem => mediaItem.url === thumbnail)) {
     const id = Math.random().toString(36).substring(7);
 
     media.unshift({
       id: id,
       url: thumbnail,
       isThumbnail: true,
-      file: null,
+      file: null
     });
   }
 
@@ -430,32 +411,32 @@ const dropAnimationConfig: DropAnimation = {
   sideEffects: defaultDropAnimationSideEffects({
     styles: {
       active: {
-        opacity: "0.4",
-      },
-    },
-  }),
+        opacity: '0.4'
+      }
+    }
+  })
 };
 
 interface MediaGridItemProps {
   media: MediaView;
   checked: boolean;
   onCheckedChange: (value: boolean) => void;
-  "data-testid"?: string;
+  'data-testid'?: string;
 }
 
 const MediaGridItem = ({
   media,
   checked,
   onCheckedChange,
-  "data-testid": dataTestId,
-}: MediaGridItemProps & { "data-testid"?: string }) => {
+  'data-testid': dataTestId
+}: MediaGridItemProps & { 'data-testid'?: string }) => {
   const { t } = useTranslation();
 
   const handleToggle = useCallback(
     (value: boolean) => {
       onCheckedChange(value);
     },
-    [onCheckedChange],
+    [onCheckedChange]
   );
 
   const {
@@ -465,19 +446,19 @@ const MediaGridItem = ({
     setActivatorNodeRef,
     transform,
     transition,
-    isDragging,
+    isDragging
   } = useSortable({ id: media.field_id });
 
   const style = {
     opacity: isDragging ? 0.4 : undefined,
     transform: CSS.Transform.toString(transform),
-    transition,
+    transition
   };
 
   return (
     <div
       className={clx(
-        "group relative aspect-square h-auto max-w-full overflow-hidden rounded-lg bg-ui-bg-subtle-hover shadow-elevation-card-rest outline-none hover:shadow-elevation-card-hover focus-visible:shadow-borders-focus",
+        'group relative aspect-square h-auto max-w-full overflow-hidden rounded-lg bg-ui-bg-subtle-hover shadow-elevation-card-rest outline-none hover:shadow-elevation-card-hover focus-visible:shadow-borders-focus'
       )}
       style={style}
       ref={setNodeRef}
@@ -486,27 +467,21 @@ const MediaGridItem = ({
       {media.isThumbnail && (
         <div
           className="absolute left-2 top-2"
-          data-testid={
-            dataTestId ? `${dataTestId}-thumbnail-badge-container` : undefined
-          }
+          data-testid={dataTestId ? `${dataTestId}-thumbnail-badge-container` : undefined}
         >
           <Tooltip
-            content={t("products.media.thumbnailTooltip")}
-            data-testid={
-              dataTestId ? `${dataTestId}-thumbnail-tooltip` : undefined
-            }
+            content={t('products.media.thumbnailTooltip')}
+            data-testid={dataTestId ? `${dataTestId}-thumbnail-tooltip` : undefined}
           >
             <ThumbnailBadge
-              data-testid={
-                dataTestId ? `${dataTestId}-thumbnail-badge` : undefined
-              }
+              data-testid={dataTestId ? `${dataTestId}-thumbnail-badge` : undefined}
             />
           </Tooltip>
         </div>
       )}
       <div
-        className={clx("absolute inset-0 cursor-grab touch-none outline-none", {
-          "cursor-grabbing": isDragging,
+        className={clx('absolute inset-0 cursor-grab touch-none outline-none', {
+          'cursor-grabbing': isDragging
         })}
         ref={setActivatorNodeRef}
         {...attributes}
@@ -514,17 +489,15 @@ const MediaGridItem = ({
         data-testid={dataTestId ? `${dataTestId}-drag-handle` : undefined}
       />
       <div
-        className={clx("absolute right-2 top-2 opacity-0 transition-fg", {
-          "group-focus-within:opacity-100 group-hover:opacity-100 group-focus:opacity-100":
+        className={clx('absolute right-2 top-2 opacity-0 transition-fg', {
+          'group-focus-within:opacity-100 group-hover:opacity-100 group-focus:opacity-100':
             !isDragging && !checked,
-          "opacity-100": checked,
+          'opacity-100': checked
         })}
-        data-testid={
-          dataTestId ? `${dataTestId}-checkbox-container` : undefined
-        }
+        data-testid={dataTestId ? `${dataTestId}-checkbox-container` : undefined}
       >
         <Checkbox
-          onClick={(e) => {
+          onClick={e => {
             e.stopPropagation();
           }}
           checked={checked}
@@ -545,11 +518,11 @@ const MediaGridItem = ({
 export const MediaGridItemOverlay = ({
   media,
   checked,
-  "data-testid": dataTestId,
+  'data-testid': dataTestId
 }: {
   media: MediaView;
   checked: boolean;
-  "data-testid"?: string;
+  'data-testid'?: string;
 }) => {
   return (
     <div
@@ -559,24 +532,16 @@ export const MediaGridItemOverlay = ({
       {media.isThumbnail && (
         <div
           className="absolute left-2 top-2"
-          data-testid={
-            dataTestId ? `${dataTestId}-thumbnail-badge-container` : undefined
-          }
+          data-testid={dataTestId ? `${dataTestId}-thumbnail-badge-container` : undefined}
         >
-          <ThumbnailBadge
-            data-testid={
-              dataTestId ? `${dataTestId}-thumbnail-badge` : undefined
-            }
-          />
+          <ThumbnailBadge data-testid={dataTestId ? `${dataTestId}-thumbnail-badge` : undefined} />
         </div>
       )}
       <div
-        className={clx("absolute right-2 top-2 opacity-0 transition-fg", {
-          "opacity-100": checked,
+        className={clx('absolute right-2 top-2 opacity-0 transition-fg', {
+          'opacity-100': checked
         })}
-        data-testid={
-          dataTestId ? `${dataTestId}-checkbox-container` : undefined
-        }
+        data-testid={dataTestId ? `${dataTestId}-checkbox-container` : undefined}
       >
         <Checkbox
           checked={checked}

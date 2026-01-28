@@ -1,16 +1,14 @@
-import { Button, Input, Textarea, toast } from "@medusajs/ui";
+import { AdminRefundReason } from '@custom-types/refund-reasons';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button, Input, Textarea, toast } from '@medusajs/ui';
+import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { useTranslation } from "react-i18next";
-import { z } from "zod";
-
-import { AdminRefundReason } from "@custom-types/refund-reasons";
-
-import { Form } from "../../../../../components/common/form";
-import { RouteDrawer, useRouteModal } from "../../../../../components/modals";
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form";
-import { useUpdateRefundReason } from "../../../../../hooks/api";
+import { Form } from '../../../../../components/common/form';
+import { RouteDrawer, useRouteModal } from '../../../../../components/modals';
+import { KeyboundForm } from '../../../../../components/utilities/keybound-form';
+import { useUpdateRefundReason } from '../../../../../hooks/api';
 
 type RefundReasonEditFormProps = {
   refundReason: AdminRefundReason;
@@ -19,12 +17,10 @@ type RefundReasonEditFormProps = {
 const RefundReasonEditSchema = z.object({
   label: z.string().min(1),
   code: z.string().min(1),
-  description: z.string().optional(),
+  description: z.string().optional()
 });
 
-export const RefundReasonEditForm = ({
-  refundReason,
-}: RefundReasonEditFormProps) => {
+export const RefundReasonEditForm = ({ refundReason }: RefundReasonEditFormProps) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
 
@@ -32,36 +28,42 @@ export const RefundReasonEditForm = ({
     defaultValues: {
       label: refundReason.label,
       code: refundReason.code,
-      description: refundReason.description ?? undefined,
+      description: refundReason.description ?? undefined
     },
-    resolver: zodResolver(RefundReasonEditSchema),
+    resolver: zodResolver(RefundReasonEditSchema)
   });
 
   const { mutateAsync, isPending } = useUpdateRefundReason(refundReason.id);
 
-  const handleSubmit = form.handleSubmit(async (data) => {
+  const handleSubmit = form.handleSubmit(async data => {
     await mutateAsync(data, {
       onSuccess: ({ refund_reason }) => {
         toast.success(
-          t("refundReasons.edit.successToast", {
-            label: refund_reason.label,
-          }),
+          t('refundReasons.edit.successToast', {
+            label: refund_reason.label
+          })
         );
         handleSuccess();
       },
-      onError: (error) => {
+      onError: error => {
         toast.error(error.message);
-      },
+      }
     });
   });
 
   return (
-    <RouteDrawer.Form form={form} data-testid="refund-reason-edit-form">
+    <RouteDrawer.Form
+      form={form}
+      data-testid="refund-reason-edit-form"
+    >
       <KeyboundForm
         className="flex size-full flex-col overflow-hidden"
         onSubmit={handleSubmit}
       >
-        <RouteDrawer.Body className="flex flex-1 flex-col gap-y-4 overflow-auto" data-testid="refund-reason-edit-form-body">
+        <RouteDrawer.Body
+          className="flex flex-1 flex-col gap-y-4 overflow-auto"
+          data-testid="refund-reason-edit-form-body"
+        >
           <Form.Field
             control={form.control}
             name="label"
@@ -69,12 +71,12 @@ export const RefundReasonEditForm = ({
               return (
                 <Form.Item data-testid="refund-reason-edit-form-label-item">
                   <Form.Label data-testid="refund-reason-edit-form-label-label">
-                    {t("refundReasons.fields.label.label")}
+                    {t('refundReasons.fields.label.label')}
                   </Form.Label>
                   <Form.Control data-testid="refund-reason-edit-form-label-control">
                     <Input
                       {...field}
-                      placeholder={t("refundReasons.fields.label.placeholder")}
+                      placeholder={t('refundReasons.fields.label.placeholder')}
                       data-testid="refund-reason-edit-form-label-input"
                     />
                   </Form.Control>
@@ -89,13 +91,11 @@ export const RefundReasonEditForm = ({
             render={({ field }) => {
               return (
                 <Form.Item>
-                  <Form.Label>
-                    {t("refundReasons.fields.code.label")}
-                  </Form.Label>
+                  <Form.Label>{t('refundReasons.fields.code.label')}</Form.Label>
                   <Form.Control>
                     <Input
                       {...field}
-                      placeholder={t("refundReasons.fields.code.placeholder")}
+                      placeholder={t('refundReasons.fields.code.placeholder')}
                     />
                   </Form.Control>
                   <Form.ErrorMessage />
@@ -109,15 +109,16 @@ export const RefundReasonEditForm = ({
             render={({ field }) => {
               return (
                 <Form.Item data-testid="refund-reason-edit-form-description-item">
-                  <Form.Label optional data-testid="refund-reason-edit-form-description-label">
-                    {t("refundReasons.fields.description.label")}
+                  <Form.Label
+                    optional
+                    data-testid="refund-reason-edit-form-description-label"
+                  >
+                    {t('refundReasons.fields.description.label')}
                   </Form.Label>
                   <Form.Control data-testid="refund-reason-edit-form-description-control">
                     <Textarea
                       {...field}
-                      placeholder={t(
-                        "refundReasons.fields.description.placeholder",
-                      )}
+                      placeholder={t('refundReasons.fields.description.placeholder')}
                       data-testid="refund-reason-edit-form-description-input"
                     />
                   </Form.Control>
@@ -130,12 +131,22 @@ export const RefundReasonEditForm = ({
         <RouteDrawer.Footer data-testid="refund-reason-edit-form-footer">
           <div className="flex items-center justify-end gap-x-2">
             <RouteDrawer.Close asChild>
-              <Button variant="secondary" size="small" type="button" data-testid="refund-reason-edit-form-cancel-button">
-                {t("actions.cancel")}
+              <Button
+                variant="secondary"
+                size="small"
+                type="button"
+                data-testid="refund-reason-edit-form-cancel-button"
+              >
+                {t('actions.cancel')}
               </Button>
             </RouteDrawer.Close>
-            <Button size="small" type="submit" isLoading={isPending} data-testid="refund-reason-edit-form-save-button">
-              {t("actions.save")}
+            <Button
+              size="small"
+              type="submit"
+              isLoading={isPending}
+              data-testid="refund-reason-edit-form-save-button"
+            >
+              {t('actions.save')}
             </Button>
           </div>
         </RouteDrawer.Footer>

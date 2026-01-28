@@ -1,1 +1,1 @@
-export * from "./custom-tag-create-form"
+export * from './custom-tag-create-form';

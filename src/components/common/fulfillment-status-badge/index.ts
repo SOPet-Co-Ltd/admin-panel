@@ -1,1 +1,1 @@
-export * from "./fulfillment-status-badge";
+export * from './fulfillment-status-badge';
