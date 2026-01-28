@@ -18,7 +18,6 @@ import { isFetchError } from '../../lib/is-fetch-error';
 
 const CreateAccountSchema = z
   .object({
-    email: z.string().email(),
     first_name: z.string().min(1),
     last_name: z.string().min(1),
     password: z.string().min(1),
@@ -37,8 +36,8 @@ const CreateAccountSchema = z
 // TODO: Update to V2 format
 type DecodedInvite = {
   id: string;
-  jti: any;
-  exp: string;
+  jti: string;
+  exp: number;
   iat: number;
   email: string;
 };
@@ -50,6 +49,7 @@ export const Invite = () => {
   const token = searchParams.get('token');
   const invite: DecodedInvite | null = token ? decodeToken(token) : null;
   const isValidInvite = invite && validateDecodedInvite(invite);
+  const inviteEmail = invite?.email;
 
   return (
     <div
@@ -62,7 +62,7 @@ export const Invite = () => {
       >
         <AvatarBox checked={success} />
         <div className="max-h-[557px] w-full will-change-contents">
-          {isValidInvite ? (
+          {isValidInvite && inviteEmail ? (
             <AnimatePresence>
               {!success ? (
                 <motion.div
@@ -199,13 +199,9 @@ const CreateView = ({
   const { t } = useTranslation();
   const [invalid, setInvalid] = useState(false);
 
-  const [params] = useSearchParams();
-  const isFirstRun = params.get('first_run') === 'true'; // true when the invite page is open during a "create medusa app" run
-
   const form = useForm<z.infer<typeof CreateAccountSchema>>({
     resolver: zodResolver(CreateAccountSchema),
     defaultValues: {
-      email: isFirstRun ? '' : invite.email || '',
       first_name: '',
       last_name: '',
       password: '',
@@ -220,12 +216,12 @@ const CreateView = ({
   const handleSubmit = form.handleSubmit(async data => {
     try {
       const authToken = await signUpEmailPass({
-        email: data.email,
+        email: invite.email,
         password: data.password
       });
 
       const invitePayload = {
-        email: data.email,
+        email: invite.email,
         first_name: data.first_name,
         last_name: data.last_name
       };
@@ -257,7 +253,6 @@ const CreateView = ({
 
   const serverError = form.formState.errors.root?.message;
   const validationError =
-    form.formState.errors.email?.message ||
     form.formState.errors.password?.message ||
     form.formState.errors.repeat_password?.message ||
     form.formState.errors.first_name?.message ||
@@ -288,25 +283,31 @@ const CreateView = ({
           data-testid="invite-create-view-form"
         >
           <div className="flex flex-col gap-y-2">
-            <Form.Field
-              control={form.control}
-              name="email"
-              render={({ field }) => {
-                return (
-                  <Form.Item>
-                    <Form.Control>
-                      <Input
-                        autoComplete="off"
-                        {...field}
-                        className="bg-ui-bg-field-component"
-                        placeholder={t('fields.email')}
-                        data-testid="invite-email-input"
-                      />
-                    </Form.Control>
-                  </Form.Item>
-                );
-              }}
-            />
+            <div
+              className="rounded-lg border border-ui-border-base bg-ui-bg-base px-4 py-3 text-center"
+              data-testid="invite-email-readonly"
+            >
+              <Text
+                size="small"
+                className="text-ui-fg-subtle"
+                data-testid="invite-email-readonly-label"
+              >
+                Signing up with
+              </Text>
+              <Text
+                className="break-all font-medium text-ui-fg-base"
+                data-testid="invite-email-readonly-value"
+              >
+                {invite.email}
+              </Text>
+              <Text
+                size="small"
+                className="mt-1 text-ui-fg-subtle"
+                data-testid="invite-email-readonly-hint"
+              >
+                This email is tied to your invitation and can’t be changed.
+              </Text>
+            </div>
             <Form.Field
               control={form.control}
               name="first_name"
@@ -482,7 +483,8 @@ const InviteSchema = z.object({
   id: z.string(),
   jti: z.string(),
   exp: z.number(),
-  iat: z.number()
+  iat: z.number(),
+  email: z.string().email()
 });
 
 const validateDecodedInvite = (decoded: any): decoded is DecodedInvite => {
