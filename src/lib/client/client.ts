@@ -39,8 +39,20 @@ export const sdk = new Medusa({
   baseUrl: backendUrl
 });
 
+export type AdminMediaUploadFile = {
+  id: string;
+  url: string;
+  filename?: string;
+  mimeType?: string;
+  blurhash?: string;
+};
+
+export type AdminMediaUploadResponse = {
+  files: AdminMediaUploadFile[];
+};
+
 // Custom upload function using /admin/media endpoint
-export const uploadFilesQuery = async (files: File[]) => {
+export const uploadFilesQuery = async (files: File[]): Promise<AdminMediaUploadResponse> => {
   const token = getAuthToken();
   if (!token) {
     throw new Error('No authentication token');
@@ -68,6 +80,41 @@ export const uploadFilesQuery = async (files: File[]) => {
     .catch(error => {
       throw error;
     });
+};
+
+export type UpdateProductMediaPayload = {
+  images?: Array<{ id: string; url: string }>;
+  thumbnail?: string | null;
+  image_blurhashes?: Record<string, string>;
+};
+
+export type UpdateProductMediaResponse = {
+  product: unknown;
+};
+
+export const updateProductMedia = async (
+  productId: string,
+  payload: UpdateProductMediaPayload
+): Promise<UpdateProductMediaResponse> => {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('No authentication token');
+  }
+
+  const res = await fetch(`${backendUrl}/admin/products/${productId}/media`, {
+    method: 'PATCH',
+    headers: {
+      authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || 'Failed to update product media');
+  }
+  return res.json();
 };
 
 // Custom delete function using /admin/media endpoint
