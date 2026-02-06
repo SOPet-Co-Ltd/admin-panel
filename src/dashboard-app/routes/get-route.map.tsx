@@ -41,10 +41,6 @@ export function getRouteMap({
                   lazy: () => import('../../routes/products/product-list'),
                   children: [
                     {
-                      path: 'create',
-                      lazy: () => import('../../routes/products/product-create')
-                    },
-                    {
                       path: 'import',
                       lazy: () => import('../../routes/products/product-import')
                     },
@@ -464,60 +460,6 @@ export function getRouteMap({
                     {
                       path: 'metadata/edit',
                       lazy: () => import('../../routes/collections/collection-metadata')
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              path: '/price-lists',
-              errorElement: <ErrorBoundary />,
-              handle: {
-                breadcrumb: () => t('priceLists.domain')
-              },
-              children: [
-                {
-                  path: '',
-                  lazy: () => import('../../routes/price-lists/price-list-list'),
-                  children: [
-                    {
-                      path: 'create',
-                      lazy: () => import('../../routes/price-lists/price-list-create')
-                    }
-                  ]
-                },
-                {
-                  path: ':id',
-                  lazy: async () => {
-                    const { Component, Breadcrumb, loader } =
-                      await import('../../routes/price-lists/price-list-detail');
-
-                    return {
-                      Component,
-                      loader,
-                      handle: {
-                        breadcrumb: (match: UIMatch<HttpTypes.AdminPriceListResponse>) => (
-                          <Breadcrumb {...match} />
-                        )
-                      }
-                    };
-                  },
-                  children: [
-                    {
-                      path: 'edit',
-                      lazy: () => import('../../routes/price-lists/price-list-edit')
-                    },
-                    {
-                      path: 'configuration',
-                      lazy: () => import('../../routes/price-lists/price-list-configuration')
-                    },
-                    {
-                      path: 'products/add',
-                      lazy: () => import('../../routes/price-lists/price-list-prices-add')
-                    },
-                    {
-                      path: 'products/edit',
-                      lazy: () => import('../../routes/price-lists/price-list-prices-edit')
                     }
                   ]
                 }
@@ -1092,55 +1034,6 @@ export function getRouteMap({
                   lazy: () => import('../../routes/locations/location-list')
                 },
                 {
-                  path: 'create',
-                  lazy: () => import('../../routes/locations/location-create')
-                },
-                {
-                  path: 'shipping-profiles',
-                  element: <Outlet />,
-                  handle: {
-                    breadcrumb: () => t('shippingProfile.domain')
-                  },
-                  children: [
-                    {
-                      path: '',
-                      lazy: () => import('../../routes/shipping-profiles/shipping-profiles-list'),
-                      children: [
-                        {
-                          path: 'create',
-                          lazy: () =>
-                            import('../../routes/shipping-profiles/shipping-profile-create')
-                        }
-                      ]
-                    },
-                    {
-                      path: ':shipping_profile_id',
-                      lazy: async () => {
-                        const { Component, Breadcrumb, loader } =
-                          await import('../../routes/shipping-profiles/shipping-profile-detail');
-
-                        return {
-                          Component,
-                          loader,
-                          handle: {
-                            breadcrumb: (
-                              // eslint-disable-next-line max-len
-                              match: UIMatch<HttpTypes.AdminShippingProfileResponse>
-                            ) => <Breadcrumb {...match} />
-                          }
-                        };
-                      },
-                      children: [
-                        {
-                          path: 'metadata/edit',
-                          lazy: () =>
-                            import('../../routes/shipping-profiles/shipping-profile-metadata')
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
                   path: 'shipping-option-types',
                   errorElement: <ErrorBoundary />,
                   element: <Outlet />,
@@ -1203,69 +1096,7 @@ export function getRouteMap({
                       }
                     };
                   },
-                  children: [
-                    {
-                      path: 'edit',
-                      lazy: () => import('../../routes/locations/location-edit')
-                    },
-                    {
-                      path: 'sales-channels',
-                      lazy: () => import('../../routes/locations/location-sales-channels')
-                    },
-                    {
-                      path: 'fulfillment-providers',
-                      lazy: () => import('../../routes/locations/location-fulfillment-providers')
-                    },
-                    {
-                      path: 'fulfillment-set/:fset_id',
-                      children: [
-                        {
-                          path: 'service-zones/create',
-                          lazy: () => import('../../routes/locations/location-service-zone-create')
-                        },
-                        {
-                          path: 'service-zone/:zone_id',
-                          children: [
-                            {
-                              path: 'edit',
-                              lazy: () =>
-                                import('../../routes/locations/location-service-zone-edit')
-                            },
-                            {
-                              path: 'areas',
-                              lazy: () =>
-                                import('../../routes/locations/location-service-zone-manage-areas')
-                            },
-                            {
-                              path: 'shipping-option',
-                              children: [
-                                {
-                                  path: 'create',
-                                  lazy: () =>
-                                    import('../../routes/locations/location-service-zone-shipping-option-create')
-                                },
-                                {
-                                  path: ':so_id',
-                                  children: [
-                                    {
-                                      path: 'edit',
-                                      lazy: () =>
-                                        import('../../routes/locations/location-service-zone-shipping-option-edit')
-                                    },
-                                    {
-                                      path: 'pricing',
-                                      lazy: () =>
-                                        import('../../routes/locations/location-service-zone-shipping-option-pricing')
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
+                  children: []
                 }
               ]
             },

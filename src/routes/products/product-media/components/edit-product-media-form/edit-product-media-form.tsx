@@ -36,11 +36,8 @@ import { productsQueryKeys } from '@/hooks/api/products';
 import { deleteFilesQuery, updateProductMedia, uploadFilesQuery } from '@/lib/client';
 import { queryClient } from '@/lib/query-client';
 import { UploadMediaFormItem } from '@/routes/products/common/components/upload-media-form-item';
-import {
-  EditProductMediaSchema,
-  type MediaSchema
-} from '@/routes/products/product-create/constants';
-import type { EditProductMediaSchemaType } from '@/routes/products/product-create/types';
+import { EditProductMediaSchema, type MediaSchema } from '@/routes/products/common/constants';
+import type { EditProductMediaSchemaType } from '@/routes/products/common/types';
 
 type ProductMediaViewProps = {
   product: HttpTypes.AdminProduct;

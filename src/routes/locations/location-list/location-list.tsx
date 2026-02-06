@@ -79,12 +79,7 @@ export function LocationList() {
                 description: t('stockLocations.list.noRecordsMessageFiltered')
               }
             }}
-            actions={[
-              {
-                label: t('actions.create'),
-                to: 'create'
-              }
-            ]}
+            actions={[]}
             isLoading={isLoading}
             rowHref={row => `/settings/locations/${row.id}`}
             enableSearch={true}
@@ -121,13 +116,7 @@ const LinksSection = () => {
         </Heading>
       </div>
 
-      <SidebarLink
-        to="/settings/locations/shipping-profiles"
-        labelKey={t('stockLocations.sidebar.shippingProfiles.label')}
-        descriptionKey={t('stockLocations.sidebar.shippingProfiles.description')}
-        icon={<ShoppingBag />}
-        data-testid="location-list-sidebar-shipping-profiles-link"
-      />
+      {/* Shipping profiles are vendor-specific and managed in the vendor panel */}
       <SidebarLink
         to="/settings/locations/shipping-option-types"
         labelKey={t('stockLocations.sidebar.shippingOptionTypes.label')}

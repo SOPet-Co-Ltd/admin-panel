@@ -1,10 +1,6 @@
-import { PencilSquare, ShoppingBag } from '@medusajs/icons';
 import { HttpTypes } from '@medusajs/types';
-import { Container, Heading } from '@medusajs/ui';
+import { Container, Heading, Text } from '@medusajs/ui';
 import { useTranslation } from 'react-i18next';
-
-import { ActionMenu } from '../../../../../components/common/action-menu';
-import { SidebarLink } from '../../../../../components/common/sidebar-link/sidebar-link';
 
 type ProductShippingProfileSectionProps = {
   product: HttpTypes.AdminProduct & {
@@ -32,31 +28,26 @@ export const ProductShippingProfileSection = ({ product }: ProductShippingProfil
         >
           {t('products.shippingProfile.header')}
         </Heading>
-        <ActionMenu
-          groups={[
-            {
-              actions: [
-                {
-                  label: t('actions.edit'),
-                  to: 'shipping-profile',
-                  icon: <PencilSquare />
-                }
-              ]
-            }
-          ]}
-          data-testid="product-shipping-profile-action-menu"
-        />
+        {/* Shipping profiles are vendor-specific and managed in the vendor panel */}
       </div>
 
       {shippingProfile && (
         <div data-testid="product-shipping-profile-link-container">
-          <SidebarLink
-            to={`/settings/locations/shipping-profiles/${shippingProfile.id}`}
-            labelKey={shippingProfile.name}
-            descriptionKey={shippingProfile.type}
-            icon={<ShoppingBag />}
-            data-testid="product-shipping-profile-link"
-          />
+          <div className="px-6 py-4">
+            <Text
+              size="small"
+              weight="plus"
+              data-testid="product-shipping-profile-name"
+            >
+              {shippingProfile.name}
+            </Text>
+            <Text
+              className="txt-small text-ui-fg-subtle"
+              data-testid="product-shipping-profile-type"
+            >
+              {shippingProfile.type}
+            </Text>
+          </div>
         </div>
       )}
     </Container>

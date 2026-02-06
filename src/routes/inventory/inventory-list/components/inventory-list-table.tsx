@@ -76,9 +76,7 @@ export const InventoryListTable = () => {
             {t('inventory.subtitle')}
           </Text>
         </div>
-        {/* <Button size="small" variant="secondary" asChild data-testid="inventory-create-button">
-          <Link to="create" data-testid="inventory-create-link">{t("actions.create")}</Link>
-        </Button> */}
+        {/* Admins can only view inventory for platform oversight, not create items */}
       </div>
       <div data-testid="inventory-data-table">
         <_DataTable
