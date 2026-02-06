@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+export const PRODUCT_VARIANT_IDS_KEY = 'product_variant_ids';
+
 export const MediaSchema = z.object({
   id: z.string().optional(),
   url: z.string(),
