@@ -1,14 +1,25 @@
 import { useMemo, useState } from 'react';
 
 import { Combobox } from '@components/inputs/combobox';
-import { useAlgolia, useSyncAlgolia, useSyncAlgoliaProduct } from '@hooks/api/algolia';
+import {
+  useAlgolia,
+  useAlgoliaDiagnostics,
+  useSyncAlgolia,
+  useSyncAlgoliaFull,
+  useSyncAlgoliaProduct
+} from '@hooks/api/algolia';
 import { useProducts } from '@hooks/api/products';
 import { Button, Container, Heading, Label, StatusBadge, Table, Text, toast } from '@medusajs/ui';
 
 export const Algolia = () => {
   const { data: algolia, isLoading } = useAlgolia();
+  const { mutateAsync: syncFull, isPending: isSyncingFull } = useSyncAlgoliaFull();
   const { mutateAsync: syncAllProducts, isPending: isSyncingAll } = useSyncAlgolia();
+  const isSyncingAny = isSyncingFull || isSyncingAll;
   const { mutateAsync: syncProduct, isPending: isSyncingProduct } = useSyncAlgoliaProduct();
+  const { data: diagnostics, isLoading: diagnosticsLoading } = useAlgoliaDiagnostics(
+    !!algolia?.configured
+  );
 
   const [productId, setProductId] = useState<string>('');
   const [productSearch, setProductSearch] = useState('');
@@ -39,6 +50,9 @@ export const Algolia = () => {
 
   const handleSyncAllProducts = async () => {
     try {
+      toast.info('Starting full product sync to Algolia...');
+      await syncFull();
+      toast.info('Full sync started. Syncing custom tags for published products...');
       const result = (await syncAllProducts()) as {
         success: boolean;
         synced: number;
@@ -51,13 +65,9 @@ export const Algolia = () => {
           result.failed > 0 ? ` (${result.failed} failed)` : ''
         }`
       );
-
-      return;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to sync all products';
+      const errorMessage = error instanceof Error ? error.message : 'Failed to sync products';
       toast.error(errorMessage);
-
-      return;
     }
   };
 
@@ -143,6 +153,30 @@ export const Algolia = () => {
                 )}
               </Table.Cell>
             </Table.Row>
+            {diagnostics && !diagnosticsLoading && (
+              <>
+                <Table.Row data-testid="algolia-table-row-diagnostics">
+                  <Table.Cell>Product status (DB)</Table.Cell>
+                  <Table.Cell>
+                    Total: {diagnostics.total} | Published: {diagnostics.publishedCount} | By
+                    status:{' '}
+                    {Object.entries(diagnostics.byStatus)
+                      .map(([k, v]) => `${k}: ${v}`)
+                      .join(', ') || '—'}
+                  </Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.Cell>Products without sales channel</Table.Cell>
+                  <Table.Cell>{diagnostics.withoutSalesChannel}</Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.Cell>Algolia record count</Table.Cell>
+                  <Table.Cell>
+                    {diagnostics.algoliaRecordCount != null ? diagnostics.algoliaRecordCount : '—'}
+                  </Table.Cell>
+                </Table.Row>
+              </>
+            )}
           </Table.Body>
         </Table>
 
@@ -158,16 +192,16 @@ export const Algolia = () => {
               className="mb-4 text-ui-fg-subtle"
               size="small"
             >
-              Synchronize custom tags for all products in your store to Algolia. This may take a few
-              minutes for large catalogs.
+              Sync full product data (published only), then custom tags. Run this if products are
+              missing on the storefront. Only published products are synced.
             </Text>
             <Button
               onClick={handleSyncAllProducts}
-              disabled={isSyncingAll || !algolia?.configured}
-              isLoading={isSyncingAll}
+              disabled={isSyncingAny || !algolia?.configured}
+              isLoading={isSyncingAny}
               data-testid="algolia-sync-all-button"
             >
-              {isSyncingAll ? 'Syncing...' : 'Sync All Products'}
+              {isSyncingAny ? 'Syncing...' : 'Sync All Products'}
             </Button>
           </div>
 

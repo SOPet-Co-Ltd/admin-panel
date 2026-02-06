@@ -12,6 +12,17 @@ export const useAlgolia = () => {
   });
 };
 
+/** MercurJS full product sync (published products). Run this first. */
+export const useSyncAlgoliaFull = () => {
+  return useMutation({
+    mutationFn: () =>
+      sdk.client.fetch('/admin/algolia', {
+        method: 'POST'
+      })
+  });
+};
+
+/** Custom tags sync for all published products. Run after full sync. */
 export const useSyncAlgolia = () => {
   return useMutation({
     mutationFn: () =>
@@ -27,5 +38,22 @@ export const useSyncAlgoliaProduct = () => {
       sdk.client.fetch(`/admin/algolia/sync/product/${productId}`, {
         method: 'POST'
       })
+  });
+};
+
+export type AlgoliaDiagnostics = {
+  total: number;
+  byStatus: Record<string, number>;
+  withoutSalesChannel: number;
+  publishedCount: number;
+  algoliaRecordCount: number | null;
+  syncHint?: string;
+};
+
+export const useAlgoliaDiagnostics = (enabled = true) => {
+  return useQuery<AlgoliaDiagnostics>({
+    queryKey: [...algoliaQueryKeys.all, 'diagnostics'],
+    queryFn: () => sdk.client.fetch('/admin/algolia/diagnostics', { method: 'GET' }),
+    enabled: enabled
   });
 };
