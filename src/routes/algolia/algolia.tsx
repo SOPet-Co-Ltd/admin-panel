@@ -4,7 +4,6 @@ import { Combobox } from '@components/inputs/combobox';
 import {
   useAlgolia,
   useAlgoliaDiagnostics,
-  useSyncAlgolia,
   useSyncAlgoliaFull,
   useSyncAlgoliaProduct
 } from '@hooks/api/algolia';
@@ -14,8 +13,6 @@ import { Button, Container, Heading, Label, StatusBadge, Table, Text, toast } fr
 export const Algolia = () => {
   const { data: algolia, isLoading } = useAlgolia();
   const { mutateAsync: syncFull, isPending: isSyncingFull } = useSyncAlgoliaFull();
-  const { mutateAsync: syncAllProducts, isPending: isSyncingAll } = useSyncAlgolia();
-  const isSyncingAny = isSyncingFull || isSyncingAll;
   const { mutateAsync: syncProduct, isPending: isSyncingProduct } = useSyncAlgoliaProduct();
   const { data: diagnostics, isLoading: diagnosticsLoading } = useAlgoliaDiagnostics(
     !!algolia?.configured
@@ -50,20 +47,15 @@ export const Algolia = () => {
 
   const handleSyncAllProducts = async () => {
     try {
-      toast.info('Starting full product sync to Algolia...');
-      await syncFull();
-      toast.info('Full sync started. Syncing custom tags for published products...');
-      const result = (await syncAllProducts()) as {
-        success: boolean;
+      toast.info('Re-syncing products published to search...');
+      const result = (await syncFull()) as {
+        message?: string;
         synced: number;
         failed: number;
         total: number;
-        message?: string;
       };
       toast.success(
-        `Synchronization completed! Synced ${result.synced} products${
-          result.failed > 0 ? ` (${result.failed} failed)` : ''
-        }`
+        `Synced ${result.synced} products${result.failed > 0 ? ` (${result.failed} failed)` : ''}`
       );
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to sync products';
@@ -175,6 +167,18 @@ export const Algolia = () => {
                     {diagnostics.algoliaRecordCount != null ? diagnostics.algoliaRecordCount : '—'}
                   </Table.Cell>
                 </Table.Row>
+                {diagnostics.syncHint && (
+                  <Table.Row>
+                    <Table.Cell colSpan={2}>
+                      <Text
+                        size="small"
+                        className="text-ui-fg-muted"
+                      >
+                        {diagnostics.syncHint}
+                      </Text>
+                    </Table.Cell>
+                  </Table.Row>
+                )}
               </>
             )}
           </Table.Body>
@@ -192,16 +196,17 @@ export const Algolia = () => {
               className="mb-4 text-ui-fg-subtle"
               size="small"
             >
-              Sync full product data (published only), then custom tags. Run this if products are
-              missing on the storefront. Only published products are synced.
+              Re-sync all products that are published to search (by vendors) to Algolia. Only
+              products with &quot;Published to search&quot; are synced. Vendors publish products
+              from the Vendor panel.
             </Text>
             <Button
               onClick={handleSyncAllProducts}
-              disabled={isSyncingAny || !algolia?.configured}
-              isLoading={isSyncingAny}
+              disabled={isSyncingFull || !algolia?.configured}
+              isLoading={isSyncingFull}
               data-testid="algolia-sync-all-button"
             >
-              {isSyncingAny ? 'Syncing...' : 'Sync All Products'}
+              {isSyncingFull ? 'Syncing...' : 'Sync All Products'}
             </Button>
           </div>
 
@@ -216,7 +221,8 @@ export const Algolia = () => {
               className="mb-4 text-ui-fg-subtle"
               size="small"
             >
-              Synchronize custom tags for a specific product by selecting it from the list.
+              Update this product&apos;s custom tags and stats in Algolia. The product must already
+              be in the index (published to search by a vendor).
             </Text>
             <div className="flex gap-2">
               <div className="flex-1">

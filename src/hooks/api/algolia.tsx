@@ -12,7 +12,7 @@ export const useAlgolia = () => {
   });
 };
 
-/** MercurJS full product sync (published products). Run this first. */
+/** Re-push all products that are published to Algolia (metadata.published_to_algolia). */
 export const useSyncAlgoliaFull = () => {
   return useMutation({
     mutationFn: () =>
@@ -22,7 +22,7 @@ export const useSyncAlgoliaFull = () => {
   });
 };
 
-/** Custom tags sync for all published products. Run after full sync. */
+/** Custom tags sync for all published products (optional). */
 export const useSyncAlgolia = () => {
   return useMutation({
     mutationFn: () =>
