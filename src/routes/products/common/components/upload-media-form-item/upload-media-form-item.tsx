@@ -6,8 +6,11 @@ import { z } from 'zod';
 
 import { FileType, FileUpload } from '../../../../../components/common/file-upload';
 import { Form } from '../../../../../components/common/form';
-import { MediaSchema } from '../../../product-create/constants';
-import { EditProductMediaSchemaType, ProductCreateSchemaType } from '../../../product-create/types';
+import { MediaSchema } from '../../constants';
+import { EditProductMediaSchemaType } from '../../types';
+
+// ProductCreateSchemaType is not needed in admin panel since product creation is removed
+type ProductCreateSchemaType = never;
 
 type Media = z.infer<typeof MediaSchema>;
 

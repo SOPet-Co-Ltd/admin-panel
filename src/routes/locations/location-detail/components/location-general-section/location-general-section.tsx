@@ -1,48 +1,19 @@
 import { useMemo, useState } from 'react';
 
-import {
-  ArchiveBox,
-  CurrencyDollar,
-  Map,
-  PencilSquare,
-  Plus,
-  Trash,
-  TriangleDownMini
-} from '@medusajs/icons';
+import { ArchiveBox, Map, TriangleDownMini } from '@medusajs/icons';
 import type { HttpTypes } from '@medusajs/types';
-import {
-  Badge,
-  Container,
-  Divider,
-  Heading,
-  IconButton,
-  StatusBadge,
-  Text,
-  toast,
-  usePrompt
-} from '@medusajs/ui';
+import { Badge, Container, Divider, Heading, IconButton, StatusBadge, Text } from '@medusajs/ui';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 
 import { ActionMenu } from '../../../../../components/common/action-menu';
 import { NoRecords } from '../../../../../components/common/empty-table-content';
 import { IconAvatar } from '../../../../../components/common/icon-avatar';
-import { LinkButton } from '../../../../../components/common/link-button';
 import { ListSummary } from '../../../../../components/common/list-summary';
-import {
-  useDeleteFulfillmentServiceZone,
-  useDeleteFulfillmentSet
-} from '../../../../../hooks/api/fulfillment-sets';
-import { useDeleteShippingOption } from '../../../../../hooks/api/shipping-options';
-import {
-  useCreateStockLocationFulfillmentSet,
-  useDeleteStockLocation
-} from '../../../../../hooks/api/stock-locations';
 import { getFormattedAddress } from '../../../../../lib/addresses';
 import { countries as staticCountries, StaticCountry } from '../../../../../lib/data/countries';
 import { formatProvider } from '../../../../../lib/format-provider';
 import { isOptionEnabledInStore, isReturnOption } from '../../../../../lib/shipping-options';
-import { FulfillmentSetType, ShippingOptionPriceType } from '../../../common/constants';
+import { FulfillmentSetType } from '../../../common/constants';
 
 type LocationGeneralSectionProps = {
   location: HttpTypes.AdminStockLocation;
@@ -98,43 +69,12 @@ type ShippingOptionProps = {
 };
 
 function ShippingOption({ option, fulfillmentSetId, locationId }: ShippingOptionProps) {
-  const prompt = usePrompt();
   const { t } = useTranslation();
 
   const isStoreOption = isOptionEnabledInStore(option);
 
-  const { mutateAsync } = useDeleteShippingOption(option.id);
-
-  const handleDelete = async () => {
-    const res = await prompt({
-      title: t('general.areYouSure'),
-      description: t('stockLocations.shippingOptions.delete.confirmation', {
-        name: option.name
-      }),
-      verificationInstruction: t('general.typeToConfirm'),
-      verificationText: option.name,
-      confirmText: t('actions.delete'),
-      cancelText: t('actions.cancel')
-    });
-
-    if (!res) {
-      return;
-    }
-
-    await mutateAsync(undefined, {
-      onSuccess: () => {
-        toast.success(
-          t('stockLocations.shippingOptions.delete.successToast', {
-            name: option.name
-          })
-        );
-      },
-      onError: e => {
-        toast.error(e.message);
-      }
-    });
-  };
-
+  // Admins can only view shipping options for oversight, not edit or delete them
+  // Vendors manage their own shipping options
   return (
     <div
       className="flex items-center justify-between px-3 py-2"
@@ -160,35 +100,6 @@ function ShippingOption({ option, fulfillmentSetId, locationId }: ShippingOption
       >
         {isStoreOption ? t('general.store') : t('general.admin')}
       </Badge>
-      <ActionMenu
-        groups={[
-          {
-            actions: [
-              {
-                icon: <PencilSquare />,
-                label: t('stockLocations.shippingOptions.edit.action'),
-                to: `/settings/locations/${locationId}/fulfillment-set/${fulfillmentSetId}/service-zone/${option.service_zone_id}/shipping-option/${option.id}/edit`
-              },
-              {
-                label: t('stockLocations.shippingOptions.pricing.action'),
-                icon: <CurrencyDollar />,
-                disabled: option.price_type === ShippingOptionPriceType.Calculated,
-                to: `/settings/locations/${locationId}/fulfillment-set/${fulfillmentSetId}/service-zone/${option.service_zone_id}/shipping-option/${option.id}/pricing`
-              }
-            ]
-          },
-          {
-            actions: [
-              {
-                label: t('actions.delete'),
-                icon: <Trash />,
-                onClick: handleDelete
-              }
-            ]
-          }
-        ]}
-        data-testid={`location-shipping-option-action-menu-${option.id}`}
-      />
     </div>
   );
 }
@@ -207,6 +118,8 @@ function ServiceZoneOptions({ zone, locationId, fulfillmentSetId, type }: Servic
 
   const returnOptions = zone.shipping_options.filter(o => isReturnOption(o));
 
+  // Admins can only view shipping options for oversight, not create them
+  // Vendors manage their own shipping options
   return (
     <div data-testid={`location-service-zone-options-${zone.id}`}>
       <Divider variant="dashed" />
@@ -224,12 +137,6 @@ function ServiceZoneOptions({ zone, locationId, fulfillmentSetId, type }: Servic
           >
             {t(`stockLocations.shippingOptions.create.${type}.label`)}
           </span>
-          <LinkButton
-            to={`/settings/locations/${locationId}/fulfillment-set/${fulfillmentSetId}/service-zone/${zone.id}/shipping-option/create`}
-            data-testid={`location-service-zone-shipping-options-create-button-${zone.id}`}
-          >
-            {t('stockLocations.shippingOptions.create.action')}
-          </LinkButton>
         </div>
 
         {!!shippingOptions.length && (
@@ -265,12 +172,6 @@ function ServiceZoneOptions({ zone, locationId, fulfillmentSetId, type }: Servic
           >
             {t('stockLocations.shippingOptions.create.returns.label')}
           </span>
-          <LinkButton
-            to={`/settings/locations/${locationId}/fulfillment-set/${fulfillmentSetId}/service-zone/${zone.id}/shipping-option/create?is_return`}
-            data-testid={`location-service-zone-return-options-create-button-${zone.id}`}
-          >
-            {t('stockLocations.shippingOptions.create.action')}
-          </LinkButton>
         </div>
 
         {!!returnOptions.length && (
@@ -302,38 +203,10 @@ type ServiceZoneProps = {
 
 function ServiceZone({ zone, locationId, fulfillmentSetId, type }: ServiceZoneProps) {
   const { t } = useTranslation();
-  const prompt = usePrompt();
   const [open, setOpen] = useState(true);
 
-  const { mutateAsync: deleteZone } = useDeleteFulfillmentServiceZone(fulfillmentSetId, zone.id);
-
-  const handleDelete = async () => {
-    const res = await prompt({
-      title: t('general.areYouSure'),
-      description: t('stockLocations.serviceZones.delete.confirmation', {
-        name: zone.name
-      }),
-      confirmText: t('actions.delete'),
-      cancelText: t('actions.cancel')
-    });
-
-    if (!res) {
-      return;
-    }
-
-    await deleteZone(undefined, {
-      onError: e => {
-        toast.error(e.message);
-      },
-      onSuccess: () => {
-        toast.success(
-          t('stockLocations.serviceZones.delete.successToast', {
-            name: zone.name
-          })
-        );
-      }
-    });
-  };
+  // Admins can only view service zones for oversight, not edit or delete them
+  // Vendors manage their own service zones
 
   const countries = useMemo(() => {
     const countryGeoZones = zone.geo_zones.filter(g => g.type === 'country');
@@ -438,34 +311,7 @@ function ServiceZone({ zone, locationId, fulfillmentSetId, type }: ServiceZonePr
               }}
             />
           </IconButton>
-          <ActionMenu
-            groups={[
-              {
-                actions: [
-                  {
-                    label: t('actions.edit'),
-                    icon: <PencilSquare />,
-                    to: `/settings/locations/${locationId}/fulfillment-set/${fulfillmentSetId}/service-zone/${zone.id}/edit`
-                  },
-                  {
-                    label: t('stockLocations.serviceZones.manageAreas.action'),
-                    icon: <Map />,
-                    to: `/settings/locations/${locationId}/fulfillment-set/${fulfillmentSetId}/service-zone/${zone.id}/areas`
-                  }
-                ]
-              },
-              {
-                actions: [
-                  {
-                    label: t('actions.delete'),
-                    icon: <Trash />,
-                    onClick: handleDelete
-                  }
-                ]
-              }
-            ]}
-            data-testid={`location-service-zone-action-menu-${zone.id}`}
-          />
+          {/* Admins can only view service zones for oversight, not edit or delete them */}
         </div>
       </div>
       {open && (
@@ -489,7 +335,6 @@ type FulfillmentSetProps = {
 
 function FulfillmentSet(props: FulfillmentSetProps) {
   const { t } = useTranslation();
-  const prompt = usePrompt();
 
   const { fulfillmentSet, locationName, locationId, type } = props;
 
@@ -497,83 +342,8 @@ function FulfillmentSet(props: FulfillmentSetProps) {
 
   const hasServiceZones = !!fulfillmentSet?.service_zones.length;
 
-  const { mutateAsync: createFulfillmentSet } = useCreateStockLocationFulfillmentSet(locationId);
-
-  const { mutateAsync: deleteFulfillmentSet } = useDeleteFulfillmentSet(fulfillmentSet?.id ?? '');
-
-  const handleCreate = async () => {
-    await createFulfillmentSet(
-      {
-        name: `${locationName} ${type === FulfillmentSetType.Pickup ? 'pick up' : type}`,
-        type
-      },
-      {
-        onSuccess: () => {
-          toast.success(t(`stockLocations.fulfillmentSets.enable.${type}`));
-        },
-        onError: e => {
-          toast.error(e.message);
-        }
-      }
-    );
-  };
-
-  const handleDelete = async () => {
-    const res = await prompt({
-      title: t('general.areYouSure'),
-      description: t(`stockLocations.fulfillmentSets.disable.confirmation`, {
-        name: fulfillmentSet?.name
-      }),
-      confirmText: t('actions.disable'),
-      cancelText: t('actions.cancel')
-    });
-
-    if (!res) {
-      return;
-    }
-
-    await deleteFulfillmentSet(undefined, {
-      onSuccess: () => {
-        toast.success(t(`stockLocations.fulfillmentSets.disable.${type}`));
-      },
-      onError: e => {
-        toast.error(e.message);
-      }
-    });
-  };
-
-  const groups = fulfillmentSet
-    ? [
-        {
-          actions: [
-            {
-              icon: <Plus />,
-              label: t('stockLocations.serviceZones.create.action'),
-              to: `/settings/locations/${locationId}/fulfillment-set/${fulfillmentSet.id}/service-zones/create`
-            }
-          ]
-        },
-        {
-          actions: [
-            {
-              icon: <Trash />,
-              label: t('actions.disable'),
-              onClick: handleDelete
-            }
-          ]
-        }
-      ]
-    : [
-        {
-          actions: [
-            {
-              icon: <Plus />,
-              label: t('actions.enable'),
-              onClick: handleCreate
-            }
-          ]
-        }
-      ];
+  // Admins can only view fulfillment sets for oversight, not create/edit/delete them
+  // Vendors manage their own fulfillment sets
 
   return (
     <Container
@@ -602,10 +372,7 @@ function FulfillmentSet(props: FulfillmentSetProps) {
               {t(fulfillmentSetExists ? 'statuses.enabled' : 'statuses.disabled')}
             </StatusBadge>
 
-            <ActionMenu
-              groups={groups}
-              data-testid={`location-fulfillment-set-action-menu-${type}`}
-            />
+            {/* Admins can only view fulfillment sets for oversight, not manage them */}
           </div>
         </div>
 
@@ -647,65 +414,19 @@ function FulfillmentSet(props: FulfillmentSetProps) {
 }
 
 const Actions = ({ location }: { location: HttpTypes.AdminStockLocation }) => {
-  const navigate = useNavigate();
   const { t } = useTranslation();
-  const { mutateAsync } = useDeleteStockLocation(location.id);
-  const prompt = usePrompt();
 
-  const handleDelete = async () => {
-    const res = await prompt({
-      title: t('general.areYouSure'),
-      description: t('stockLocations.delete.confirmation', {
-        name: location.name
-      }),
-      verificationText: location.name,
-      verificationInstruction: t('general.typeToConfirm'),
-      confirmText: t('actions.delete'),
-      cancelText: t('actions.cancel')
-    });
-
-    if (!res) {
-      return;
-    }
-
-    await mutateAsync(undefined, {
-      onSuccess: () => {
-        toast.success(
-          t('stockLocations.create.successToast', {
-            name: location.name
-          })
-        );
-        navigate('/settings/locations', { replace: true });
-      },
-      onError: e => {
-        toast.error(e.message);
-      }
-    });
-  };
-
+  // Admins can only view locations for oversight, not edit or delete them
+  // Vendors manage their own locations
   return (
     <ActionMenu
       groups={[
         {
           actions: [
             {
-              icon: <PencilSquare />,
-              label: t('actions.edit'),
-              to: `edit`
-            },
-            {
               icon: <ArchiveBox />,
               label: t('stockLocations.edit.viewInventory'),
               to: `/inventory?location_id=${location.id}`
-            }
-          ]
-        },
-        {
-          actions: [
-            {
-              icon: <Trash />,
-              label: t('actions.delete'),
-              onClick: handleDelete
             }
           ]
         }

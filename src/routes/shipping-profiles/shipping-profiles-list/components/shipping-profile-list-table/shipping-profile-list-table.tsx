@@ -30,11 +30,11 @@ export const ShippingProfileListTable = () => {
   const filters = useShippingProfileTableFilters();
 
   const { table } = useDataTable({
-    data: shipping_profiles,
+    data: shipping_profiles || [],
     columns,
     count,
     enablePagination: true,
-    getRowId: row => row.id,
+    getRowId: row => row?.id ?? '',
     pageSize: PAGE_SIZE
   });
 
@@ -87,7 +87,7 @@ export const ShippingProfileListTable = () => {
           { key: 'updated_at', label: t('fields.updatedAt') }
         ]}
         isLoading={isLoading}
-        navigateTo={row => row.id}
+        navigateTo={row => row?.id ?? ''}
         queryObject={raw}
         search
         pagination

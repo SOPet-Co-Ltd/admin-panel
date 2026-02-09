@@ -1,1 +1,14 @@
+import { z } from 'zod';
+
 export const PRODUCT_VARIANT_IDS_KEY = 'product_variant_ids';
+
+export const MediaSchema = z.object({
+  id: z.string().optional(),
+  url: z.string(),
+  isThumbnail: z.boolean(),
+  file: z.any().nullable() // File
+});
+
+export const EditProductMediaSchema = z.object({
+  media: z.array(MediaSchema)
+});

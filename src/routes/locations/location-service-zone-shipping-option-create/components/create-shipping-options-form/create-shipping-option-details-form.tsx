@@ -12,10 +12,10 @@ import { useDocumentDirection } from '../../../../../hooks/use-document-directio
 import { sdk } from '../../../../../lib/client';
 import { formatProvider } from '../../../../../lib/format-provider';
 import { FulfillmentSetType, ShippingOptionPriceType } from '../../../common/constants';
-import { CreateShippingOptionSchema } from './schema';
+import { CreateShippingOptionSchemaType } from './schema';
 
 type CreateShippingOptionDetailsFormProps = {
-  form: UseFormReturn<CreateShippingOptionSchema>;
+  form: UseFormReturn<CreateShippingOptionSchemaType>;
   isReturn?: boolean;
   zone: HttpTypes.AdminServiceZone;
   locationId: string;
@@ -41,20 +41,24 @@ export const CreateShippingOptionDetailsForm = ({
     queryFn: params => sdk.admin.shippingProfile.list(params),
     queryKey: ['shipping_profiles'],
     getOptions: data =>
-      data.shipping_profiles.map(profile => ({
-        label: profile.name,
-        value: profile.id
-      }))
+      (data.shipping_profiles || [])
+        .filter(profile => profile != null)
+        .map(profile => ({
+          label: profile.name,
+          value: profile.id
+        }))
   });
 
   const shippingOptionTypes = useComboboxData({
     queryFn: params => sdk.admin.shippingOptionType.list(params),
     queryKey: ['shipping_option_types'],
     getOptions: data =>
-      data.shipping_option_types.map(type => ({
-        label: type.label,
-        value: type.id
-      }))
+      (data.shipping_option_types || [])
+        .filter(type => type != null)
+        .map(type => ({
+          label: type.label,
+          value: type.id
+        }))
   });
 
   const fulfillmentProviders = useComboboxData({
@@ -65,10 +69,12 @@ export const CreateShippingOptionDetailsForm = ({
       }),
     queryKey: ['fulfillment_providers'],
     getOptions: data =>
-      data.fulfillment_providers.map(provider => ({
-        label: formatProvider(provider.id),
-        value: provider.id
-      }))
+      (data.fulfillment_providers || [])
+        .filter(provider => provider != null)
+        .map(provider => ({
+          label: formatProvider(provider.id),
+          value: provider.id
+        }))
   });
 
   return (

@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
 
-import { AdminShippingProfileResponse } from '@medusajs/types';
-import { createColumnHelper } from '@tanstack/react-table';
+import { HttpTypes } from '@medusajs/types';
+import { createDataTableColumnHelper, StatusBadge } from '@medusajs/ui';
 import { useTranslation } from 'react-i18next';
 
-import { ShippingOptionsRowActions } from './shipping-options-row-actions';
+import { PlaceholderCell } from '../../../../../components/table/table-cells/common/placeholder-cell';
 
-const columnHelper = createColumnHelper<AdminShippingProfileResponse['shipping_profile']>();
+const columnHelper = createDataTableColumnHelper<HttpTypes.AdminShippingProfile>();
 
 export const useShippingProfileTableColumns = () => {
   const { t } = useTranslation();
@@ -15,15 +15,59 @@ export const useShippingProfileTableColumns = () => {
     () => [
       columnHelper.accessor('name', {
         header: t('fields.name'),
-        cell: cell => cell.getValue()
+        cell: ({ getValue }) => {
+          const name = getValue();
+          if (!name) {
+            return <PlaceholderCell />;
+          }
+
+          return <span className="text-small truncate text-ui-fg-subtle">{name}</span>;
+        }
       }),
       columnHelper.accessor('type', {
         header: t('fields.type'),
-        cell: cell => cell.getValue()
+        cell: ({ getValue }) => {
+          const type = getValue();
+          if (!type) {
+            return <PlaceholderCell />;
+          }
+
+          return (
+            <StatusBadge color="grey">
+              <span className="capitalize">{type}</span>
+            </StatusBadge>
+          );
+        }
       }),
-      columnHelper.display({
-        id: 'actions',
-        cell: ({ row }) => <ShippingOptionsRowActions profile={row.original} />
+      columnHelper.accessor('created_at', {
+        header: t('fields.createdAt'),
+        cell: ({ getValue }) => {
+          const createdAt = getValue();
+          if (!createdAt) {
+            return <PlaceholderCell />;
+          }
+
+          return (
+            <span className="text-small text-ui-fg-subtle">
+              {new Date(createdAt).toLocaleDateString()}
+            </span>
+          );
+        }
+      }),
+      columnHelper.accessor('updated_at', {
+        header: t('fields.updatedAt'),
+        cell: ({ getValue }) => {
+          const updatedAt = getValue();
+          if (!updatedAt) {
+            return <PlaceholderCell />;
+          }
+
+          return (
+            <span className="text-small text-ui-fg-subtle">
+              {new Date(updatedAt).toLocaleDateString()}
+            </span>
+          );
+        }
       })
     ],
     [t]

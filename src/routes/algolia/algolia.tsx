@@ -1,14 +1,22 @@
 import { useMemo, useState } from 'react';
 
 import { Combobox } from '@components/inputs/combobox';
-import { useAlgolia, useSyncAlgolia, useSyncAlgoliaProduct } from '@hooks/api/algolia';
+import {
+  useAlgolia,
+  useAlgoliaDiagnostics,
+  useSyncAlgoliaFull,
+  useSyncAlgoliaProduct
+} from '@hooks/api/algolia';
 import { useProducts } from '@hooks/api/products';
 import { Button, Container, Heading, Label, StatusBadge, Table, Text, toast } from '@medusajs/ui';
 
 export const Algolia = () => {
   const { data: algolia, isLoading } = useAlgolia();
-  const { mutateAsync: syncAllProducts, isPending: isSyncingAll } = useSyncAlgolia();
+  const { mutateAsync: syncFull, isPending: isSyncingFull } = useSyncAlgoliaFull();
   const { mutateAsync: syncProduct, isPending: isSyncingProduct } = useSyncAlgoliaProduct();
+  const { data: diagnostics, isLoading: diagnosticsLoading } = useAlgoliaDiagnostics(
+    !!algolia?.configured
+  );
 
   const [productId, setProductId] = useState<string>('');
   const [productSearch, setProductSearch] = useState('');
@@ -39,25 +47,19 @@ export const Algolia = () => {
 
   const handleSyncAllProducts = async () => {
     try {
-      const result = (await syncAllProducts()) as {
-        success: boolean;
+      toast.info('Re-syncing products published to search...');
+      const result = (await syncFull()) as {
+        message?: string;
         synced: number;
         failed: number;
         total: number;
-        message?: string;
       };
       toast.success(
-        `Synchronization completed! Synced ${result.synced} products${
-          result.failed > 0 ? ` (${result.failed} failed)` : ''
-        }`
+        `Synced ${result.synced} products${result.failed > 0 ? ` (${result.failed} failed)` : ''}`
       );
-
-      return;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to sync all products';
+      const errorMessage = error instanceof Error ? error.message : 'Failed to sync products';
       toast.error(errorMessage);
-
-      return;
     }
   };
 
@@ -143,6 +145,42 @@ export const Algolia = () => {
                 )}
               </Table.Cell>
             </Table.Row>
+            {diagnostics && !diagnosticsLoading && (
+              <>
+                <Table.Row data-testid="algolia-table-row-diagnostics">
+                  <Table.Cell>Product status (DB)</Table.Cell>
+                  <Table.Cell>
+                    Total: {diagnostics.total} | Published: {diagnostics.publishedCount} | By
+                    status:{' '}
+                    {Object.entries(diagnostics.byStatus)
+                      .map(([k, v]) => `${k}: ${v}`)
+                      .join(', ') || '—'}
+                  </Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.Cell>Products without sales channel</Table.Cell>
+                  <Table.Cell>{diagnostics.withoutSalesChannel}</Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.Cell>Algolia record count</Table.Cell>
+                  <Table.Cell>
+                    {diagnostics.algoliaRecordCount != null ? diagnostics.algoliaRecordCount : '—'}
+                  </Table.Cell>
+                </Table.Row>
+                {diagnostics.syncHint && (
+                  <Table.Row>
+                    <Table.Cell colSpan={2}>
+                      <Text
+                        size="small"
+                        className="text-ui-fg-muted"
+                      >
+                        {diagnostics.syncHint}
+                      </Text>
+                    </Table.Cell>
+                  </Table.Row>
+                )}
+              </>
+            )}
           </Table.Body>
         </Table>
 
@@ -158,16 +196,17 @@ export const Algolia = () => {
               className="mb-4 text-ui-fg-subtle"
               size="small"
             >
-              Synchronize custom tags for all products in your store to Algolia. This may take a few
-              minutes for large catalogs.
+              Re-sync all products that are published to search (by vendors) to Algolia. Only
+              products with &quot;Published to search&quot; are synced. Vendors publish products
+              from the Vendor panel.
             </Text>
             <Button
               onClick={handleSyncAllProducts}
-              disabled={isSyncingAll || !algolia?.configured}
-              isLoading={isSyncingAll}
+              disabled={isSyncingFull || !algolia?.configured}
+              isLoading={isSyncingFull}
               data-testid="algolia-sync-all-button"
             >
-              {isSyncingAll ? 'Syncing...' : 'Sync All Products'}
+              {isSyncingFull ? 'Syncing...' : 'Sync All Products'}
             </Button>
           </div>
 
@@ -182,7 +221,8 @@ export const Algolia = () => {
               className="mb-4 text-ui-fg-subtle"
               size="small"
             >
-              Synchronize custom tags for a specific product by selecting it from the list.
+              Update this product&apos;s custom tags and stats in Algolia. The product must already
+              be in the index (published to search by a vendor).
             </Text>
             <div className="flex gap-2">
               <div className="flex-1">

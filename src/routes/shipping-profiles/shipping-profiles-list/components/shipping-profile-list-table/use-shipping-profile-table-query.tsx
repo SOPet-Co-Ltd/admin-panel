@@ -1,3 +1,5 @@
+import { HttpTypes } from '@medusajs/types';
+
 import { useQueryParams } from '../../../../../hooks/use-query-params';
 
 export const useShippingProfileTableQuery = ({
@@ -7,20 +9,14 @@ export const useShippingProfileTableQuery = ({
   pageSize?: number;
   prefix?: string;
 }) => {
-  const raw = useQueryParams(
-    ['offset', 'q', 'order', 'created_at', 'updated_at', 'name', 'type'],
-    prefix
-  );
+  const raw = useQueryParams(['q', 'offset', 'order'], prefix);
 
-  const searchParams = {
+  const { offset, ...rest } = raw;
+
+  const searchParams: HttpTypes.AdminShippingProfileListParams = {
     limit: pageSize,
-    offset: raw.offset ? parseInt(raw.offset) : 0,
-    q: raw.q,
-    order: raw.order,
-    created_at: raw.created_at ? JSON.parse(raw.created_at) : undefined,
-    updated_at: raw.updated_at ? JSON.parse(raw.updated_at) : undefined,
-    name: raw.name,
-    type: raw.type
+    offset: offset ? parseInt(offset) : 0,
+    ...rest
   };
 
   return {
