@@ -1,7 +1,9 @@
 import { ActionsButton } from '@components/common/actions-button';
+import { PayoutAccountStatusBadge } from '@components/common/payout-account-status-badge';
 import { SellerStatusBadge } from '@components/common/seller-status-badge';
 import type { VendorSeller } from '@custom-types/seller';
 import { useUpdateSeller } from '@hooks/api/sellers';
+import { formatDate } from '@lib/date';
 import { PencilSquare, User } from '@medusajs/icons';
 import { Container, Divider, Heading, Text, usePrompt } from '@medusajs/ui';
 import { useNavigate } from 'react-router-dom';
@@ -258,6 +260,83 @@ export const SellerGeneralSection = ({ seller }: { seller: VendorSeller }) => {
                 {seller.tax_id}
               </Text>
             </div>
+          </div>
+        </Container>
+        <Container
+          className="px-0"
+          data-testid="seller-general-section-payout-account"
+        >
+          <div className="flex items-center justify-between px-8 py-4">
+            <div>
+              <Heading data-testid="seller-general-section-payout-account-heading">
+                Payout account
+              </Heading>
+            </div>
+          </div>
+          <div>
+            <Divider />
+            <div
+              className="flex px-8 py-4"
+              data-testid="seller-general-section-payout-status-row"
+            >
+              <Text
+                className="w-1/2 font-medium text-ui-fg-subtle"
+                data-testid="seller-general-section-payout-status-label"
+              >
+                Stripe Connect
+              </Text>
+              <div
+                className="w-1/2"
+                data-testid="seller-general-section-payout-status-value"
+              >
+                <PayoutAccountStatusBadge
+                  payoutAccount={seller.payout_account}
+                  data-testid="seller-general-section-payout-status-badge"
+                />
+              </div>
+            </div>
+            {seller.payout_account && (
+              <>
+                <Divider />
+                <div
+                  className="flex px-8 py-4"
+                  data-testid="seller-general-section-payout-reference-row"
+                >
+                  <Text
+                    className="w-1/2 font-medium text-ui-fg-subtle"
+                    data-testid="seller-general-section-payout-reference-label"
+                  >
+                    Stripe account ID
+                  </Text>
+                  <Text
+                    className="w-1/2"
+                    data-testid="seller-general-section-payout-reference-value"
+                  >
+                    {seller.payout_account.reference_id || '-'}
+                  </Text>
+                </div>
+                <Divider />
+                <div
+                  className="flex px-8 py-4"
+                  data-testid="seller-general-section-payout-created-row"
+                >
+                  <Text
+                    className="w-1/2 font-medium text-ui-fg-subtle"
+                    data-testid="seller-general-section-payout-created-label"
+                  >
+                    Connected at
+                  </Text>
+                  <Text
+                    className="w-1/2"
+                    data-testid="seller-general-section-payout-created-value"
+                  >
+                    {seller.payout_account.created_at
+                      ? formatDate(seller.payout_account.created_at)
+                      : '-'}
+                  </Text>
+                </div>
+              </>
+            )}
           </div>
         </Container>
       </div>
