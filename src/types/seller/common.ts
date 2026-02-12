@@ -66,6 +66,14 @@ export type MemberInviteDTO = {
   accepted: boolean;
 };
 
+export type VendorSellerPayoutAccount = {
+  id: string;
+  status: string;
+  reference_id?: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
 export interface VendorSeller {
   id: string;
   created_at: string;
@@ -84,6 +92,7 @@ export interface VendorSeller {
   country_code?: string | null;
   tax_id?: string | null;
   members?: VendorMember[];
+  payout_account?: VendorSellerPayoutAccount | null;
 }
 
 export interface VendorMember {
