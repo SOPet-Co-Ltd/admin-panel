@@ -41,7 +41,7 @@ export const CustomerGroupSection = ({ customer }: CustomerGroupSectionProps) =>
     {
       ...searchParams,
       fields: '+customers.id',
-      customers: { id: customer.id }
+      customers: customer.id
     },
     {
       placeholderData: keepPreviousData
