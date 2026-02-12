@@ -16,7 +16,7 @@ export const CustomerDetail = () => {
   const initialData = useLoaderData() as Awaited<ReturnType<typeof customerLoader>>;
   const { customer, isLoading, isError, error } = useCustomer(
     id!,
-    { fields: '+*addresses' },
+    { fields: '+*addresses,+*groups' },
     { initialData }
   );
 

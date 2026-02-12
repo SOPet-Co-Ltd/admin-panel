@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 import { createColumnHelper } from '@tanstack/react-table';
 
+import { PayoutAccountStatusBadge } from '../../../components/common/payout-account-status-badge';
 import { SellerStatusBadge } from '../../../components/common/seller-status-badge';
 import { formatDate } from '../../../lib/date';
 import { VendorSeller } from '../../../types';
@@ -25,6 +26,16 @@ export const useSellersTableColumns = () => {
         id: 'store_status',
         header: 'Account Status',
         cell: ({ row }) => <SellerStatusBadge status={row.original.store_status || '-'} />
+      }),
+      columnHelper.display({
+        id: 'payout_account',
+        header: 'Stripe',
+        cell: ({ row }) => (
+          <PayoutAccountStatusBadge
+            payoutAccount={row.original.payout_account}
+            data-testid={`seller-list-payout-status-${row.original.id}`}
+          />
+        )
       }),
       columnHelper.display({
         id: 'created_at',
