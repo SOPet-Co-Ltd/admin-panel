@@ -52,7 +52,10 @@ export type AdminMediaUploadResponse = {
 };
 
 // Custom upload function using /admin/media endpoint
-export const uploadFilesQuery = async (files: File[]): Promise<AdminMediaUploadResponse> => {
+export const uploadFilesQuery = async (
+  files: File[],
+  options?: { folder?: 'products' | 'admin-avatar' | 'sponsor' | 'banner' }
+): Promise<AdminMediaUploadResponse> => {
   const token = getAuthToken();
   if (!token) {
     throw new Error('No authentication token');
@@ -63,7 +66,14 @@ export const uploadFilesQuery = async (files: File[]): Promise<AdminMediaUploadR
     formData.append('files', file);
   });
 
-  return await fetch(`${backendUrl}/admin/media`, {
+  const params = new URLSearchParams();
+  if (options?.folder) {
+    params.set('folder', options.folder);
+  }
+
+  const url = `${backendUrl}/admin/media${params.toString() ? `?${params.toString()}` : ''}`;
+
+  return await fetch(url, {
     method: 'POST',
     body: formData,
     headers: {

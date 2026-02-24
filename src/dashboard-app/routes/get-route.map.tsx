@@ -1114,6 +1114,26 @@ export function getRouteMap({
               ]
             },
             {
+              path: 'storefront-config',
+              element: <Outlet />,
+              handle: {
+                breadcrumb: () => 'Storefront Config'
+              },
+              children: [
+                {
+                  path: '',
+                  lazy: () => import('../../routes/store/storefront-config')
+                },
+                {
+                  path: ':section/:itemId',
+                  lazy: () => import('../../routes/store/storefront-config-item'),
+                  handle: {
+                    breadcrumb: () => 'Item Detail'
+                  }
+                }
+              ]
+            },
+            {
               path: 'commission',
               lazy: () => import('../../routes/commission'),
               handle: {
