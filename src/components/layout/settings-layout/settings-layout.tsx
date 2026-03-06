@@ -68,6 +68,10 @@ const useSettingRoutes = (): INavItem[] => {
         to: '/settings/configuration'
       },
       {
+        label: 'Storefront Config',
+        to: '/settings/storefront-config'
+      },
+      {
         label: t('stockLocations.domain'),
         to: '/settings/locations'
       },
