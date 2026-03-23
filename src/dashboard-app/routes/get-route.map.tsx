@@ -1287,6 +1287,19 @@ export function getRouteMap({
               ]
             },
             {
+              path: 'konkui-refresh-token',
+              element: <Outlet />,
+              handle: {
+                breadcrumb: () => 'Konkui Tokens'
+              },
+              children: [
+                {
+                  path: '',
+                  lazy: () => import('../../routes/konkui-refresh-token')
+                }
+              ]
+            },
+            {
               path: 'publishable-api-keys',
               element: <Outlet />,
               handle: {
