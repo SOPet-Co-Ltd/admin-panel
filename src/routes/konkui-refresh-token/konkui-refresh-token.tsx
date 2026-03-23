@@ -1,43 +1,15 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   useForceRefreshKonkuiToken,
   useKonkuiTokenStatus,
+  useRevealKonkuiToken,
   useSetKonkuiTokens,
   useUpdateKonkuiTokens
 } from '@hooks/api/konkui-refresh-token';
-import {
-  Button,
-  Container,
-  Heading,
-  Input,
-  Label,
-  StatusBadge,
-  Table,
-  Text,
-  toast
-} from '@medusajs/ui';
+import { Button, Container, FocusModal, Heading, Input, Label, Text, toast } from '@medusajs/ui';
 
 import { formatDate } from '@/lib/date';
-
-const parseEpochMsOrDate = (value: string): number | null => {
-  const trimmed = value.trim();
-  if (!trimmed) {
-    return null;
-  }
-
-  const asNumber = Number(trimmed);
-  if (Number.isFinite(asNumber)) {
-    return asNumber;
-  }
-
-  const parsed = Date.parse(trimmed);
-  if (Number.isFinite(parsed)) {
-    return parsed;
-  }
-
-  throw new Error('accessTokenExpiresAt must be a valid epoch(ms) number or date string');
-};
 
 export const KonkuiRefreshTokenPage = () => {
   const { data: status, isLoading, refetch } = useKonkuiTokenStatus();
@@ -45,79 +17,70 @@ export const KonkuiRefreshTokenPage = () => {
   const { mutateAsync: setTokens, isPending: isSetting } = useSetKonkuiTokens();
   const { mutateAsync: updateTokens, isPending: isUpdating } = useUpdateKonkuiTokens();
   const { mutateAsync: forceRefresh, isPending: isForcing } = useForceRefreshKonkuiToken();
+  const { mutateAsync: revealToken, isPending: isRevealing } = useRevealKonkuiToken();
 
   const [refreshToken, setRefreshToken] = useState('');
-  const [accessToken, setAccessToken] = useState('');
-  const [accessTokenExpiresAt, setAccessTokenExpiresAt] = useState('');
+  const [editRefreshToken, setEditRefreshToken] = useState('');
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [showFullToken, setShowFullToken] = useState(false);
+  const [revealedToken, setRevealedToken] = useState<string | null>(null);
 
-  const isBusy = isSetting || isUpdating || isForcing || isLoading;
+  const isBusy = isSetting || isUpdating || isForcing || isRevealing || isLoading;
 
-  const formattedStatus = useMemo(() => {
-    if (!status) {
-      return null;
-    }
+  useEffect(() => {
+    // Token value changed (set/update/force-refresh), so reset any revealed state.
+    setShowFullToken(false);
+    setRevealedToken(null);
+  }, [status?.token_updated_at]);
 
-    return {
-      ...status,
-      accessTokenExpiresAtLabel: status.access_token_expires_at
-        ? formatDate(new Date(status.access_token_expires_at), 'yyyy-MM-dd HH:mm:ss')
-        : '-',
-      refreshTokenUpdatedAtLabel: status.refresh_token_updated_at
-        ? formatDate(new Date(status.refresh_token_updated_at), 'yyyy-MM-dd HH:mm:ss')
-        : '-',
-      lastRefreshAttemptAtLabel: status.last_refresh_attempt_at
-        ? formatDate(new Date(status.last_refresh_attempt_at), 'yyyy-MM-dd HH:mm:ss')
-        : '-'
-    };
-  }, [status]);
+  const tokenExpiresAtLabel = status?.token_expires_at
+    ? formatDate(new Date(status.token_expires_at), 'yyyy-MM-dd HH:mm:ss')
+    : '-';
+
+  const lastRefreshAttemptAtLabel = status?.last_refresh_attempt_at
+    ? formatDate(new Date(status.last_refresh_attempt_at), 'yyyy-MM-dd HH:mm:ss')
+    : '-';
 
   const handleSetToken = async () => {
     try {
       if (!refreshToken.trim()) {
-        toast.error('refreshToken is required');
+        toast.error('Konkui token is required');
 
         return;
       }
 
-      const expiresAtMs = accessTokenExpiresAt.trim()
-        ? parseEpochMsOrDate(accessTokenExpiresAt)
-        : null;
-
       await setTokens({
-        refreshToken: refreshToken.trim(),
-        accessToken: accessToken.trim() || null,
-        accessTokenExpiresAt: expiresAtMs
+        refreshToken: refreshToken.trim()
       });
 
-      toast.success('Konkui tokens saved');
+      toast.success('Konkui token saved');
+      setRefreshToken('');
       await refetch();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to save tokens');
+      toast.error(error instanceof Error ? error.message : 'Failed to save token');
     }
   };
 
   const handleUpdateToken = async () => {
     try {
-      if (!refreshToken.trim()) {
-        toast.error('refreshToken is required');
+      if (!editRefreshToken.trim()) {
+        toast.error('Konkui token is required');
 
         return;
       }
 
-      const expiresAtMs = accessTokenExpiresAt.trim()
-        ? parseEpochMsOrDate(accessTokenExpiresAt)
-        : null;
-
       await updateTokens({
-        refreshToken: refreshToken.trim(),
-        accessToken: accessToken.trim() || null,
-        accessTokenExpiresAt: expiresAtMs
+        refreshToken: editRefreshToken.trim()
       });
 
-      toast.success('Konkui tokens replaced');
+      toast.success('Konkui token updated');
+      setIsEditModalOpen(false);
+      setEditRefreshToken('');
+      setShowFullToken(false);
+      setRevealedToken(null);
       await refetch();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to replace tokens');
+      toast.error(error instanceof Error ? error.message : 'Failed to update token');
     }
   };
 
@@ -126,7 +89,7 @@ export const KonkuiRefreshTokenPage = () => {
       const result = await forceRefresh();
 
       if (result?.refreshed) {
-        toast.success('Konkui access token refreshed');
+        toast.success('Konkui token refreshed');
       } else {
         toast.error(
           result?.reason ? `Force refresh failed: ${result?.reason}` : 'Force refresh failed'
@@ -139,15 +102,44 @@ export const KonkuiRefreshTokenPage = () => {
     }
   };
 
+  const handleToggleShowToken = async () => {
+    if (!status?.hasToken) {
+      toast.error('No token set');
+
+      return;
+    }
+
+    if (showFullToken) {
+      setShowFullToken(false);
+
+      return;
+    }
+
+    try {
+      const revealed = await revealToken();
+
+      if (!revealed?.token) {
+        toast.error('Token is not available to reveal');
+
+        return;
+      }
+
+      setRevealedToken(revealed.token);
+      setShowFullToken(true);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to reveal token');
+    }
+  };
+
   return (
     <Container className="space-y-6 p-0">
       <div className="border-b border-ui-border-base px-6 py-5">
-        <Heading level="h2">Konkui Tokens</Heading>
+        <Heading level="h2">Konkui Token</Heading>
         <Text
           size="small"
           className="mt-2 text-ui-fg-subtle"
         >
-          Set/update Konkui refresh tokens and force a refresh of the access token.
+          Store your single Konkui token and force refresh when needed.
         </Text>
       </div>
 
@@ -162,7 +154,7 @@ export const KonkuiRefreshTokenPage = () => {
             >
               Loading...
             </Text>
-          ) : !status || !status.configured ? (
+          ) : !status?.hasToken ? (
             <Text
               size="small"
               className="mt-2 text-ui-fg-subtle"
@@ -170,107 +162,92 @@ export const KonkuiRefreshTokenPage = () => {
               No Konkui token set yet.
             </Text>
           ) : (
-            <Table className="mt-4">
-              <Table.Body>
-                <Table.Row>
-                  <Table.Cell>
-                    <Text size="small">Refresh token</Text>
-                  </Table.Cell>
-                  <Table.Cell>
-                    {formattedStatus?.hasRefreshToken ? (
-                      <StatusBadge color="green">Present</StatusBadge>
-                    ) : (
-                      <StatusBadge color="red">Missing</StatusBadge>
-                    )}
-                  </Table.Cell>
-                </Table.Row>
-                <Table.Row>
-                  <Table.Cell>
-                    <Text size="small">Access token</Text>
-                  </Table.Cell>
-                  <Table.Cell>
-                    {formattedStatus?.hasAccessToken ? (
-                      <StatusBadge color="green">Present</StatusBadge>
-                    ) : (
-                      <StatusBadge color="grey">Missing</StatusBadge>
-                    )}
-                  </Table.Cell>
-                </Table.Row>
-                <Table.Row>
-                  <Table.Cell>
-                    <Text size="small">Access token expires at</Text>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Text size="small">{formattedStatus?.accessTokenExpiresAtLabel ?? '-'}</Text>
-                  </Table.Cell>
-                </Table.Row>
-                <Table.Row>
-                  <Table.Cell>
-                    <Text size="small">Refresh token updated at</Text>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Text size="small">{formattedStatus?.refreshTokenUpdatedAtLabel ?? '-'}</Text>
-                  </Table.Cell>
-                </Table.Row>
-                <Table.Row>
-                  <Table.Cell>
-                    <Text size="small">Last refresh attempt at</Text>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Text size="small">{formattedStatus?.lastRefreshAttemptAtLabel ?? '-'}</Text>
-                  </Table.Cell>
-                </Table.Row>
-              </Table.Body>
-            </Table>
+            <div className="mt-4 space-y-4">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <Text
+                    size="small"
+                    className="text-ui-fg-subtle"
+                  >
+                    Token
+                  </Text>
+                  <div className="mt-2 max-w-[720px] overflow-x-auto rounded-md border border-ui-border-base bg-ui-bg-subtle p-2">
+                    <Text
+                      size="small"
+                      className="w-max whitespace-nowrap font-mono"
+                    >
+                      {showFullToken && revealedToken
+                        ? revealedToken
+                        : '*****************************************************************************************************************************************************'}
+                    </Text>
+                  </div>
+                </div>
+
+                <Button
+                  variant="secondary"
+                  onClick={() => void handleToggleShowToken()}
+                  isLoading={isRevealing}
+                  disabled={isBusy}
+                >
+                  {showFullToken ? 'Hide token' : 'Show token'}
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 gap-2 lg:grid-cols-2">
+                <div>
+                  <Text
+                    size="small"
+                    className="text-ui-fg-subtle"
+                  >
+                    Token expires at
+                  </Text>
+                  <Text
+                    size="small"
+                    className="mt-2"
+                  >
+                    {tokenExpiresAtLabel}
+                  </Text>
+                </div>
+
+                <div>
+                  <Text
+                    size="small"
+                    className="text-ui-fg-subtle"
+                  >
+                    Latest refresh attempt at
+                  </Text>
+                  <Text
+                    size="small"
+                    className="mt-2"
+                  >
+                    {lastRefreshAttemptAtLabel}
+                  </Text>
+                </div>
+              </div>
+            </div>
           )}
         </div>
 
-        <div className="space-y-4">
+        {!status?.hasToken ? (
           <div className="rounded-lg border border-ui-border-base bg-ui-bg-base p-5">
-            <Heading level="h3">Set / Update Tokens</Heading>
+            <Heading level="h3">Set Token</Heading>
             <Text
               size="small"
               className="mt-2 text-ui-fg-subtle"
             >
-              Refresh token is required. Access token + expiry are optional but useful for
-              previewing refresh window.
+              Paste your single Konkui token. Backend will refresh immediately and store the
+              normalized token + expiry.
             </Text>
 
-            <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="konkui-refresh-token">Refresh Token</Label>
-                <Input
-                  id="konkui-refresh-token"
-                  value={refreshToken}
-                  onChange={e => setRefreshToken(e.target.value)}
-                  placeholder="Paste Konkui refresh token"
-                  disabled={isBusy}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="konkui-access-token">Access Token (optional)</Label>
-                <Input
-                  id="konkui-access-token"
-                  value={accessToken}
-                  onChange={e => setAccessToken(e.target.value)}
-                  placeholder="Paste current access token (optional)"
-                  disabled={isBusy}
-                />
-              </div>
-
-              <div className="space-y-2 lg:col-span-2">
-                <Label htmlFor="konkui-access-token-expires-at">
-                  Access Token Expires At (optional)
-                </Label>
-                <Input
-                  id="konkui-access-token-expires-at"
-                  value={accessTokenExpiresAt}
-                  onChange={e => setAccessTokenExpiresAt(e.target.value)}
-                  placeholder="Epoch(ms) or ISO date string (e.g. 1712345678901 or 2026-01-01T00:00:00Z)"
-                  disabled={isBusy}
-                />
-              </div>
+            <div className="mt-4 space-y-2">
+              <Label htmlFor="konkui-token">Konkui Token</Label>
+              <Input
+                id="konkui-token"
+                value={refreshToken}
+                onChange={e => setRefreshToken(e.target.value)}
+                placeholder="Paste Konkui token"
+                disabled={isBusy}
+              />
             </div>
 
             <div className="mt-5 flex flex-wrap gap-2">
@@ -278,50 +255,95 @@ export const KonkuiRefreshTokenPage = () => {
                 variant="secondary"
                 onClick={() => void handleSetToken()}
                 isLoading={isSetting}
-                disabled={isBusy}
+                disabled={isBusy || !refreshToken.trim()}
               >
                 Set Token
               </Button>
-              <Button
-                variant="secondary"
-                onClick={() => void handleUpdateToken()}
-                isLoading={isUpdating}
-                disabled={isBusy}
-              >
-                Update Token
-              </Button>
             </div>
           </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="rounded-lg border border-ui-border-base bg-ui-bg-base p-5">
+              <Heading level="h3">Actions</Heading>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setIsEditModalOpen(true);
+                    setEditRefreshToken('');
+                  }}
+                  disabled={isBusy}
+                >
+                  Edit / Update Token
+                </Button>
 
-          <div className="rounded-lg border border-ui-border-base bg-ui-bg-base p-5">
-            <Heading level="h3">Force Refresh</Heading>
+                <Button
+                  onClick={() => void handleForceRefresh()}
+                  isLoading={isForcing}
+                  disabled={isBusy}
+                >
+                  Force Refresh
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </Container>
+
+      <FocusModal
+        open={isEditModalOpen}
+        onOpenChange={open => {
+          setIsEditModalOpen(open);
+          if (!open) {
+            setEditRefreshToken('');
+          }
+        }}
+        data-testid="konkui-token-edit-modal"
+      >
+        <FocusModal.Content>
+          <FocusModal.Header>
+            <Heading level="h3">Edit / Update Token</Heading>
+          </FocusModal.Header>
+
+          <FocusModal.Body>
+            <div className="space-y-2">
+              <Label htmlFor="konkui-token-edit">Konkui Token</Label>
+              <Input
+                id="konkui-token-edit"
+                value={editRefreshToken}
+                onChange={e => setEditRefreshToken(e.target.value)}
+                placeholder="Paste new Konkui token"
+                disabled={isBusy}
+              />
+            </div>
+
             <Text
               size="small"
               className="mt-2 text-ui-fg-subtle"
             >
-              Calls Konkui refresh immediately (bypasses the automatic refresh window).
+              Backend will refresh immediately and overwrite the stored token + expiry.
             </Text>
+          </FocusModal.Body>
 
-            <div className="mt-4">
-              <Button
-                onClick={() => void handleForceRefresh()}
-                isLoading={isForcing}
-                disabled={isBusy || !status?.hasRefreshToken}
-              >
-                Force Refresh Token
-              </Button>
-              {!status?.hasRefreshToken && (
-                <Text
-                  size="small"
-                  className="mt-2 text-ui-fg-subtle"
-                >
-                  Set/update a refresh token first.
-                </Text>
-              )}
-            </div>
-          </div>
-        </div>
-      </Container>
+          <FocusModal.Footer>
+            <Button
+              variant="secondary"
+              onClick={() => setIsEditModalOpen(false)}
+              disabled={isBusy}
+            >
+              Cancel
+            </Button>
+
+            <Button
+              onClick={() => void handleUpdateToken()}
+              isLoading={isUpdating}
+              disabled={isBusy || !editRefreshToken.trim()}
+            >
+              Update Token
+            </Button>
+          </FocusModal.Footer>
+        </FocusModal.Content>
+      </FocusModal>
     </Container>
   );
 };

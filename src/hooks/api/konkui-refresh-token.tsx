@@ -4,18 +4,15 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 
 export type KonkuiTokenStatusResponse = {
   configured: boolean;
-  hasRefreshToken: boolean;
-  hasAccessToken: boolean;
-  access_token_expires_at: number | null;
-  refresh_token_updated_at: number | null;
+  hasToken: boolean;
+  token_preview: string | null;
+  token_expires_at: number | null;
+  token_updated_at: number | null;
   last_refresh_attempt_at: number | null;
-  metadata: Record<string, unknown> | null;
 };
 
 export type SetOrUpdateKonkuiTokensInput = {
   refreshToken: string;
-  accessToken?: string | null;
-  accessTokenExpiresAt?: number | null;
 };
 
 export type ForceRefreshKonkuiTokenResponse = Partial<KonkuiTokenStatusResponse> & {
@@ -38,11 +35,7 @@ export const useKonkuiTokenStatus = () => {
 export const useSetKonkuiTokens = () => {
   return useMutation({
     mutationFn: (input: SetOrUpdateKonkuiTokensInput) => {
-      const payload = {
-        refreshToken: input.refreshToken,
-        accessToken: input.accessToken ?? null,
-        accessTokenExpiresAt: input.accessTokenExpiresAt ?? null
-      };
+      const payload = { refreshToken: input.refreshToken };
 
       return sdk.client.fetch('/admin/konkui-refresh-token/set', {
         method: 'POST',
@@ -55,11 +48,7 @@ export const useSetKonkuiTokens = () => {
 export const useUpdateKonkuiTokens = () => {
   return useMutation({
     mutationFn: (input: SetOrUpdateKonkuiTokensInput) => {
-      const payload = {
-        refreshToken: input.refreshToken,
-        accessToken: input.accessToken ?? null,
-        accessTokenExpiresAt: input.accessTokenExpiresAt ?? null
-      };
+      const payload = { refreshToken: input.refreshToken };
 
       return sdk.client.fetch('/admin/konkui-refresh-token/update', {
         method: 'POST',
@@ -74,6 +63,19 @@ export const useForceRefreshKonkuiToken = () => {
     mutationFn: () =>
       sdk.client.fetch('/admin/konkui-refresh-token/force-refresh', {
         method: 'POST'
+      })
+  });
+};
+
+export type KonkuiTokenRevealResponse = {
+  token: string | null;
+};
+
+export const useRevealKonkuiToken = () => {
+  return useMutation<KonkuiTokenRevealResponse, unknown, void>({
+    mutationFn: () =>
+      sdk.client.fetch('/admin/konkui-refresh-token/token', {
+        method: 'GET'
       })
   });
 };
