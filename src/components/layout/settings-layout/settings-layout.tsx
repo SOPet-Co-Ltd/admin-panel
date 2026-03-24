@@ -98,6 +98,10 @@ const useDeveloperRoutes = (): INavItem[] => {
         to: '/settings/algolia'
       },
       {
+        label: 'Konkui Tokens',
+        to: '/settings/konkui-refresh-token'
+      },
+      {
         label: t('apiKeyManagement.domain.publishable'),
         to: '/settings/publishable-api-keys'
       },
