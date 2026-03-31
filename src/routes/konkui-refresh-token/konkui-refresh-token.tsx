@@ -132,7 +132,7 @@ export const KonkuiRefreshTokenPage = () => {
   };
 
   return (
-    <Container className="space-y-6 p-0">
+    <Container className="space-y-6 border-none p-0 shadow-none">
       <div className="border-b border-ui-border-base px-6 py-5">
         <Heading level="h2">Konkui Token</Heading>
         <Text
@@ -163,7 +163,7 @@ export const KonkuiRefreshTokenPage = () => {
             </Text>
           ) : (
             <div className="mt-4 space-y-4">
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex flex-col items-start justify-between gap-4 sm:flex-row">
                 <div>
                   <Text
                     size="small"
@@ -171,7 +171,7 @@ export const KonkuiRefreshTokenPage = () => {
                   >
                     Token
                   </Text>
-                  <div className="mt-2 max-w-[720px] overflow-x-auto rounded-md border border-ui-border-base bg-ui-bg-subtle p-2">
+                  <div className="mt-2 w-full max-w-[720px] overflow-x-auto rounded-md border border-ui-border-base bg-ui-bg-subtle p-2">
                     <Text
                       size="small"
                       className="w-max whitespace-nowrap font-mono"
@@ -305,7 +305,7 @@ export const KonkuiRefreshTokenPage = () => {
             <Heading level="h3">Edit / Update Token</Heading>
           </FocusModal.Header>
 
-          <FocusModal.Body>
+          <FocusModal.Body className="space-y-4 px-6 py-4">
             <div className="space-y-2">
               <Label htmlFor="konkui-token-edit">Konkui Token</Label>
               <Input
