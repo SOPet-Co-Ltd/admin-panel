@@ -517,23 +517,56 @@ const ItemBreakdown = ({
     [reservations]
   )
 
+  const groupedItems = useMemo(() => {
+    const groups: Record<string, { sellerName: string; items: AdminOrderLineItem[] }> = {};
+
+    order.items?.forEach((item) => {
+      const seller = (item.variant?.product as any)?.seller;
+      const sellerId = seller?.id || "platform";
+      const sellerName = seller?.name || "Platform";
+
+      if (!groups[sellerId]) {
+        groups[sellerId] = {
+          sellerName,
+          items: [],
+        };
+      }
+      groups[sellerId].items.push(item);
+    });
+
+    return Object.entries(groups).sort((a, b) => {
+      if (a[0] === "platform") return -1;
+      if (b[0] === "platform") return 1;
+      return a[1].sellerName.localeCompare(b[1].sellerName);
+    });
+  }, [order.items]);
+
   return (
     <div data-testid="order-summary-items-breakdown">
-      {order.items?.map((item) => {
-        const reservation = reservationsMap.get(item.id)
+      {groupedItems.map(([sellerId, group]) => (
+        <div key={sellerId} className="flex flex-col border-b border-dashed border-ui-border-base last:border-b-0">
+          <div className="bg-ui-bg-subtle px-6 py-2 border-b border-dashed border-ui-border-base">
+            <Text size="small" weight="plus" className="text-ui-fg-muted uppercase tracking-wider">
+              Seller: {group.sellerName}
+            </Text>
+          </div>
+          {group.items.map((item) => {
+            const reservation = reservationsMap.get(item.id)
 
-        return (
-          <Item
-            key={item.id}
-            item={item}
-            currencyCode={order.currency_code}
-            reservation={reservation}
-            returns={returns}
-            exchanges={exchanges}
-            claims={claims}
-          />
-        )
-      })}
+            return (
+              <Item
+                key={item.id}
+                item={item}
+                currencyCode={order.currency_code}
+                reservation={reservation}
+                returns={returns}
+                exchanges={exchanges}
+                claims={claims}
+              />
+            )
+          })}
+        </div>
+      ))}
     </div>
   )
 }

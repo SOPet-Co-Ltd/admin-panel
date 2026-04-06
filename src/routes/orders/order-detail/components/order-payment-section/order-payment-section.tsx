@@ -216,6 +216,26 @@ const Payment = ({
               "-"
             )}
           </Text>
+          {(() => {
+            const pc = order.payment_collections?.find((pc) =>
+              pc.payments?.some((p) => p.id === payment.id)
+            );
+            const sellerId = pc?.metadata?.seller_id;
+            if (sellerId) {
+              const itemWithSeller = order.items?.find(
+                (i: any) => i.variant?.product?.seller?.id === sellerId
+              );
+              const sellerName =
+                (itemWithSeller?.variant?.product as any)?.seller?.name ||
+                "Seller";
+              return (
+                <Badge size="2xsmall" className="mt-1 w-fit border-blue-200 bg-blue-50 text-blue-700">
+                  {sellerName}
+                </Badge>
+              );
+            }
+            return null;
+          })()}
         </div>
         <div className="hidden items-center justify-end sm:flex">
           <Text size="small" leading="compact" className="capitalize" data-testid={`order-payment-${payment.id}-provider`}>
