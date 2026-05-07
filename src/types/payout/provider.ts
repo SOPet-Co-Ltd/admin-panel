@@ -1,5 +1,4 @@
 import type { BigNumberInput } from '@medusajs/types';
-import type Stripe from 'stripe';
 
 import type { PayoutWebhookAction } from './events';
 
@@ -51,7 +50,7 @@ export type InitializeOnboardingResponse = {
 export interface IPayoutProvider {
   createPayout(input: ProcessPayoutInput): Promise<ProcessPayoutResponse>;
   createPayoutAccount(input: CreatePayoutAccountInput): Promise<CreatePayoutAccountResponse>;
-  reversePayout(input: ReversePayoutInput): Promise<Stripe.TransferReversal>;
+  reversePayout(input: ReversePayoutInput): Promise<Record<string, unknown>>;
   /**
    * Initialize the onboarding process for a payout account.
    */
@@ -59,7 +58,7 @@ export interface IPayoutProvider {
     accountId: string,
     context: Record<string, unknown>
   ): Promise<InitializeOnboardingResponse>;
-  getAccount(accountId: string): Promise<Stripe.Account>;
+  getAccount(accountId: string): Promise<Record<string, unknown>>;
   getWebhookActionAndData(
     payload: PayoutWebhookActionPayload
   ): Promise<PayoutWebhookActionAndDataResponse>;
