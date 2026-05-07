@@ -29,7 +29,7 @@ export const useSellersTableColumns = () => {
       }),
       columnHelper.display({
         id: 'payout_account',
-        header: 'Stripe',
+        header: 'Payout Account',
         cell: ({ row }) => (
           <PayoutAccountStatusBadge
             payoutAccount={row.original.payout_account}

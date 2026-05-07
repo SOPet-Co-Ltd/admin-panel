@@ -1148,6 +1148,13 @@ export function getRouteMap({
               }
             },
             {
+              path: 'payout-accounts',
+              lazy: () => import('../../routes/payout-accounts'),
+              handle: {
+                breadcrumb: () => 'Payout Accounts'
+              }
+            },
+            {
               path: 'product-tags',
               errorElement: <ErrorBoundary />,
               element: <Outlet />,

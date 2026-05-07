@@ -283,7 +283,7 @@ export const SellerGeneralSection = ({ seller }: { seller: VendorSeller }) => {
                 className="w-1/2 font-medium text-ui-fg-subtle"
                 data-testid="seller-general-section-payout-status-label"
               >
-                Stripe Connect
+                Omise Recipient
               </Text>
               <div
                 className="w-1/2"
@@ -306,7 +306,7 @@ export const SellerGeneralSection = ({ seller }: { seller: VendorSeller }) => {
                     className="w-1/2 font-medium text-ui-fg-subtle"
                     data-testid="seller-general-section-payout-reference-label"
                   >
-                    Stripe account ID
+                    Recipient ID
                   </Text>
                   <Text
                     className="w-1/2"
