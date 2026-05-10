@@ -72,6 +72,10 @@ const useSettingRoutes = (): INavItem[] => {
         to: '/settings/storefront-config'
       },
       {
+        label: 'Promotional modal',
+        to: '/settings/ads-modal'
+      },
+      {
         label: t('stockLocations.domain'),
         to: '/settings/locations'
       },
