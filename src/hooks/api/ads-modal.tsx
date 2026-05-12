@@ -15,8 +15,6 @@ export type AdminAdsModalEntry = {
   width: number;
   height: number;
   is_active: boolean;
-  starts_at: string | null;
-  ends_at: string | null;
   created_by: string | null;
   metadata: Record<string, unknown> | null;
   created_at: string;
@@ -49,8 +47,6 @@ function buildAdsModalFormData(
   fields: {
     file?: File | null;
     is_active: boolean;
-    starts_at: string | null;
-    ends_at: string | null;
     metadataText: string;
   },
   options: { includeMetadata: 'omit-empty' | 'always' }
@@ -62,18 +58,6 @@ function buildAdsModalFormData(
   }
 
   form.append('is_active', fields.is_active ? 'true' : 'false');
-
-  if (fields.starts_at !== null) {
-    form.append('starts_at', fields.starts_at);
-  } else {
-    form.append('starts_at', '');
-  }
-
-  if (fields.ends_at !== null) {
-    form.append('ends_at', fields.ends_at);
-  } else {
-    form.append('ends_at', '');
-  }
 
   const trimmed = fields.metadataText.trim();
   if (options.includeMetadata === 'always') {
@@ -88,8 +72,6 @@ function buildAdsModalFormData(
 export async function createAdsModalEntryRequest(fields: {
   file: File;
   is_active: boolean;
-  starts_at: string | null;
-  ends_at: string | null;
   metadataText: string;
 }): Promise<AdminAdsModalMutationResponse> {
   const token = getAuthToken();
@@ -121,8 +103,6 @@ export async function updateAdsModalEntryRequest(
   fields: {
     file?: File | null;
     is_active: boolean;
-    starts_at: string | null;
-    ends_at: string | null;
     metadataText: string;
   }
 ): Promise<AdminAdsModalMutationResponse> {

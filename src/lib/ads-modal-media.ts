@@ -17,6 +17,7 @@ const EXTENSION_BY_MIME: Record<string, readonly string[]> = {
 
 export function validateAdsModalFileBasics(file: File): string | null {
   const mime = (file.type || '').toLowerCase();
+
   if (
     !ADS_MODAL_MEDIA_RULES.allowedMimeTypes.includes(
       mime as (typeof ADS_MODAL_MEDIA_RULES.allowedMimeTypes)[number]
@@ -26,11 +27,13 @@ export function validateAdsModalFileBasics(file: File): string | null {
   }
 
   const allowedExt = EXTENSION_BY_MIME[mime];
+
   if (!allowedExt) {
     return 'Invalid image type.';
   }
 
   const ext = file.name.toLowerCase().match(/\.[^.]+$/)?.[0] ?? '';
+
   if (!allowedExt.includes(ext as '.webp' | '.png' | '.jpg' | '.jpeg')) {
     return `File extension must match type (${allowedExt.join(', ')}).`;
   }
@@ -51,9 +54,8 @@ export function validateAdsModalDimensions(width: number, height: number): strin
     return 'Could not read image dimensions.';
   }
 
-  console.log('Image dimensions:', { width, height });
-  console.log('Aspect ratio:', width / height);
   const ratio = width / height;
+
   if (
     Math.abs(ratio - ADS_MODAL_MEDIA_RULES.targetRatio) > ADS_MODAL_MEDIA_RULES.aspectRatioTolerance
   ) {
@@ -70,11 +72,16 @@ export function readImageDimensions(file: File): Promise<{ width: number; height
 
     img.onload = () => {
       URL.revokeObjectURL(url);
-      resolve({ width: img.naturalWidth, height: img.naturalHeight });
+
+      resolve({
+        width: img.naturalWidth,
+        height: img.naturalHeight
+      });
     };
 
     img.onerror = () => {
       URL.revokeObjectURL(url);
+
       reject(new Error('Could not read image'));
     };
 
@@ -84,46 +91,20 @@ export function readImageDimensions(file: File): Promise<{ width: number; height
 
 export async function validateAdsModalFile(file: File): Promise<void> {
   const basic = validateAdsModalFileBasics(file);
+
   if (basic) {
     throw new Error(basic);
   }
 
   const { width, height } = await readImageDimensions(file);
+
   const dim = validateAdsModalDimensions(width, height);
+
   if (dim) {
     throw new Error(dim);
   }
 }
 
-export function isAdsModalActive(params: {
-  isActive: boolean;
-  startsAt?: string | null;
-  endsAt?: string | null;
-  now?: Date;
-}): boolean {
-  const { isActive, startsAt, endsAt, now = new Date() } = params;
-
-  if (!isActive) {
-    return false;
-  }
-
-  const nowTime = now.getTime();
-
-  if (startsAt) {
-    const starts = new Date(startsAt).getTime();
-
-    if (!Number.isNaN(starts) && nowTime < starts) {
-      return false;
-    }
-  }
-
-  if (endsAt) {
-    const ends = new Date(endsAt).getTime();
-
-    if (!Number.isNaN(ends) && nowTime > ends) {
-      return false;
-    }
-  }
-
-  return true;
+export function isAdsModalActive(params: { isActive: boolean }): boolean {
+  return params.isActive;
 }
