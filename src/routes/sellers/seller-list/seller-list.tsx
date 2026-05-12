@@ -29,6 +29,7 @@ const PAGE_SIZE = 10;
 type SellersProps = VendorSeller & { store_status: string };
 
 export const SellersList = () => {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState('');
   const { searchParams, raw } = useSellersTableQuery({
@@ -83,57 +84,66 @@ export const SellersList = () => {
         <div>
           <Heading data-testid="seller-list-heading">Sellers</Heading>
         </div>
-        <Drawer
-          open={open}
-          onOpenChange={openChanged => setOpen(openChanged)}
-          data-testid="seller-list-invite-drawer"
-        >
-          <Drawer.Trigger
-            onClick={() => {
-              setOpen(true);
-            }}
-            asChild
+        <div className="flex items-center gap-2">
+          <Button
+            variant="secondary"
+            onClick={() => navigate('/settings/payout-accounts')}
+            data-testid="seller-list-payout-accounts-button"
           >
-            <Button data-testid="seller-list-invite-button">Invite</Button>
-          </Drawer.Trigger>
-          <Drawer.Content data-testid="seller-list-invite-drawer-content">
-            <Drawer.Header data-testid="seller-list-invite-drawer-header" />
-            <Drawer.Body data-testid="seller-list-invite-drawer-body">
-              <Heading data-testid="seller-list-invite-drawer-title">Invite Seller</Heading>
-              <Text
-                className="text-ui-fg-subtle"
-                size="small"
-                data-testid="seller-list-invite-drawer-description"
-              >
-                Invite a new seller to your store
-              </Text>
-              <div
-                className="mt-6 flex flex-col gap-2"
-                data-testid="seller-list-invite-drawer-email-field"
-              >
-                <Label data-testid="seller-list-invite-drawer-email-label">Email</Label>
-                <Input
-                  placeholder="Email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  data-testid="seller-list-invite-drawer-email-input"
-                />
-              </div>
-              <div
-                className="flex justify-end"
-                data-testid="seller-list-invite-drawer-footer"
-              >
-                <Button
-                  className="mt-6"
-                  onClick={handleInvite}
-                  data-testid="seller-list-invite-drawer-submit-button"
+            Payout Accounts
+          </Button>
+          <Drawer
+            open={open}
+            onOpenChange={openChanged => setOpen(openChanged)}
+            data-testid="seller-list-invite-drawer"
+          >
+            <Drawer.Trigger
+              onClick={() => {
+                setOpen(true);
+              }}
+              asChild
+            >
+              <Button data-testid="seller-list-invite-button">Invite</Button>
+            </Drawer.Trigger>
+            <Drawer.Content data-testid="seller-list-invite-drawer-content">
+              <Drawer.Header data-testid="seller-list-invite-drawer-header" />
+              <Drawer.Body data-testid="seller-list-invite-drawer-body">
+                <Heading data-testid="seller-list-invite-drawer-title">Invite Seller</Heading>
+                <Text
+                  className="text-ui-fg-subtle"
+                  size="small"
+                  data-testid="seller-list-invite-drawer-description"
                 >
-                  Invite
-                </Button>
-              </div>
-            </Drawer.Body>
-          </Drawer.Content>
-        </Drawer>
+                  Invite a new seller to your store
+                </Text>
+                <div
+                  className="mt-6 flex flex-col gap-2"
+                  data-testid="seller-list-invite-drawer-email-field"
+                >
+                  <Label data-testid="seller-list-invite-drawer-email-label">Email</Label>
+                  <Input
+                    placeholder="Email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    data-testid="seller-list-invite-drawer-email-input"
+                  />
+                </div>
+                <div
+                  className="flex justify-end"
+                  data-testid="seller-list-invite-drawer-footer"
+                >
+                  <Button
+                    className="mt-6"
+                    onClick={handleInvite}
+                    data-testid="seller-list-invite-drawer-submit-button"
+                  >
+                    Invite
+                  </Button>
+                </div>
+              </Drawer.Body>
+            </Drawer.Content>
+          </Drawer>
+        </div>
       </div>
       <div className="flex size-full flex-col overflow-hidden">
         <_DataTable

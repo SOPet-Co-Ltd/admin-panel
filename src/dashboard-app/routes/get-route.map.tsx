@@ -1134,6 +1134,14 @@ export function getRouteMap({
               ]
             },
             {
+              path: 'ads-modal',
+              errorElement: <ErrorBoundary />,
+              lazy: () => import('../../routes/ads-modal'),
+              handle: {
+                breadcrumb: () => 'Promotional modal'
+              }
+            },
+            {
               path: 'commission',
               lazy: () => import('../../routes/commission'),
               handle: {
@@ -1145,6 +1153,13 @@ export function getRouteMap({
               lazy: () => import('../../routes/commission-lines'),
               handle: {
                 breadcrumb: () => t('commissionLines.domain')
+              }
+            },
+            {
+              path: 'payout-accounts',
+              lazy: () => import('../../routes/payout-accounts'),
+              handle: {
+                breadcrumb: () => 'Payout Accounts'
               }
             },
             {
