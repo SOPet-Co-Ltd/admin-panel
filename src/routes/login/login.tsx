@@ -2,6 +2,7 @@ import { Form } from '@components/common/form';
 import AvatarBox from '@components/common/logo-box/avatar-box';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useSignInWithEmailPass } from '@hooks/api';
+import { APP_VERSION } from '@lib/app-version';
 import { isFetchError } from '@lib/is-fetch-error';
 import { Alert, Button, Heading, Hint, Input, Text } from '@medusajs/ui';
 import { useExtension } from '@providers/extension-provider';
@@ -201,6 +202,13 @@ export const Login = () => {
             ]}
           />
         </span>
+        <Text
+          size="small"
+          className="text-ui-fg-muted"
+          data-testid="login-version"
+        >
+          v{APP_VERSION}
+        </Text>
       </div>
     </div>
   );
