@@ -2,9 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import type {
+  AdminCreateCampaign,
   ApplicationMethodAllocationValues,
   ApplicationMethodTargetTypeValues,
   ApplicationMethodTypeValues,
+  CampaignBudgetTypeValues,
   PromotionRuleOperatorValues,
   PromotionStatusValues,
   PromotionTypeValues
@@ -25,7 +27,7 @@ import {
   toast,
   type ProgressStatus
 } from '@medusajs/ui';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm, useWatch, type Path, type PathValue } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import type { z } from 'zod';
 
@@ -33,7 +35,6 @@ import { Form } from '../../../../../components/common/form';
 import { DeprecatedPercentageInput } from '../../../../../components/inputs/percentage-input';
 import { RouteFocusModal, useRouteModal } from '../../../../../components/modals';
 import { KeyboundForm } from '../../../../../components/utilities/keybound-form';
-import { useCampaigns } from '../../../../../hooks/api/campaigns';
 import { useCreatePromotion } from '../../../../../hooks/api/promotions';
 import { useDocumentDirection } from '../../../../../hooks/use-document-direction';
 import { currencies, getCurrencySymbol } from '../../../../../lib/data/currencies';
@@ -41,7 +42,7 @@ import { DEFAULT_CAMPAIGN_VALUES } from '../../../../campaigns/common/constants'
 import { RulesFormField } from '../../../common/edit-rules/components/rules-form-field';
 import { AddCampaignPromotionFields } from '../../../promotion-add-campaign/components/add-campaign-promotion-form';
 import { Tab } from './constants';
-import { CreatePromotionSchema } from './form-schema';
+import { CreatePromotionSchema, type CreatePromotionSchemaType } from './form-schema';
 import { templates } from './templates';
 
 const defaultValues = {
@@ -136,16 +137,26 @@ export const CreatePromotionForm = () => {
           }));
       };
 
-      if (data.campaign) {
+      if (data.campaign?.budget) {
         data.campaign.budget.attribute = data.campaign.budget.attribute || null;
-        data.campaign.budget.type = data.campaign.budget.attribute
-          ? 'use_by_attribute'
-          : data.campaign.budget.type;
       }
+
+      const campaignPayload: AdminCreateCampaign | undefined = data.campaign
+        ? {
+            ...data.campaign,
+            budget: {
+              ...data.campaign.budget,
+              type: (data.campaign.budget?.type === 'use_by_attribute'
+                ? 'usage'
+                : data.campaign.budget?.type) as CampaignBudgetTypeValues
+            }
+          }
+        : undefined;
 
       createPromotion(
         {
           ...promotionData,
+          campaign: campaignPayload,
           rules: buildRulesData(rules),
           application_method: {
             ...applicationMethodData,
@@ -253,9 +264,12 @@ export const CreatePromotionForm = () => {
     name: 'template_id'
   });
 
-  const currentTemplate = useMemo(() => {
-    const currentTemplate = templates.find(template => template.id === watchTemplateId);
+  const currentTemplate = useMemo(
+    () => templates.find(template => template.id === watchTemplateId),
+    [watchTemplateId]
+  );
 
+  useEffect(() => {
     if (!currentTemplate) {
       return;
     }
@@ -263,17 +277,17 @@ export const CreatePromotionForm = () => {
     reset({ ...defaultValues, template_id: watchTemplateId });
 
     for (const [key, value] of Object.entries(currentTemplate.defaults)) {
-      if (typeof value === 'object') {
+      if (typeof value === 'object' && value !== null) {
         for (const [subKey, subValue] of Object.entries(value)) {
-          setValue(`application_method.${subKey}`, subValue);
+          const path = `application_method.${subKey}` as Path<CreatePromotionSchemaType>;
+          setValue(path, subValue as PathValue<CreatePromotionSchemaType, typeof path>);
         }
       } else {
-        setValue(key, value);
+        const path = key as Path<CreatePromotionSchemaType>;
+        setValue(path, value as PathValue<CreatePromotionSchemaType, typeof path>);
       }
     }
-
-    return currentTemplate;
-  }, [watchTemplateId, setValue, reset]);
+  }, [watchTemplateId, currentTemplate, setValue, reset]);
 
   const watchValueType = useWatch({
     control: form.control,
@@ -308,15 +322,6 @@ export const CreatePromotionForm = () => {
   const isTargetTypeOrder = targetType === 'order';
 
   const formData = form.getValues();
-  let campaignQuery: object = {};
-
-  if (formData.application_method.currency_code) {
-    campaignQuery = {
-      budget: { currency_code: formData.application_method.currency_code }
-    };
-  }
-
-  const { campaigns } = useCampaigns(campaignQuery);
 
   const watchCampaignChoice = useWatch({
     control: form.control,
@@ -352,17 +357,20 @@ export const CreatePromotionForm = () => {
     name: 'rules'
   });
 
-  const watchCurrencyRule = watchRules.find(rule => rule.attribute === 'currency_code');
+  useEffect(() => {
+    const currencyRule = watchRules?.find(rule => rule.attribute === 'currency_code');
+    const currencyCode = form.getValues('application_method.currency_code');
 
-  if (watchCurrencyRule) {
-    const formData = form.getValues();
-    const currencyCode = formData.application_method.currency_code;
-    const ruleValue = watchCurrencyRule.values;
+    if (currencyRule) {
+      const ruleValue = currencyRule.values;
 
-    if (!Array.isArray(ruleValue) && currencyCode !== ruleValue) {
-      form.setValue('application_method.currency_code', ruleValue as string);
+      if (!Array.isArray(ruleValue) && currencyCode !== ruleValue) {
+        form.setValue('application_method.currency_code', ruleValue as string);
+      }
+    } else if (currencyCode) {
+      form.setValue('application_method.currency_code', undefined);
     }
-  }
+  }, [watchRules, form]);
 
   return (
     <RouteFocusModal.Form
@@ -1015,7 +1023,7 @@ export const CreatePromotionForm = () => {
                 <div className="flex w-full max-w-[720px] flex-col gap-y-8 py-16">
                   <AddCampaignPromotionFields
                     form={form}
-                    campaigns={campaigns || []}
+                    promotionCurrencyCode={formData.application_method.currency_code}
                   />
                 </div>
               </div>
