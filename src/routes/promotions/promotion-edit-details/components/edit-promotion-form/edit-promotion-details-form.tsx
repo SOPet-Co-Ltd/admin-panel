@@ -31,8 +31,7 @@ const EditPromotionSchema = zod
     value_type: zod.enum(['fixed', 'percentage']),
     value: zod.number().min(0).or(zod.string().min(1)),
     allocation: zod.enum(['each', 'across', 'once']),
-    max_quantity: zod.number().optional().nullable(),
-    target_type: zod.enum(['order', 'shipping_methods', 'items'])
+    max_quantity: zod.number().optional().nullable()
   })
   .refine(
     data => {
@@ -64,8 +63,7 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
       value: promotion.application_method!.value,
       allocation: allocationDefault,
       max_quantity: promotion.application_method?.max_quantity ?? null,
-      value_type: promotion.application_method!.type,
-      target_type: promotion.application_method!.target_type
+      value_type: promotion.application_method!.type
     },
     resolver: zodResolver(EditPromotionSchema)
   });
@@ -103,7 +101,9 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
           value,
           type: data.value_type,
           allocation: data.allocation as ApplicationMethodAllocationValues,
-          max_quantity: data.max_quantity ?? null
+          max_quantity: data.max_quantity ?? null,
+          target_type: promotion.application_method!.target_type,
+          currency_code: promotion.application_method?.currency_code
         }
       },
       {
@@ -120,7 +120,10 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
   });
 
   useEffect(() => {
-    if (!(allocationWatchValue === 'fixed' && promotion.type === 'standard')) {
+    if (
+      allocationWatchValue !== promotion.application_method?.type &&
+      !(allocationWatchValue === 'fixed' && promotion.type === 'standard')
+    ) {
       form.setValue('is_tax_inclusive', false);
     }
   }, [allocationWatchValue, form, promotion]);
