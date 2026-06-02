@@ -90,10 +90,11 @@ Full reference: `docs/technical/environment-variables.md`
 
 Triggered by GitHub Actions: `.github/workflows/deploy.yml`
 
-| Branch | Target            |
-| ------ | ----------------- |
-| `main` | Vercel production |
-| `uat`  | Vercel UAT        |
+| Branch        | Target             |
+| ------------- | ------------------ |
+| `main`        | Vercel production  |
+| `uat`         | Vercel UAT         |
+| `development` | Vercel development |
 
 SPA deep-link routing is handled by the rewrite rule in `vercel.json`.
 
