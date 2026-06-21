@@ -76,6 +76,10 @@ const useSettingRoutes = (): INavItem[] => {
         to: '/settings/ads-modal'
       },
       {
+        label: t('promotionSettings.domain'),
+        to: '/settings/promotion-settings'
+      },
+      {
         label: t('stockLocations.domain'),
         to: '/settings/locations'
       },
