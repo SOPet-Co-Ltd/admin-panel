@@ -3329,5 +3329,65 @@
       "updateSuccess": "Promotion settings updated",
       "updateError": "Failed to update promotion settings"
     }
+  },
+  "omiseWebhookForwardUrls": {
+    "domain": "Omise webhook forwarding",
+    "subtitle": "Forward Omise webhooks from this backend to local development URLs.",
+    "loading": "Loading...",
+    "add": {
+      "title": "Add forward URL",
+      "subtitle": "Register a local backend URL to receive forwarded Omise webhooks.",
+      "urlLabel": "Forward URL",
+      "urlPlaceholder": "https://your-subdomain.ngrok-free.app/hooks/omise",
+      "labelLabel": "Label (optional)",
+      "labelPlaceholder": "My local machine",
+      "submit": "Add URL"
+    },
+    "list": {
+      "title": "Forward URLs",
+      "empty": "No forward URLs configured yet.",
+      "loadError": "Failed to load forward URLs.",
+      "active": "Active",
+      "inactive": "Inactive",
+      "edit": "Edit",
+      "delete": "Remove",
+      "columns": {
+        "label": "Label",
+        "url": "URL",
+        "status": "Status",
+        "lastForwarded": "Last forwarded",
+        "lastError": "Last error",
+        "created": "Created"
+      }
+    },
+    "edit": {
+      "title": "Edit forward URL",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "delete": {
+      "title": "Remove forward URL?",
+      "description": "This URL will no longer receive forwarded Omise webhooks.",
+      "confirm": "Remove",
+      "cancel": "Cancel"
+    },
+    "help": {
+      "title": "Setup",
+      "tunnel": "Run your local backend and expose it with yarn tunnel (ngrok).",
+      "urlFormat": "Use the full webhook path ending in /hooks/omise.",
+      "secret": "Set the same OMISE_WEBHOOK_SECRET in your local .env so signature verification works.",
+      "enabled": "Forwarding is enabled automatically in non-production. Set OMISE_WEBHOOK_FORWARDING_ENABLED=true in production when needed."
+    },
+    "toast": {
+      "urlRequired": "Forward URL is required",
+      "createSuccess": "Forward URL added",
+      "createError": "Failed to add forward URL",
+      "updateSuccess": "Forward URL updated",
+      "updateError": "Failed to update forward URL",
+      "activateSuccess": "Forward URL activated",
+      "deactivateSuccess": "Forward URL deactivated",
+      "deleteSuccess": "Forward URL removed",
+      "deleteError": "Failed to remove forward URL"
+    }
   }
 }

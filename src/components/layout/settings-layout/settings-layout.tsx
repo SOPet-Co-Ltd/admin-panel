@@ -110,6 +110,10 @@ const useDeveloperRoutes = (): INavItem[] => {
         to: '/settings/konkui-refresh-token'
       },
       {
+        label: t('omiseWebhookForwardUrls.domain'),
+        to: '/settings/omise-webhook-forward-urls'
+      },
+      {
         label: t('apiKeyManagement.domain.publishable'),
         to: '/settings/publishable-api-keys'
       },

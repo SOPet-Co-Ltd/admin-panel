@@ -1323,6 +1323,19 @@ export function getRouteMap({
               ]
             },
             {
+              path: 'omise-webhook-forward-urls',
+              element: <Outlet />,
+              handle: {
+                breadcrumb: () => 'Omise Webhook Forwarding'
+              },
+              children: [
+                {
+                  path: '',
+                  lazy: () => import('../../routes/omise-webhook-forward-urls')
+                }
+              ]
+            },
+            {
               path: 'publishable-api-keys',
               element: <Outlet />,
               handle: {
