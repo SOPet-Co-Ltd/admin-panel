@@ -3314,6 +3314,66 @@
       "updateError": "ไม่สามารถอัปเดตการตั้งค่าโปรโมชันได้"
     }
   },
+  "omiseWebhookForwardUrls": {
+    "domain": "การส่งต่อ webhook ของ Omise",
+    "subtitle": "ส่งต่อ webhook ของ Omise จากแบ็กเอนด์นี้ไปยัง URL สำหรับพัฒนาในเครื่อง",
+    "loading": "กำลังโหลด...",
+    "add": {
+      "title": "เพิ่ม URL ส่งต่อ",
+      "subtitle": "ลงทะเบียน URL แบ็กเอนด์ในเครื่องเพื่อรับ webhook ของ Omise ที่ถูกส่งต่อ",
+      "urlLabel": "URL ส่งต่อ",
+      "urlPlaceholder": "https://your-subdomain.ngrok-free.app/hooks/omise",
+      "labelLabel": "ป้ายกำกับ (ไม่บังคับ)",
+      "labelPlaceholder": "เครื่องของฉัน",
+      "submit": "เพิ่ม URL"
+    },
+    "list": {
+      "title": "รายการ URL ส่งต่อ",
+      "empty": "ยังไม่ได้ตั้งค่า URL ส่งต่อ",
+      "loadError": "ไม่สามารถโหลด URL ส่งต่อได้",
+      "active": "ใช้งาน",
+      "inactive": "ไม่ใช้งาน",
+      "edit": "แก้ไข",
+      "delete": "ลบ",
+      "columns": {
+        "label": "ป้ายกำกับ",
+        "url": "URL",
+        "status": "สถานะ",
+        "lastForwarded": "ส่งต่อล่าสุด",
+        "lastError": "ข้อผิดพลาดล่าสุด",
+        "created": "สร้างเมื่อ"
+      }
+    },
+    "edit": {
+      "title": "แก้ไข URL ส่งต่อ",
+      "save": "บันทึก",
+      "cancel": "ยกเลิก"
+    },
+    "delete": {
+      "title": "ลบ URL ส่งต่อ?",
+      "description": "URL นี้จะไม่ได้รับ webhook ของ Omise ที่ถูกส่งต่ออีกต่อไป",
+      "confirm": "ลบ",
+      "cancel": "ยกเลิก"
+    },
+    "help": {
+      "title": "การตั้งค่า",
+      "tunnel": "รันแบ็กเอนด์ในเครื่องและเปิดผ่าน yarn tunnel (ngrok)",
+      "urlFormat": "ใช้ path webhook เต็มรูปแบบที่ลงท้ายด้วย /hooks/omise",
+      "secret": "ตั้งค่า OMISE_WEBHOOK_SECRET เดียวกันใน .env ของเครื่องคุณเพื่อให้การตรวจสอบลายเซ็นทำงานได้",
+      "enabled": "การส่งต่อเปิดใช้งานอัตโนมัติใน non-production สำหรับ production ให้ตั้ง OMISE_WEBHOOK_FORWARDING_ENABLED=true"
+    },
+    "toast": {
+      "urlRequired": "ต้องระบุ URL ส่งต่อ",
+      "createSuccess": "เพิ่ม URL ส่งต่อแล้ว",
+      "createError": "ไม่สามารถเพิ่ม URL ส่งต่อได้",
+      "updateSuccess": "อัปเดต URL ส่งต่อแล้ว",
+      "updateError": "ไม่สามารถอัปเดต URL ส่งต่อได้",
+      "activateSuccess": "เปิดใช้งาน URL ส่งต่อแล้ว",
+      "deactivateSuccess": "ปิดใช้งาน URL ส่งต่อแล้ว",
+      "deleteSuccess": "ลบ URL ส่งต่อแล้ว",
+      "deleteError": "ไม่สามารถลบ URL ส่งต่อได้"
+    }
+  },
   "dateTime": {
     "years_one": "ปี",
     "years_other": "ปี",
