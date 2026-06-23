@@ -24,7 +24,6 @@ type AllocationMode = 'each' | 'across' | 'once';
 
 const EditPromotionSchema = zod
   .object({
-    is_automatic: zod.string().toLowerCase(),
     code: zod.string().min(1),
     is_tax_inclusive: zod.boolean().optional(),
     status: zod.enum(['active', 'inactive', 'draft']),
@@ -56,7 +55,6 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
 
   const form = useForm<zod.infer<typeof EditPromotionSchema>>({
     defaultValues: {
-      is_automatic: promotion.is_automatic!.toString(),
       is_tax_inclusive: promotion.is_tax_inclusive,
       code: promotion.code,
       status: promotion.status,
@@ -93,7 +91,7 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
 
     await mutateAsync(
       {
-        is_automatic: data.is_automatic === 'true',
+        is_automatic: false,
         code: data.code,
         status: data.status,
         is_tax_inclusive: data.is_tax_inclusive,
@@ -190,44 +188,6 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
                       </RadioGroup>
                     </Form.Control>
                     <Form.ErrorMessage data-testid="promotion-edit-details-form-status-error" />
-                  </Form.Item>
-                );
-              }}
-            />
-
-            <Form.Field
-              control={form.control}
-              name="is_automatic"
-              render={({ field }) => {
-                return (
-                  <Form.Item data-testid="promotion-edit-details-form-method-item">
-                    <Form.Label data-testid="promotion-edit-details-form-method-label">
-                      {t('promotions.form.method.label')}
-                    </Form.Label>
-                    <Form.Control data-testid="promotion-edit-details-form-method-control">
-                      <RadioGroup
-                        dir={direction}
-                        className="flex-col gap-y-3"
-                        {...field}
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        data-testid="promotion-edit-details-form-method-radio-group"
-                      >
-                        <RadioGroup.ChoiceBox
-                          value="false"
-                          label={t('promotions.form.method.code.title')}
-                          description={t('promotions.form.method.code.description')}
-                          data-testid="promotion-edit-details-form-method-option-code"
-                        />
-                        <RadioGroup.ChoiceBox
-                          value="true"
-                          label={t('promotions.form.method.automatic.title')}
-                          description={t('promotions.form.method.automatic.description')}
-                          data-testid="promotion-edit-details-form-method-option-automatic"
-                        />
-                      </RadioGroup>
-                    </Form.Control>
-                    <Form.ErrorMessage data-testid="promotion-edit-details-form-method-error" />
                   </Form.Item>
                 );
               }}

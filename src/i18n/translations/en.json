@@ -3298,5 +3298,36 @@
   },
   "commissionLines": {
     "domain": "Commission Lines"
+  },
+  "promotionSettings": {
+    "domain": "Promotion settings",
+    "subtitle": "Configure how promotions are applied during checkout on the storefront.",
+    "loading": "Loading...",
+    "status": {
+      "autoApply": "Auto apply status",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "scope": "Discount scope",
+      "scopeValue": "Best site promo + best vendor promo per seller",
+      "trigger": "When it runs",
+      "triggerValue": "Once when the customer enters checkout"
+    },
+    "autoApply": {
+      "title": "Promotion auto apply",
+      "subtitle": "Automatically apply the best eligible discounts when a customer opens checkout.",
+      "toggleLabel": "Enable promotion auto apply",
+      "toggleDescription": "When enabled, the system picks and applies the best site and vendor discounts. Manual selections are kept if promotions are already applied or staged from the cart page."
+    },
+    "behavior": {
+      "title": "Behavior",
+      "stacking": "Applies at most one site promotion and one vendor promotion per seller.",
+      "oncePerCheckout": "Runs only once per cart checkout session, not when the cart is created.",
+      "skipManual": "Skips auto-apply when the customer already has promotions or staged codes.",
+      "customerCanChange": "Customers can still change or remove applied promotions on the checkout page."
+    },
+    "toast": {
+      "updateSuccess": "Promotion settings updated",
+      "updateError": "Failed to update promotion settings"
+    }
   }
 }

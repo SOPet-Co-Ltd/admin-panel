@@ -4395,6 +4395,9 @@
             "inboundTotal": {
               "type": "string"
             },
+            "refundAmount": {
+              "type": "string"
+            },
             "estDifference": {
               "type": "string"
             },
@@ -4435,9 +4438,6 @@
               "type": "string"
             },
             "refundableAmountLabel": {
-              "type": "string"
-            },
-            "refundAmount": {
               "type": "string"
             },
             "returnRequestedInfo": {
@@ -4609,6 +4609,7 @@
             "sendNotificationHint",
             "returnTotal",
             "inboundTotal",
+            "refundAmount",
             "estDifference",
             "outstandingAmount",
             "reason",
@@ -6594,20 +6595,20 @@
             "errors": {
               "type": "object",
               "properties": {
-                "missingProvider": {
-                  "type": "string"
-                },
-                "missingCountry": {
-                  "type": "string"
-                },
                 "rateIsRequired": {
                   "type": "string"
                 },
                 "nameIsRequired": {
                   "type": "string"
+                },
+                "missingProvider": {
+                  "type": "string"
+                },
+                "missingCountry": {
+                  "type": "string"
                 }
               },
-              "required": ["missingProvider", "missingCountry", "rateIsRequired", "nameIsRequired"],
+              "required": ["rateIsRequired", "nameIsRequired", "missingProvider", "missingCountry"],
               "additionalProperties": false
             },
             "successToast": {
@@ -11798,7 +11799,7 @@
           "additionalProperties": false
         }
       },
-      "required": ["domain"],
+      "required": ["domain", "create"],
       "additionalProperties": false
     },
     "customTags": {
@@ -12135,6 +12136,112 @@
       },
       "required": ["domain"],
       "additionalProperties": false
+    },
+    "promotionSettings": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "loading": {
+          "type": "string"
+        },
+        "status": {
+          "type": "object",
+          "properties": {
+            "autoApply": {
+              "type": "string"
+            },
+            "enabled": {
+              "type": "string"
+            },
+            "disabled": {
+              "type": "string"
+            },
+            "scope": {
+              "type": "string"
+            },
+            "scopeValue": {
+              "type": "string"
+            },
+            "trigger": {
+              "type": "string"
+            },
+            "triggerValue": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "autoApply",
+            "enabled",
+            "disabled",
+            "scope",
+            "scopeValue",
+            "trigger",
+            "triggerValue"
+          ],
+          "additionalProperties": false
+        },
+        "autoApply": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "subtitle": {
+              "type": "string"
+            },
+            "toggleLabel": {
+              "type": "string"
+            },
+            "toggleDescription": {
+              "type": "string"
+            }
+          },
+          "required": ["title", "subtitle", "toggleLabel", "toggleDescription"],
+          "additionalProperties": false
+        },
+        "behavior": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "stacking": {
+              "type": "string"
+            },
+            "oncePerCheckout": {
+              "type": "string"
+            },
+            "skipManual": {
+              "type": "string"
+            },
+            "customerCanChange": {
+              "type": "string"
+            }
+          },
+          "required": ["title", "stacking", "oncePerCheckout", "skipManual", "customerCanChange"],
+          "additionalProperties": false
+        },
+        "toast": {
+          "type": "object",
+          "properties": {
+            "updateSuccess": {
+              "type": "string"
+            },
+            "updateError": {
+              "type": "string"
+            }
+          },
+          "required": ["updateSuccess", "updateError"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["domain", "subtitle", "loading", "status", "autoApply", "behavior", "toast"],
+      "additionalProperties": false
     }
   },
   "required": [
@@ -12203,7 +12310,8 @@
     "configuration",
     "algolia",
     "commission",
-    "commissionLines"
+    "commissionLines",
+    "promotionSettings"
   ],
   "additionalProperties": false
 }

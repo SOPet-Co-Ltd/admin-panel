@@ -93,7 +93,6 @@ export const CreatePromotionForm = () => {
     async data => {
       const {
         campaign_choice: _campaignChoice,
-        is_automatic,
         is_tax_inclusive,
         template_id: _templateId,
         application_method,
@@ -169,7 +168,7 @@ export const CreatePromotionForm = () => {
               allocationTyped === 'across' ? undefined : applicationMethodData.max_quantity
           },
           is_tax_inclusive,
-          is_automatic: is_automatic === 'true'
+          is_automatic: false
         },
         {
           onSuccess: ({ promotion }) => {
@@ -515,48 +514,6 @@ export const CreatePromotionForm = () => {
                       {form.formState.errors.root.message}
                     </Alert>
                   )}
-
-                  <Form.Field
-                    control={form.control}
-                    name="is_automatic"
-                    render={({ field }) => {
-                      return (
-                        <Form.Item data-testid="promotion-create-form-method-item">
-                          <Form.Label data-testid="promotion-create-form-method-label">
-                            {t('promotions.form.method.label')}
-                          </Form.Label>
-
-                          <Form.Control data-testid="promotion-create-form-method-control">
-                            <RadioGroup
-                              dir={direction}
-                              className="flex gap-y-3"
-                              {...field}
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              data-testid="promotion-create-form-method-radio-group"
-                            >
-                              <RadioGroup.ChoiceBox
-                                value="false"
-                                label={t('promotions.form.method.code.title')}
-                                description={t('promotions.form.method.code.description')}
-                                className={clx('basis-1/2')}
-                                data-testid="promotion-create-form-method-option-code"
-                              />
-
-                              <RadioGroup.ChoiceBox
-                                value="true"
-                                label={t('promotions.form.method.automatic.title')}
-                                description={t('promotions.form.method.automatic.description')}
-                                className={clx('basis-1/2')}
-                                data-testid="promotion-create-form-method-option-automatic"
-                              />
-                            </RadioGroup>
-                          </Form.Control>
-                          <Form.ErrorMessage data-testid="promotion-create-form-method-error" />
-                        </Form.Item>
-                      );
-                    }}
-                  />
 
                   <Form.Field
                     control={form.control}

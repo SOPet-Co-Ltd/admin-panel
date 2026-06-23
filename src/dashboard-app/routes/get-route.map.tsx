@@ -1142,6 +1142,14 @@ export function getRouteMap({
               }
             },
             {
+              path: 'promotion-settings',
+              errorElement: <ErrorBoundary />,
+              lazy: () => import('../../routes/promotion-settings'),
+              handle: {
+                breadcrumb: () => t('promotionSettings.domain')
+              }
+            },
+            {
               path: 'commission',
               lazy: () => import('../../routes/commission'),
               handle: {
