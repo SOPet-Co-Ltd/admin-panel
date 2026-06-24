@@ -25,6 +25,7 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import { formatDate } from '@/lib/date';
+import { getErrorMessage } from '@/lib/error';
 
 type EditFormProps = {
   entry: OmiseWebhookForwardUrl;
@@ -60,7 +61,7 @@ const EditForwardUrlForm = ({ entry, onDismiss, onSuccess }: EditFormProps) => {
       onSuccess();
       onDismiss();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('omiseWebhookForwardUrls.toast.updateError'));
+      toast.error(getErrorMessage(e, t('omiseWebhookForwardUrls.toast.updateError')));
     }
   };
 
@@ -158,7 +159,7 @@ export const OmiseWebhookForwardUrlsPage = () => {
       toast.success(t('omiseWebhookForwardUrls.toast.createSuccess'));
       await refetch();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('omiseWebhookForwardUrls.toast.createError'));
+      toast.error(getErrorMessage(e, t('omiseWebhookForwardUrls.toast.createError')));
     }
   };
 
@@ -175,7 +176,7 @@ export const OmiseWebhookForwardUrlsPage = () => {
       );
       await refetch();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('omiseWebhookForwardUrls.toast.updateError'));
+      toast.error(getErrorMessage(e, t('omiseWebhookForwardUrls.toast.updateError')));
     }
   };
 
@@ -197,9 +198,7 @@ export const OmiseWebhookForwardUrlsPage = () => {
         toast.success(t('omiseWebhookForwardUrls.toast.deleteSuccess'));
         await refetch();
       } catch (e) {
-        toast.error(
-          e instanceof Error ? e.message : t('omiseWebhookForwardUrls.toast.deleteError')
-        );
+        toast.error(getErrorMessage(e, t('omiseWebhookForwardUrls.toast.deleteError')));
       }
     },
     [deleteForwardUrl, prompt, refetch, t]
@@ -292,7 +291,7 @@ export const OmiseWebhookForwardUrlsPage = () => {
               size="small"
               className="text-ui-fg-error"
             >
-              {error?.message ?? t('omiseWebhookForwardUrls.list.loadError')}
+              {getErrorMessage(error, t('omiseWebhookForwardUrls.list.loadError'))}
             </Text>
           )}
 

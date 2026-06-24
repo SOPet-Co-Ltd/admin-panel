@@ -1326,7 +1326,7 @@ export function getRouteMap({
               path: 'omise-webhook-forward-urls',
               element: <Outlet />,
               handle: {
-                breadcrumb: () => 'Omise Webhook Forwarding'
+                breadcrumb: () => t('omiseWebhookForwardUrls.domain')
               },
               children: [
                 {
