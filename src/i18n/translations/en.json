@@ -3338,7 +3338,7 @@
       "title": "Add forward URL",
       "subtitle": "Register a local backend URL to receive forwarded Omise webhooks.",
       "urlLabel": "Forward URL",
-      "urlPlaceholder": "https://your-subdomain.ngrok-free.app/hooks/omise",
+      "urlPlaceholder": "https://your-subdomain.ngrok-free.app/hooks/omise/custom",
       "labelLabel": "Label (optional)",
       "labelPlaceholder": "My local machine",
       "submit": "Add URL"
@@ -3374,7 +3374,7 @@
     "help": {
       "title": "Setup",
       "tunnel": "Run your local backend and expose it with yarn tunnel (ngrok).",
-      "urlFormat": "Use the full webhook path ending in /hooks/omise.",
+      "urlFormat": "Use the full webhook path ending in /hooks/omise/custom.",
       "secret": "Set the same OMISE_WEBHOOK_SECRET in your local .env so signature verification works.",
       "enabled": "Forwarding is enabled automatically in non-production. Set OMISE_WEBHOOK_FORWARDING_ENABLED=true in production when needed."
     },

@@ -3322,7 +3322,7 @@
       "title": "เพิ่ม URL ส่งต่อ",
       "subtitle": "ลงทะเบียน URL แบ็กเอนด์ในเครื่องเพื่อรับ webhook ของ Omise ที่ถูกส่งต่อ",
       "urlLabel": "URL ส่งต่อ",
-      "urlPlaceholder": "https://your-subdomain.ngrok-free.app/hooks/omise",
+      "urlPlaceholder": "https://your-subdomain.ngrok-free.app/hooks/omise/custom",
       "labelLabel": "ป้ายกำกับ (ไม่บังคับ)",
       "labelPlaceholder": "เครื่องของฉัน",
       "submit": "เพิ่ม URL"
@@ -3358,7 +3358,7 @@
     "help": {
       "title": "การตั้งค่า",
       "tunnel": "รันแบ็กเอนด์ในเครื่องและเปิดผ่าน yarn tunnel (ngrok)",
-      "urlFormat": "ใช้ path webhook เต็มรูปแบบที่ลงท้ายด้วย /hooks/omise",
+      "urlFormat": "ใช้ path webhook เต็มรูปแบบที่ลงท้ายด้วย /hooks/omise/custom",
       "secret": "ตั้งค่า OMISE_WEBHOOK_SECRET เดียวกันใน .env ของเครื่องคุณเพื่อให้การตรวจสอบลายเซ็นทำงานได้",
       "enabled": "การส่งต่อเปิดใช้งานอัตโนมัติใน non-production สำหรับ production ให้ตั้ง OMISE_WEBHOOK_FORWARDING_ENABLED=true"
     },
