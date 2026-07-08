@@ -19,7 +19,7 @@ type EditStoreFormProps = {
 };
 
 const EditStoreSchema = z.object({
-  name: z.string().min(1),
+  name: z.string().trim().min(1),
   default_currency_code: z.string().optional(),
   default_region_id: z.string().optional(),
   default_sales_channel_id: z.string().optional(),

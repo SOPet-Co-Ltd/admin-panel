@@ -130,7 +130,7 @@ const validateRateFields = (
 
 const CreateCommissionRuleSchema = z
   .object({
-    name: z.string().min(1, 'Name is required'),
+    name: z.string().trim().min(1, 'Name is required'),
     reference: z.enum([
       ReferenceType.SELLER,
       ReferenceType.PRODUCT_TYPE,

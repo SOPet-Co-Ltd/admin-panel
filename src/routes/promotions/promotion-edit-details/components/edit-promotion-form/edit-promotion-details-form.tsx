@@ -24,11 +24,11 @@ type AllocationMode = 'each' | 'across' | 'once';
 
 const EditPromotionSchema = zod
   .object({
-    code: zod.string().min(1),
+    code: zod.string().trim().min(1),
     is_tax_inclusive: zod.boolean().optional(),
     status: zod.enum(['active', 'inactive', 'draft']),
     value_type: zod.enum(['fixed', 'percentage']),
-    value: zod.number().min(0).or(zod.string().min(1)),
+    value: zod.number().min(0).or(zod.string().trim().min(1)),
     allocation: zod.enum(['each', 'across', 'once']),
     max_quantity: zod.number().optional().nullable()
   })

@@ -12,10 +12,10 @@ import { KeyboundForm } from '../../../../../components/utilities/keybound-form'
 import { useCreateCustomerAddress } from '../../../../../hooks/api/customers';
 
 const CreateCustomerAddressSchema = zod.object({
-  address_name: zod.string().min(1),
-  address_1: zod.string().min(1),
+  address_name: zod.string().trim().min(1),
+  address_1: zod.string().trim().min(1),
   address_2: zod.string().optional(),
-  country_code: zod.string().min(2).max(2),
+  country_code: zod.string().trim().min(2).max(2),
   city: zod.string().optional(),
   postal_code: zod.string().optional(),
   province: zod.string().optional(),

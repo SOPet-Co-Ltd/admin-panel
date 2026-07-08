@@ -10,7 +10,7 @@ import { MetadataEditor } from '../../../components/common/metadata-editor';
 import { useAttribute, useUpdateAttributePossibleValue } from '../../../hooks/api/attributes';
 
 const formSchema = z.object({
-  value: z.string().min(1, 'Value is required'),
+  value: z.string().trim().min(1, 'Value is required'),
   rank: z.preprocess(
     val => (val === '' ? undefined : Number(val)),
     z.number().min(0, 'Rank must be non-negative').optional()

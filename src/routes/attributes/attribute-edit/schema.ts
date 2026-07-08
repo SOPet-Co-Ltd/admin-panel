@@ -19,7 +19,7 @@ export const AdminUpdateAttributeValue = z.object({
 
 export type AdminCreateAttributeValueType = z.infer<typeof AdminCreateAttributeValue>;
 export const AdminCreateAttributeValue = z.object({
-  value: z.string().min(1),
+  value: z.string().trim().min(1),
   rank: z.number(),
   metadata: z.record(z.unknown()).optional()
 });
@@ -45,7 +45,7 @@ export const AdminUpdateAttribute = z
 export type AdminCreateAttributeType = z.infer<typeof CreateAttribute>;
 export const CreateAttribute = z
   .object({
-    name: z.string().min(1),
+    name: z.string().trim().min(1),
     description: z
       .string()
       .max(250, { message: 'Description must be at most 250 characters' })

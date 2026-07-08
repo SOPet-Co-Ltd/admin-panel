@@ -19,8 +19,8 @@ type CreateOrderTransferFormProps = {
 };
 
 const CreateOrderTransferSchema = zod.object({
-  customer_id: zod.string().min(1),
-  current_customer_details: zod.string().min(1)
+  customer_id: zod.string().trim().min(1),
+  current_customer_details: zod.string().trim().min(1)
 });
 
 export function CreateOrderTransferForm({ order }: CreateOrderTransferFormProps) {

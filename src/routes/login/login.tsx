@@ -12,8 +12,8 @@ import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-do
 import * as z from 'zod';
 
 const LoginSchema = z.object({
-  email: z.string().email(),
-  password: z.string()
+  email: z.string().trim().min(1).email(),
+  password: z.string().trim().min(1)
 });
 
 export const Login = () => {

@@ -16,7 +16,7 @@ type OrderNoteFormProps = {
 };
 
 const OrderNoteSchema = z.object({
-  value: z.string().min(1)
+  value: z.string().trim().min(1)
 });
 
 export const OrderNoteForm = ({ order }: OrderNoteFormProps) => {
