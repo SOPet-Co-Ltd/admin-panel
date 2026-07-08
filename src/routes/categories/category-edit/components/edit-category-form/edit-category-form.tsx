@@ -13,8 +13,8 @@ import { useUpdateProductCategory } from '../../../../../hooks/api/categories';
 import { useDocumentDirection } from '../../../../../hooks/use-document-direction';
 
 const EditCategorySchema = z.object({
-  name: z.string().min(1),
-  handle: z.string().min(1),
+  name: z.string().trim().min(1),
+  handle: z.string().trim().min(1),
   description: z.string().optional(),
   status: z.enum(['active', 'inactive']),
   visibility: z.enum(['public', 'internal'])

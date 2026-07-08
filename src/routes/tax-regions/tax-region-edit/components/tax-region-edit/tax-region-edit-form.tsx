@@ -19,7 +19,7 @@ type TaxRegionEditFormProps = {
 };
 
 const TaxRegionEditSchema = z.object({
-  provider_id: z.string().min(1)
+  provider_id: z.string().trim().min(1)
 });
 
 export const TaxRegionEditForm = ({ taxRegion }: TaxRegionEditFormProps) => {

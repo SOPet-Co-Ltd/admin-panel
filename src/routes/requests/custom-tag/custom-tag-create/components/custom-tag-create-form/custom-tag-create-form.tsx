@@ -11,7 +11,7 @@ import { KeyboundForm } from '@/components/utilities/keybound-form';
 import { useCreateCustomTag } from '@/hooks/api/custom-tags';
 
 const CustomTagCreateSchema = z.object({
-  value: z.string().min(1, 'Tag value is required'),
+  value: z.string().trim().min(1, 'Tag value is required'),
   type: z.enum(['pet_type', 'brand'], {
     required_error: 'Tag type is required'
   })

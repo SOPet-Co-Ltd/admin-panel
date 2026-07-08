@@ -15,8 +15,8 @@ type RefundReasonEditFormProps = {
 };
 
 const RefundReasonEditSchema = z.object({
-  label: z.string().min(1),
-  code: z.string().min(1),
+  label: z.string().trim().min(1),
+  code: z.string().trim().min(1),
   description: z.string().optional()
 });
 
